@@ -1,7 +1,7 @@
 #include "PlayerData.h"
 
 
-PlayerData::PlayerData(void)
+PlayerData::PlayerData(CCString m_name)
 {
 }
 

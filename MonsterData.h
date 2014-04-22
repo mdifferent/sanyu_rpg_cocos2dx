@@ -9,7 +9,7 @@ enum MONSTER_TYPE {
 class MonsterData
 {
 public:
-	MonsterData(CCString name,MONSTER_TYPE m_monsterType);
+	MonsterData(void);
 	~MonsterData(void);
 private:
 	CCString m_name;

@@ -21,3 +21,12 @@ BattleData *BattleData::loadData(int iSceneNo)
 	else
 		return NULL;
 }
+
+void BattleData::setMapName(const char *mapName)
+{
+}
+
+const char * BattleData::getMapName()
+{
+	return NULL;
+}

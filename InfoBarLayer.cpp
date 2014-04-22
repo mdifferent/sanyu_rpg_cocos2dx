@@ -1,27 +1,25 @@
-#include "BackgroundLayer.h"
+#include "InfoBarLayer.h"
 
 
-BackgroundLayer::BackgroundLayer()
+InfoBarLayer::InfoBarLayer(void)
 {
 }
 
 
-BackgroundLayer::~BackgroundLayer(void)
+InfoBarLayer::~InfoBarLayer(void)
 {
-	//delete m_map;
-	m_map = NULL;
 }
 
-BackgroundLayer *BackgroundLayer::createWithMapName(const char *mapName)
+InfoBarLayer *InfoBarLayer::createWithBarName(const char *barName)
 {
-	BackgroundLayer *pRet = new BackgroundLayer();
-	if (pRet && mapName != NULL) 
+	InfoBarLayer *pRet = new InfoBarLayer();
+	if (pRet && barName != NULL) 
 	{
-		pRet->m_map = mapName;
+		pRet->m_barName = barName;
 	}
 	else 
 	{
-		pRet->m_map = NULL;
+		pRet->m_barName = NULL;
 		CC_SAFE_DELETE(pRet);
 		return NULL;
 	}
@@ -38,21 +36,21 @@ BackgroundLayer *BackgroundLayer::createWithMapName(const char *mapName)
     }
 }
 
-bool BackgroundLayer::init()
+bool InfoBarLayer::init()
 {
 	if ( !CCLayer::init() )
     {
 		CCLOG("Error in init CCLayer!");
         return false;
     }
-	
+
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
 	CCSprite* pSprite = NULL;
-	if (m_map != NULL)
+	if (m_barName != NULL)
 	{
-		pSprite = CCSprite::create(m_map);
+		pSprite = CCSprite::create(m_barName);
 	}
 	else
 	{
@@ -61,14 +59,14 @@ bool BackgroundLayer::init()
 	}
 
 	pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-	this->addChild(pSprite, 0,0);
+	this->addChild(pSprite,0,0);
 	return true;
 }
 
-void BackgroundLayer::onEnter()
+void InfoBarLayer::onEnter()
 {
 	CCLayer::onEnter();
 
-	CCActionInterval *action1 = CCFadeIn::create(0.5f);
+	CCActionInterval *action1 = CCFadeIn::create(1.0f);
 	this->getChildByTag(0)->runAction(action1);
 }

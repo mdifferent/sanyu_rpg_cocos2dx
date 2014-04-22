@@ -24,7 +24,7 @@ public:
 	BattleData(void);
 	~BattleData(void);
 	void setPlayer(PlayerData newPlayer);
-	void setPlayer(MonsterData newMonster);
+	void setMonster(MonsterData newMonster);
 	const char *getMapName();
 	void setMapName(const char *mapName);
 	static BattleData *loadData(int iSceneNo);

@@ -1,19 +1,18 @@
 #pragma once
 #include "c:\program files\cocos2d-x-2.2.2\cocos2dx\layers_scenes_transitions_nodes\cclayer.h"
 #include "cocos2d.h"
-
 USING_NS_CC;
-class BackgroundLayer :
+
+class InfoBarLayer :
 	public CCLayer
 {
 public:
-	BackgroundLayer();
-	~BackgroundLayer(void);
+	InfoBarLayer(void);
+	~InfoBarLayer(void);
 	bool init();
-	static BackgroundLayer *createWithMapName(const char *mapName);
+	static InfoBarLayer *createWithBarName(const char *barName);
 	void onEnter();
-
 private:
-	const char *m_map;
+	const char *m_barName;
 };
 

@@ -1,4 +1,6 @@
 #include "HelloWorldScene.h"
+#include "BackgroundLayer.h"
+#include "InfoBarLayer.h"
 
 USING_NS_CC;
 
@@ -8,10 +10,13 @@ CCScene* HelloWorld::scene()
     CCScene *scene = CCScene::create();
     
     // 'layer' is an autorelease object
-    HelloWorld *layer = HelloWorld::create();
-
+    //HelloWorld *layer = HelloWorld::create();
+	BackgroundLayer *layer = BackgroundLayer::createWithMapName("sanyu/bk.jpg");
     // add layer as a child to scene
-    scene->addChild(layer);
+    scene->addChild(layer,0);
+
+	InfoBarLayer *layer2 = InfoBarLayer::createWithBarName("sanyu/infobar.png");
+	scene->addChild(layer2,1);
 
     // return the scene
     return scene;
@@ -28,7 +33,11 @@ bool HelloWorld::init()
     }
     
     CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
+	CCLog("height:%f",visibleSize.height);
+	CCLog("width:%f",visibleSize.width);
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
+	CCLog("x:%f",origin.x);
+	CCLog("y:%f",origin.y);
 
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
@@ -40,21 +49,22 @@ bool HelloWorld::init()
                                         "CloseSelected.png",
                                         this,
                                         menu_selector(HelloWorld::menuCloseCallback));
-    
+
 	pCloseItem->setPosition(ccp(origin.x + visibleSize.width - pCloseItem->getContentSize().width/2 ,
                                 origin.y + pCloseItem->getContentSize().height/2));
+	
 
     // create menu, it's an autorelease object
-    CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
+    CCMenu* pMenu = CCMenu::create(pCloseItem,NULL);
     pMenu->setPosition(CCPointZero);
-    this->addChild(pMenu, 1);
+    this->addChild(pMenu, 1,1);
 
     /////////////////////////////
     // 3. add your codes below...
 
     // add a label shows "Hello World"
     // create and initialize a label
-    
+    /*
     CCLabelTTF* pLabel = CCLabelTTF::create("Hello World", "Arial", 24);
     
     // position the label on the center of the screen
@@ -65,13 +75,13 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);
 
     // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("HelloWorld.png");
+    CCSprite* pSprite = CCSprite::create("sanyu/bk.jpg");
 
     // position the sprite on the center of the screen
     pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
     // add the sprite as a child to this layer
-    this->addChild(pSprite, 0);
+    this->addChild(pSprite, 0);*/
     
     return true;
 }
@@ -79,6 +89,7 @@ bool HelloWorld::init()
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
+	
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT) || (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
 	CCMessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
 #else
@@ -87,4 +98,13 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
     exit(0);
 #endif
 #endif
+}
+
+void HelloWorld::menuStartCallback(CCObject* pSender)
+{
+	//this->removeChildByTag(1);
+	//CCSprite* pSprite = CCSprite::create("sanyu/infobar.png");
+	//pSprite->setPosition(ccp(400, 300));
+	//this->addChild(pSprite);
+
 }

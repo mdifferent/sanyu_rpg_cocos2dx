@@ -1,6 +1,7 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "role.h"
+#include "BattleField.h"
 
 USING_NS_CC;
 AppDelegate::AppDelegate() {
@@ -26,10 +27,18 @@ bool AppDelegate::applicationDidFinishLaunching() {
     pDirector->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    //CCScene *pScene = HelloWorld::scene();
-	CCScene *pScene =role::scene();
-    // run
+    CCScene *pScene = HelloWorld::scene();
+	//CCScene *pScene =role::scene();
+	
+	CCScene *pTransScene = CCTransitionFade::create(200,pScene);
+    
+	// run
     pDirector->runWithScene(pScene);
+	/*if(pScene)
+	{
+		pDirector->replaceScene(pTransScene);
+	}*/
+
 
     return true;
 }
