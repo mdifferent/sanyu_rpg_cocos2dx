@@ -1,8 +1,10 @@
 #pragma once
-#include "cocoa\CCArray.h"
 #include "PlayerData.h"
 #include "MonsterData.h"
-USING_NS_CC;
+#include <set>
+#include <string>
+
+using namespace std;
 
 enum WINNING_CONDITIONS {
 	KILL_ALL,
@@ -25,15 +27,17 @@ public:
 	~BattleData(void);
 	void setPlayer(PlayerData newPlayer);
 	void setMonster(MonsterData newMonster);
-	const char *getMapName();
-	void setMapName(const char *mapName);
+	map<int,PlayerData> &getPlayers();
+	map<int,MonsterData> &getMonsters();
+	string &getMapName();
+	void setMapName(string &mapName);
 	static BattleData *loadData(int iSceneNo);
 
 private:
-	const char *m_mapName;
-	const char *m_mapBgm;
-	CCArray *m_players;
-	CCArray *m_monster;
+	string m_mapName;
+	string m_mapBgm;
+	map<int,PlayerData> m_players;
+	map<int,MonsterData> m_monster;
 	WINNING_CONDITIONS m_winCon;
 	LOSE_CONDITION m_loseCon;
 };

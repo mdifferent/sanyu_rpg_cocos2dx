@@ -41,10 +41,9 @@ bool BattleField::init()
 	}
 	
 	//Init info bar
-	m_info_back = CCLayer::create();
-	m_info_back->addChild(CCSprite::create("sanyu/infobar.png"));
+	m_info_back = InfoBarLayer::create();
 	//Init players layer
-	m_players = PlayerLayer::create();
+	m_players = PlayerLayer::create(m_data->getPlayers());
 	//Init monsters layer
 	//m_monsters = MonsterLayer::create();
 

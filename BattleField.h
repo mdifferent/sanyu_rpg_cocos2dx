@@ -2,6 +2,7 @@
 #include "c:\program files\cocos2d-x-2.2.2\cocos2dx\layers_scenes_transitions_nodes\ccscene.h"
 #include "BattleData.h"
 #include "BackgroundLayer.h"
+#include "InfoBarLayer.h"
 #include "PlayerLayer.h"
 #include "MonsterLayer.h"
 
@@ -18,7 +19,7 @@ public:
 
 private:
 	BackgroundLayer *m_bg;
-	CCLayer *m_info_back;
+	InfoBarLayer *m_info_back;
 	PlayerLayer *m_players;
 	MonsterLayer *m_monsters;
 

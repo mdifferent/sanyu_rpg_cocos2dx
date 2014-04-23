@@ -1,19 +1,24 @@
 #pragma once
-#include "cocoa/CCDictionary.h"
-USING_NS_CC;
+#include <map>
+#include <string>
+using namespace std;
 
 class PlayerData
 {
 public:
-	PlayerData(CCString m_name);
+	PlayerData(string &cName);
 	~PlayerData(void);
-	void setProperty(CCString proName,int proValue);
-	int getProperty(CCString);
+	string getPlayerName() const;
+	
+	void setProperty(string &cProName,int iProValue);
+	int getProperty(string &cProName);
+	
+	int useItem(string &name);
 
 private:
-	CCString m_name;
-	CCDictionary *m_properties;
-	CCDictionary *m_items;
-	CCDictionary *m_skills;
+	string m_name;
+	map<string,int> m_properties;	//name-value
+	map<string,int> m_items;		//name-amount
+	map<string,int> m_skills;		//name-status
 };
 
