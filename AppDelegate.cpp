@@ -30,8 +30,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     CCScene *pScene = HelloWorld::scene();
 	//CCScene *pScene =role::scene();
 	
-	CCScene *pTransScene = CCTransitionFade::create(200,pScene);
-    
+	//CCScene *pTransScene = CCTransitionFade::create(200,pScene);
+
 	// run
     pDirector->runWithScene(pScene);
 	/*if(pScene)

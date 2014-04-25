@@ -1,7 +1,7 @@
 #include "PlayerData.h"
 
 
-PlayerData::PlayerData(string &m_name)
+PlayerData::PlayerData(string m_name)
 {
 	if (!m_name.empty())
 	{

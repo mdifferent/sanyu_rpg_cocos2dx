@@ -41,7 +41,7 @@ bool BattleField::init()
 	}
 	
 	//Init info bar
-	m_info_back = InfoBarLayer::create();
+	m_info_back = InfoBarLayer::createWithBarName(m_data->getMapName());
 	//Init players layer
 	m_players = PlayerLayer::create(m_data->getPlayers());
 	//Init monsters layer

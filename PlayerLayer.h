@@ -13,7 +13,6 @@ public:
 	PlayerLayer(void);
 	~PlayerLayer(void);
 	static PlayerLayer *create(map<int,PlayerData> &data);
-	bool init();
 	void onEnter();
 private:
 	CCArray *m_players;

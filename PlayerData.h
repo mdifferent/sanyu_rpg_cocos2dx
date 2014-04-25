@@ -6,7 +6,7 @@ using namespace std;
 class PlayerData
 {
 public:
-	PlayerData(string &cName);
+	PlayerData(string cName);
 	~PlayerData(void);
 	string getPlayerName() const;
 	

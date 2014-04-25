@@ -9,19 +9,19 @@ BackgroundLayer::BackgroundLayer()
 BackgroundLayer::~BackgroundLayer(void)
 {
 	//delete m_map;
-	m_map = NULL;
+	m_map.clear();
 }
 
-BackgroundLayer *BackgroundLayer::createWithMapName(const char *mapName)
+BackgroundLayer *BackgroundLayer::createWithMapName(std::string &mapName)
 {
 	BackgroundLayer *pRet = new BackgroundLayer();
-	if (pRet && mapName != NULL) 
+	if (pRet && !mapName.empty()) 
 	{
 		pRet->m_map = mapName;
 	}
 	else 
 	{
-		pRet->m_map = NULL;
+		pRet->m_map.clear();
 		CC_SAFE_DELETE(pRet);
 		return NULL;
 	}
@@ -50,9 +50,9 @@ bool BackgroundLayer::init()
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
 	CCSprite* pSprite = NULL;
-	if (m_map != NULL)
+	if (!m_map.empty())
 	{
-		pSprite = CCSprite::create(m_map);
+		pSprite = CCSprite::create(m_map.c_str());
 	}
 	else
 	{

@@ -10,16 +10,16 @@ InfoBarLayer::~InfoBarLayer(void)
 {
 }
 
-InfoBarLayer *InfoBarLayer::createWithBarName(const char *barName)
+InfoBarLayer *InfoBarLayer::createWithBarName(std::string &barName)
 {
 	InfoBarLayer *pRet = new InfoBarLayer();
-	if (pRet && barName != NULL) 
+	if (pRet && !barName.empty()) 
 	{
 		pRet->m_barName = barName;
 	}
 	else 
 	{
-		pRet->m_barName = NULL;
+		pRet->m_barName.clear();
 		CC_SAFE_DELETE(pRet);
 		return NULL;
 	}
@@ -48,9 +48,9 @@ bool InfoBarLayer::init()
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
 	CCSprite* pSprite = NULL;
-	if (m_barName != NULL)
+	if (!m_barName.empty())
 	{
-		pSprite = CCSprite::create(m_barName);
+		pSprite = CCSprite::create(m_barName.c_str());
 	}
 	else
 	{

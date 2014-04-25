@@ -37,7 +37,7 @@ private:
 	string m_mapName;
 	string m_mapBgm;
 	map<int,PlayerData> m_players;
-	map<int,MonsterData> m_monster;
+	map<int,MonsterData> m_monsters;
 	WINNING_CONDITIONS m_winCon;
 	LOSE_CONDITION m_loseCon;
 };

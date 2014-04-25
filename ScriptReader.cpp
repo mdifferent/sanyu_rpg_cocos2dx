@@ -10,7 +10,8 @@ ScriptReader::~ScriptReader(void)
 {
 }
 
-const char *ScriptReader::getMapNameByNo(int sceneN)
+string &ScriptReader::getMapNameByNo(int sceneN)
 {
-	return "";
+	string s = "";
+	return s;
 }

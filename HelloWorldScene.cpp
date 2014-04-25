@@ -1,6 +1,8 @@
 #include "HelloWorldScene.h"
 #include "BackgroundLayer.h"
 #include "InfoBarLayer.h"
+#include "PlayerLayer.h"
+#include "BattleData.h"
 
 USING_NS_CC;
 
@@ -8,17 +10,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-    
-    // 'layer' is an autorelease object
-    //HelloWorld *layer = HelloWorld::create();
-	BackgroundLayer *layer = BackgroundLayer::createWithMapName("sanyu/bk.jpg");
-    // add layer as a child to scene
-    scene->addChild(layer,0);
+	HelloWorld *layer = HelloWorld::create();
+	scene->addChild(layer);
 
-	InfoBarLayer *layer2 = InfoBarLayer::createWithBarName("sanyu/infobar.png");
-	scene->addChild(layer2,1);
-
-    // return the scene
     return scene;
 }
 
@@ -72,20 +66,30 @@ bool HelloWorld::init()
                             origin.y + visibleSize.height - pLabel->getContentSize().height));
 
     // add the label as a child to this layer
-    this->addChild(pLabel, 1);
+    this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("sanyu/bk.jpg");
+    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+	pSprite->setPosition(ccp(400,-90));
 
     // position the sprite on the center of the screen
-    pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+   // pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
     // add the sprite as a child to this layer
-    this->addChild(pSprite, 0);*/
+	//CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(iScreenWidth/2,iPlayerHeight/2));
+    this->addChild(pSprite,0,0);
+	//pSprite->runAction(actionTo);
     
     return true;
 }
 
+
+void HelloWorld::onEnter()
+{
+	CCLayer::onEnter();
+	CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(400,90));
+	this->getChildByTag(0)->runAction(actionTo);
+}
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
 {
