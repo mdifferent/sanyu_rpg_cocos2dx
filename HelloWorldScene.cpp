@@ -10,7 +10,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-	HelloWorld *layer = HelloWorld::create();
+	//HelloWorld *layer = HelloWorld::create();
+    BattleData *data = new BattleData();
+    PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
 	scene->addChild(layer);
 
     return scene;
@@ -69,16 +71,14 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
-	pSprite->setPosition(ccp(400,-90));
+    //CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
 
     // position the sprite on the center of the screen
-   // pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    //pSprite->setPosition(ccp(400,-90));
+    // pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
     // add the sprite as a child to this layer
-	//CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(iScreenWidth/2,iPlayerHeight/2));
-    this->addChild(pSprite,0,0);
-	//pSprite->runAction(actionTo);
+    //this->addChild(pSprite,0,0);
     
     return true;
 }
@@ -102,13 +102,4 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
     exit(0);
 #endif
 #endif
-}
-
-void HelloWorld::menuStartCallback(CCObject* pSender)
-{
-	//this->removeChildByTag(1);
-	//CCSprite* pSprite = CCSprite::create("sanyu/infobar.png");
-	//pSprite->setPosition(ccp(400, 300));
-	//this->addChild(pSprite);
-
 }

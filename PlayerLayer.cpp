@@ -38,10 +38,11 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 	{
 		string name = dataSet.at(i).getPlayerName();
 		const char *pName = name.c_str();
+        CCLOG("%s",pName);
 		if (pName)
 		{
 			CCSprite *pSprite = CCSprite::create(pName);
-			if (pSprite)
+			if (pSprite != NULL)
 			{
 				int iPlayerWidth = pSprite->getContentSize().width;
 				int iPlayerHeight = pSprite->getContentSize().height;
