@@ -1,5 +1,5 @@
 #pragma once
-#include "c:\program files\cocos2d-x-2.2.2\cocos2dx\layers_scenes_transitions_nodes\cclayer.h"
+#include "../cocos2dx/layers_scenes_transitions_nodes/CCLayer.h"
 #include "cocos2d.h"
 #include <string>
 

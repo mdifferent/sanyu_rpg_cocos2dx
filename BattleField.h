@@ -1,5 +1,5 @@
 #pragma once
-#include "c:\program files\cocos2d-x-2.2.2\cocos2dx\layers_scenes_transitions_nodes\ccscene.h"
+#include "../cocos2dx/layers_scenes_transitions_nodes/CCScene.h"
 #include "BattleData.h"
 #include "BackgroundLayer.h"
 #include "InfoBarLayer.h"

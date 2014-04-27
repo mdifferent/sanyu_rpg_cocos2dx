@@ -31,8 +31,8 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 	
 	int iPlayerCount = dataSet.size();
 	pLayer->m_players = CCArray::createWithCapacity(iPlayerCount);
-	int iPlayerWidth = 0;
-	int iPlayerHeight = 0;
+	//int iPlayerWidth = 0;
+	//int iPlayerHeight = 0;
 	int iScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	for (int i = 0;i<iPlayerCount;++i)
 	{
@@ -43,10 +43,10 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 			CCSprite *pSprite = CCSprite::create(pName);
 			if (pSprite)
 			{
-				iPlayerWidth = pSprite->getContentSize().width;
-				iPlayerHeight = pSprite->getContentSize().height;
+				int iPlayerWidth = pSprite->getContentSize().width;
+				int iPlayerHeight = pSprite->getContentSize().height;
 				pSprite->setPosition(ccp(iScreenWidth/2+(i-iPlayerCount/2+1/2)*iPlayerWidth,0-iPlayerHeight/2));
-				pLayer->addChild(pSprite,i,i);
+				pLayer->addChild(pSprite,0,i);
 				pLayer->m_players->addObject(pSprite);
 			}
 			else
