@@ -28,7 +28,7 @@ bool PlayerLayer::init()
 			{
 				float fPlayerWidth = pSprite->getContentSize().width;
 				float fPlayerHeight = pSprite->getContentSize().height;
-				pSprite->setPosition(ccp(fScreenWidth/2+(i-iPlayerCount/2+1/2)*fPlayerWidth,0-fPlayerHeight/2));
+				pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,0-fPlayerHeight*0.5));
 				addChild(pSprite,0,i);
 				m_players->addObject(pSprite);
 			}
@@ -83,7 +83,9 @@ void PlayerLayer::onEnter()
 		CCSprite *pSprite = (CCSprite *)m_players->objectAtIndex(i);
 		float fPlayerWidth = pSprite->getContentSize().width;
 		float fPlayerHeight = pSprite->getContentSize().height;
-		CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(fScreenWidth/2+(i-iPlayerCount/2+1/2)*fPlayerWidth,fPlayerHeight/2));
-		pSprite->runAction(actionTo);
+		float x = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
+		CCDelayTime* delayAction = CCDelayTime::create((float)i*0.5);
+		CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(x,fPlayerHeight*0.5));
+		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
 	}
 }

@@ -2,6 +2,7 @@
 #include "BackgroundLayer.h"
 #include "InfoBarLayer.h"
 #include "PlayerLayer.h"
+#include "MonsterLayer.h"
 #include "BattleData.h"
 
 USING_NS_CC;
@@ -12,7 +13,7 @@ CCScene* HelloWorld::scene()
     CCScene *scene = CCScene::create();
 	//HelloWorld *layer = HelloWorld::create();
     BattleData *data = new BattleData();
-    PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
+    MonsterLayer *layer = MonsterLayer::create(data->getMonsters());
 	scene->addChild(layer);
 
     return scene;

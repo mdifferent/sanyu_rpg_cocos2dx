@@ -1,6 +1,7 @@
 #pragma once
-#include "cocoa/CCDictionary.h"
-USING_NS_CC;
+#include <string>
+#include <map>
+using namespace std;
 
 enum MONSTER_TYPE {
 	NORMAL
@@ -9,12 +10,15 @@ enum MONSTER_TYPE {
 class MonsterData
 {
 public:
-	MonsterData(void);
+	MonsterData(string cName);
 	~MonsterData(void);
+	string getMonsterName() const;
+	void setProperty(string &cProName,int iProValue);
+	int getProperty(string &cProName);
 private:
-	CCString m_name;
+	string m_name;
 	MONSTER_TYPE m_monsterType;
-	CCDictionary *m_properties;
+	map<string,int> m_properties;	//name-value
 	int m_exp;
 };
 

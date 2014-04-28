@@ -1,11 +1,11 @@
 #include "PlayerData.h"
 
 
-PlayerData::PlayerData(string m_name)
+PlayerData::PlayerData(string sName)
 {
-	if (!m_name.empty())
+	if (!sName.empty())
 	{
-		this->m_name = m_name;
+		this->m_name = sName;
 	}
 }
 
