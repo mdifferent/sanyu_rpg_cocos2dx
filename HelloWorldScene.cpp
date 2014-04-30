@@ -11,9 +11,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-	//HelloWorld *layer = HelloWorld::create();
-    BattleData *data = new BattleData();
-    MonsterLayer *layer = MonsterLayer::create(data->getMonsters());
+	HelloWorld *layer = HelloWorld::create();
+    //BattleData *data = new BattleData();
+    //MonsterLayer *layer = MonsterLayer::create(data->getMonsters());
 	scene->addChild(layer);
 
     return scene;
@@ -54,7 +54,7 @@ bool HelloWorld::init()
     // create menu, it's an autorelease object
     CCMenu* pMenu = CCMenu::create(pCloseItem,NULL);
     pMenu->setPosition(CCPointZero);
-    this->addChild(pMenu, 1,1);
+    this->addChild(pMenu,1);
 
     /////////////////////////////
     // 3. add your codes below...
@@ -72,14 +72,20 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    //CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+	CCSprite* pHP = CCSprite::create("sanyu/hp_bar.png");
+	CCSprite* pMP = CCSprite::create("sanyu/sp_bar.png");
 
     // position the sprite on the center of the screen
-    //pSprite->setPosition(ccp(400,-90));
+    pSprite->setPosition(ccp(400,90));
+	pHP->setPosition(ccp(463,44));
+	pMP->setPosition(ccp(457,18));
     // pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
     // add the sprite as a child to this layer
-    //this->addChild(pSprite,0,0);
+    this->addChild(pSprite,0);
+	this->addChild(pHP,1);
+	this->addChild(pMP,1);
     
     return true;
 }
@@ -88,8 +94,8 @@ bool HelloWorld::init()
 void HelloWorld::onEnter()
 {
 	CCLayer::onEnter();
-	CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(400,90));
-	this->getChildByTag(0)->runAction(actionTo);
+	//CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(400,90));
+	//this->getChildByTag(0)->runAction(actionTo);
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)

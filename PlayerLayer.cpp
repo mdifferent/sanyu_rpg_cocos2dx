@@ -26,11 +26,29 @@ bool PlayerLayer::init()
 			CCSprite *pSprite = CCSprite::create(pName);
 			if (pSprite != NULL)
 			{
+				//Player header
 				float fPlayerWidth = pSprite->getContentSize().width;
 				float fPlayerHeight = pSprite->getContentSize().height;
-				pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,0-fPlayerHeight*0.5));
+				float fPlayerX = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
+				float fPlayerY = 0-fPlayerHeight*0.5;
+				pSprite->setPosition(ccp(fPlayerX,fPlayerY));
 				addChild(pSprite,0,i);
 				m_players->addObject(pSprite);
+				//Player HP bar
+				CCProgressTimer *hpBarTimer = CCProgressTimer::create(CCSprite::create("sanyu/hp_bar.png"));
+				hpBarTimer->setType(kCCProgressTimerTypeBar);
+				hpBarTimer->setMidpoint(ccp(0,0));
+				hpBarTimer->setBarChangeRate(ccp(1, 0));
+				hpBarTimer->setPosition(ccp(fPlayerX+63,0-fPlayerY-46));
+				addChild(hpBarTimer,1,iPlayerCount+i);
+				//Player SP bar
+				CCProgressTimer *spBarTimer = CCProgressTimer::create(CCSprite::create("sanyu/sp_bar.png"));
+				spBarTimer->setType(kCCProgressTimerTypeBar);
+				spBarTimer->setMidpoint(ccp(0,0));
+				spBarTimer->setBarChangeRate(ccp(1, 0));
+				spBarTimer->setPosition(ccp(fPlayerX+57,0-fPlayerY-72));
+				addChild(spBarTimer,1,iPlayerCount*2+i);
+
 			}
 			else
             {
@@ -83,9 +101,31 @@ void PlayerLayer::onEnter()
 		CCSprite *pSprite = (CCSprite *)m_players->objectAtIndex(i);
 		float fPlayerWidth = pSprite->getContentSize().width;
 		float fPlayerHeight = pSprite->getContentSize().height;
-		float x = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
+		float fPlayerX = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
+		float fPlayerY = fPlayerHeight*0.5;
 		CCDelayTime* delayAction = CCDelayTime::create((float)i*0.5);
-		CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(x,fPlayerHeight*0.5));
+		CCActionInterval *actionTo = CCMoveTo::create(0.5, ccp(fPlayerX,fPlayerY));
 		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
+
+		int iCurrentHp = m_data->at(i).getProperty(CURRENT_HP);
+		int iMaxHp = m_data->at(i).getProperty(MAX_HP);
+		float fHpPercent = 0;
+		if (iCurrentHp == iMaxHp)
+			fHpPercent = 100;
+		else
+			fHpPercent = (iCurrentHp/iMaxHp)*100;
+		CCProgressTo *hpPro = CCProgressTo::create(0.5, fHpPercent);
+		this->getChildByTag(iPlayerCount+i)->runAction(hpPro);
+
+		int iCurrentSp = m_data->at(i).getProperty(CURRENT_SP);
+		int iMaxSp = m_data->at(i).getProperty(MAX_SP);
+		float fSpPercent = 0;
+		if (iCurrentSp == iMaxSp)
+			fSpPercent = 100;
+		else
+			fSpPercent = (iCurrentSp/iCurrentSp)*100;
+		CCProgressTo *spPro = CCProgressTo::create(0.5, fSpPercent);
+		this->getChildByTag(iPlayerCount*2+i)->runAction(spPro);
+		
 	}
 }
