@@ -11,9 +11,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-	//HelloWorld *layer = HelloWorld::create();
-    BattleData *data = new BattleData();
-	PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
+	HelloWorld *layer = HelloWorld::create();
+    //BattleData *data = new BattleData();
+	//PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
 	scene->addChild(layer);
 
     return scene;
@@ -72,20 +72,29 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    /*CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
 	CCSprite* pHP = CCSprite::create("sanyu/hp_bar.png");
 	CCSprite* pMP = CCSprite::create("sanyu/sp_bar.png");
+	CCLabelTTF* pHPLabel = CCLabelTTF::create("500/500", "Arial", 20);
+	CCLabelTTF* pSPLabel = CCLabelTTF::create("500/500", "Arial", 20);
+	CCLabelTTF* pName = CCLabelTTF::create("KAYAZUO", "Arial", 20);
 
     // position the sprite on the center of the screen
     pSprite->setPosition(ccp(400,90));
 	pHP->setPosition(ccp(463,44));
 	pMP->setPosition(ccp(457,18));
+	pHPLabel->setPosition(ccp(472,45));
+	pSPLabel->setPosition(ccp(465,20));
+	pName->setPosition(ccp(465,80));
     // pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
     // add the sprite as a child to this layer
     this->addChild(pSprite,0);
 	this->addChild(pHP,1);
-	this->addChild(pMP,1);*/
+	this->addChild(pMP,1);
+	this->addChild(pHPLabel,2);
+	this->addChild(pSPLabel,2);
+	this->addChild(pName,1);
     
     return true;
 }
