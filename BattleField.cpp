@@ -11,7 +11,7 @@ BattleField::~BattleField(void)
 CCScene* BattleField::scene(int iSceneNo)
 {
 	BattleField *pScene = BattleField::create();
-	if (scene)
+	if (pScene)
 	{
 		pScene->m_sceneNo = iSceneNo;
 	}

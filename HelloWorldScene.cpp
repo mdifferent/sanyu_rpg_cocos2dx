@@ -11,9 +11,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-	HelloWorld *layer = HelloWorld::create();
-    //BattleData *data = new BattleData();
-    //MonsterLayer *layer = MonsterLayer::create(data->getMonsters());
+	//HelloWorld *layer = HelloWorld::create();
+    BattleData *data = new BattleData();
+	PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
 	scene->addChild(layer);
 
     return scene;
@@ -72,7 +72,7 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+    /*CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
 	CCSprite* pHP = CCSprite::create("sanyu/hp_bar.png");
 	CCSprite* pMP = CCSprite::create("sanyu/sp_bar.png");
 
@@ -85,7 +85,7 @@ bool HelloWorld::init()
     // add the sprite as a child to this layer
     this->addChild(pSprite,0);
 	this->addChild(pHP,1);
-	this->addChild(pMP,1);
+	this->addChild(pMP,1);*/
     
     return true;
 }

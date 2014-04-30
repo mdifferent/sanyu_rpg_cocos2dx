@@ -7,7 +7,7 @@ BattleData::BattleData(void)
 	string name2 = "sanyu/actor_2.png";
 	string name3 = "sanyu/actor_3.png";
 	string name4 = "sanyu/actor_4.png";
-	/*
+	
 	PlayerData pd1(name1);
 	PlayerData pd2(name2);
 	PlayerData pd3(name3);
@@ -15,8 +15,8 @@ BattleData::BattleData(void)
 	m_players.insert( std::pair<int,PlayerData>(0,pd1));
 	m_players.insert( std::pair<int,PlayerData>(1,pd2));
 	m_players.insert( std::pair<int,PlayerData>(2,pd3));
-	m_players.insert( std::pair<int,PlayerData>(3,pd4));*/
-		
+	m_players.insert( std::pair<int,PlayerData>(3,pd4));
+	/*	
 	MonsterData pdm1(name1);
 	MonsterData pdm2(name2);
 	MonsterData pdm3(name3);
@@ -24,7 +24,7 @@ BattleData::BattleData(void)
 	m_monsters.insert( std::pair<int,MonsterData>(0,pdm1));
 	m_monsters.insert( std::pair<int,MonsterData>(1,pdm2));
 	m_monsters.insert( std::pair<int,MonsterData>(2,pdm3));
-	m_monsters.insert( std::pair<int,MonsterData>(3,pdm4));
+	m_monsters.insert( std::pair<int,MonsterData>(3,pdm4));*/
 }
 
 

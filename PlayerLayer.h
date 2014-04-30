@@ -16,7 +16,7 @@ public:
 	void onEnter();
     bool init();
 private:
-	CCArray *m_players;
+	//CCArray *m_players;
     map<int, PlayerData> *m_data;
 };
 
