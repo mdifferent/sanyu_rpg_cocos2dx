@@ -11,9 +11,9 @@ CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
     CCScene *scene = CCScene::create();
-	HelloWorld *layer = HelloWorld::create();
-    //BattleData *data = new BattleData();
-	//PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
+	//HelloWorld *layer = HelloWorld::create();
+    BattleData *data = new BattleData();
+	PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
 	scene->addChild(layer);
 
     return scene;
@@ -72,10 +72,15 @@ bool HelloWorld::init()
     this->addChild(pLabel, 1);*/
 
     // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
+    /*
+	CCSprite* pSprite = CCSprite::create("sanyu/actor_1.png");
 	CCSprite* pHP = CCSprite::create("sanyu/hp_bar.png");
 	CCSprite* pMP = CCSprite::create("sanyu/sp_bar.png");
-	CCLabelTTF* pHPLabel = CCLabelTTF::create("500/500", "Arial", 20);
+	char cHPPair[8];
+	sprintf(cHPPair,"%d.%d",500,500);
+	cHPPair[7]=0;
+	CCLabelTTF* pHPLabel = CCLabelTTF::create(cHPPair, "Arial", 20);
+	//CCLabelAtlas *pHPLabel = CCLabelAtlas::create("500/500", "fps_images.png");
 	CCLabelTTF* pSPLabel = CCLabelTTF::create("500/500", "Arial", 20);
 	CCLabelTTF* pName = CCLabelTTF::create("KAYAZUO", "Arial", 20);
 
@@ -95,7 +100,7 @@ bool HelloWorld::init()
 	this->addChild(pHPLabel,2);
 	this->addChild(pSPLabel,2);
 	this->addChild(pName,1);
-    
+    */
     return true;
 }
 

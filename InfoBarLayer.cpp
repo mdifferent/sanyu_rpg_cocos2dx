@@ -10,12 +10,13 @@ InfoBarLayer::~InfoBarLayer(void)
 {
 }
 
-InfoBarLayer *InfoBarLayer::createWithBarName(std::string &barName)
+InfoBarLayer *InfoBarLayer::createWithBarName(std::string &barName,float fFadein)
 {
 	InfoBarLayer *pRet = new InfoBarLayer();
 	if (pRet && !barName.empty()) 
 	{
 		pRet->m_barName = barName;
+		pRet->m_fadein_interval = fFadein;
 	}
 	else 
 	{
@@ -67,6 +68,6 @@ void InfoBarLayer::onEnter()
 {
 	CCLayer::onEnter();
 
-	CCActionInterval *action1 = CCFadeIn::create(1.0f);
+	CCActionInterval *action1 = CCFadeIn::create(m_fadein_interval);
 	this->getChildByTag(0)->runAction(action1);
 }

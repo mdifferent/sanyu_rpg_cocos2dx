@@ -12,12 +12,13 @@ BackgroundLayer::~BackgroundLayer(void)
 	m_map.clear();
 }
 
-BackgroundLayer *BackgroundLayer::createWithMapName(std::string &mapName)
+BackgroundLayer *BackgroundLayer::createWithMapName(std::string &mapName,float fFadein)
 {
 	BackgroundLayer *pRet = new BackgroundLayer();
 	if (pRet && !mapName.empty()) 
 	{
 		pRet->m_map = mapName;
+		pRet->m_fadein_interval = fFadein;
 	}
 	else 
 	{
@@ -69,6 +70,6 @@ void BackgroundLayer::onEnter()
 {
 	CCLayer::onEnter();
 
-	CCActionInterval *action1 = CCFadeIn::create(0.5f);
+	CCActionInterval *action1 = CCFadeIn::create(this->m_fadein_interval);
 	this->getChildByTag(0)->runAction(action1);
 }

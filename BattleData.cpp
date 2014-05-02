@@ -9,9 +9,25 @@ BattleData::BattleData(void)
 	string name4 = "sanyu/actor_4.png";
 	
 	PlayerData pd1(name1);
+	pd1.setProperty(MAX_HP,500);
+	pd1.setProperty(CURRENT_HP,500);
+	pd1.setProperty(MAX_SP,500);
+	pd1.setProperty(CURRENT_SP,500);
 	PlayerData pd2(name2);
+	pd2.setProperty(MAX_HP,500);
+	pd2.setProperty(CURRENT_HP,500);
+	pd2.setProperty(MAX_SP,500);
+	pd2.setProperty(CURRENT_SP,500);
 	PlayerData pd3(name3);
+	pd3.setProperty(MAX_HP,500);
+	pd3.setProperty(CURRENT_HP,500);
+	pd3.setProperty(MAX_SP,500);
+	pd3.setProperty(CURRENT_SP,500);
 	PlayerData pd4(name4);
+	pd4.setProperty(MAX_HP,500);
+	pd4.setProperty(CURRENT_HP,500);
+	pd4.setProperty(MAX_SP,500);
+	pd4.setProperty(CURRENT_SP,500);
 	m_players.insert( std::pair<int,PlayerData>(0,pd1));
 	m_players.insert( std::pair<int,PlayerData>(1,pd2));
 	m_players.insert( std::pair<int,PlayerData>(2,pd3));
