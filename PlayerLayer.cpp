@@ -22,7 +22,7 @@ bool PlayerLayer::init()
     if(!CCLayer::init())
         return false;
 	//this->setTouchEnabled(true);
-	//CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
+	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
     int iPlayerCount = m_data->size();
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	for (int i = 0;i<iPlayerCount;++i)
@@ -99,16 +99,45 @@ bool PlayerLayer::init()
 	}
 	
 	//Add menu
-	CCMenuItemLabel *pAttackItem = CCMenuItemLabel::create(CCLabelTTF::create("ATTACK",NAME_FONT,MENU_FONT_SIZE));
-	CCMenuItemLabel *pSkillItem = CCMenuItemLabel::create(CCLabelTTF::create("SKILL",NAME_FONT,MENU_FONT_SIZE));
-	CCMenuItemLabel *pGuardItem = CCMenuItemLabel::create(CCLabelTTF::create("GUARD",NAME_FONT,MENU_FONT_SIZE));
-	CCMenuItemLabel *pEscapeItem = CCMenuItemLabel::create(CCLabelTTF::create("ESCAPE",NAME_FONT,MENU_FONT_SIZE));
+	CCMenuItemLabel *pAttackItem = CCMenuItemLabel::create(CCLabelTTF::create("ATTACK",NAME_FONT,MENU_FONT_SIZE),
+                                                           this,menu_selector(PlayerLayer::playerAttackCallback));
+	CCMenuItemLabel *pSkillItem = CCMenuItemLabel::create(CCLabelTTF::create("SKILL",NAME_FONT,MENU_FONT_SIZE),
+                                                          this,menu_selector(PlayerLayer::playerSkillCallback));
+	CCMenuItemLabel *pGuardItem = CCMenuItemLabel::create(CCLabelTTF::create("GUARD",NAME_FONT,MENU_FONT_SIZE),
+                                                          this,menu_selector(PlayerLayer::playerGuardCallback));
+	CCMenuItemLabel *pEscapeItem = CCMenuItemLabel::create(CCLabelTTF::create("ESCAPE",NAME_FONT,MENU_FONT_SIZE),
+                                                           this,menu_selector(PlayerLayer::playerEscapeCallback));
 	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pGuardItem,pEscapeItem,NULL);
-	pMenu->alignItemsVerticallyWithPadding(1.0f);
+	pMenu->alignItemsVertically();
+    pMenu->setOpacity(0);
 	addChild(pMenu,3,iPlayerCount*6);
-	pMenu->setPosition(ccp(450,150));
+    
     return true;
 }
+
+void PlayerLayer::playerAttackCallback(CCObject* pSender)
+{
+    CCLOG("ATTACK");
+}
+
+void PlayerLayer::playerSkillCallback(CCObject* pSender)
+{
+    CCLOG("SKILL");
+}
+
+
+void PlayerLayer::playerGuardCallback(CCObject* pSender)
+{
+    CCLOG("GUARD");
+}
+
+
+void PlayerLayer::playerEscapeCallback(CCObject* pSender)
+{
+    CCLOG("ESCAPE");
+}
+
+
 
 PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 {
@@ -120,7 +149,7 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 	}
 	else
 	{
-        int iPlayerCount = dataSet.size();
+        //int iPlayerCount = dataSet.size();
         //pLayer->m_players = CCArray::createWithCapacity(iPlayerCount);
         pLayer->m_data = &dataSet;
         if (pLayer->init())
@@ -185,6 +214,33 @@ void PlayerLayer::onEnter()
 		CCActionInterval *showName1 = CCFadeIn::create(0.5);	//CANNOT use same combination in sequence to different sprite?
 		this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::create(pBarDelayAction,showName1,NULL));
 	}
-	//Show menu
-	this->getChildByTag(iPlayerCount*6)->runAction(CCFadeIn::create(0.2f));
+}
+
+bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
+{
+    CCPoint touchPos = pTouch->getLocation();
+    CCLOG("%f,%f",touchPos.x,touchPos.y);
+    int iPlayerCount = m_data->size();
+    this->getChildByTag(iPlayerCount*6)->runAction(CCFadeOut::create(0.2f));
+    if (touchPos.y >= 0 and touchPos.y <= 180) {
+        if (touchPos.x >= 0 and touchPos.x <= 200) {
+            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(150,150));
+        }
+        else if (touchPos.x > 200 and touchPos.x <= 400) {
+            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(350,150));
+        }
+        else if (touchPos.x > 400 and touchPos.x <= 600) {
+            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(550,150));
+        }
+        else if (touchPos.x > 600 and touchPos.x <= 800) {
+            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(750,150));
+        }
+        else {
+            return false;
+        }
+        this->getChildByTag(iPlayerCount*6)->runAction(CCFadeIn::create(0.2f));
+        return true;
+    }
+    else
+        return false;
 }
