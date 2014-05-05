@@ -4,17 +4,19 @@
 #include "PlayerLayer.h"
 #include "MonsterLayer.h"
 #include "BattleData.h"
+#include "BattleField.h"
 
 USING_NS_CC;
 
 CCScene* HelloWorld::scene()
 {
     // 'scene' is an autorelease object
-    CCScene *scene = CCScene::create();
+    //CCScene *scene = CCScene::create();
+	BattleField *scene = BattleField::scene(0);
 	//HelloWorld *layer = HelloWorld::create();
-    BattleData *data = new BattleData();
-	PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
-	scene->addChild(layer);
+    //BattleData *data = new BattleData();
+	//PlayerLayer *layer = PlayerLayer::create(data->getPlayers());
+	//scene->addChild(layer);
 
     return scene;
 }

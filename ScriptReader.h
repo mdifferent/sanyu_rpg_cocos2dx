@@ -9,8 +9,8 @@ class ScriptReader
 public:
 	ScriptReader(void);
 	~ScriptReader(void);
-	static string &getMapNameByNo(int iSceneNo);
-	static string &getMapBgmByNo(int iSceneNo);
+	static string getMapNameByNo(int iSceneNo);
+	static string getMapBgmByNo(int iSceneNo);
 	static const PlayerData *getPlayers(int iSceneNo);
 	static const int getPlayerCount(int iSceneNo);
 	static const MonsterData *getMonsters(int iSceneNo);

@@ -13,8 +13,8 @@ class BattleField :
 public:
 	BattleField(void);
 	~BattleField(void);
-	static CCScene* scene(int iSceneNo);
-	CREATE_FUNC(BattleField);
+	static BattleField* scene(int iSceneNo);
+	//CREATE_FUNC(BattleField);
 	virtual bool init();
 
 private:

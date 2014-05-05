@@ -8,12 +8,21 @@ BattleField::~BattleField(void)
 {
 }
 
-CCScene* BattleField::scene(int iSceneNo)
+BattleField* BattleField::scene(int iSceneNo)
 {
-	BattleField *pScene = BattleField::create();
+	BattleField *pScene = new BattleField();
 	if (pScene)
 	{
 		pScene->m_sceneNo = iSceneNo;
+		if(pScene->init())
+		{
+			pScene->autorelease();
+		}
+		else
+        {
+            CC_SAFE_DELETE(pScene);
+            return NULL;
+        }
 	}
 	else
 	{
@@ -26,6 +35,10 @@ CCScene* BattleField::scene(int iSceneNo)
 bool BattleField::init()
 {
 	//Load battle data
+	if (!CCScene::init())
+	{
+		return false;
+	}
 	m_data = BattleData::loadData(m_sceneNo);
 		
 	//Init map
@@ -41,13 +54,39 @@ bool BattleField::init()
 	}
 	
 	//Init info bar
-	m_info_back = InfoBarLayer::createWithBarName(m_data->getMapName());
+	m_info_back = InfoBarLayer::createWithBarName(m_data->getBarName());
+	if (m_info_back)
+	{
+		this->addChild(m_info_back,1);
+	}
+	else
+	{
+		CCLOG("Add info layer error!");
+		return false;
+	}
+
 	//Init players layer
 	m_players = PlayerLayer::create(m_data->getPlayers());
+	if (m_players)
+	{
+		this->addChild(m_players,2);
+	}
+	else
+	{
+		CCLOG("Add player layer error!");
+		return false;
+	}
 	//Init monsters layer
-	//m_monsters = MonsterLayer::create();
-
-
+	m_monsters = MonsterLayer::create(m_data->getMonsters());
+	if (m_monsters)
+	{
+		this->addChild(m_monsters,2);
+	}
+	else
+	{
+		CCLOG("Add monster layer error!");
+		return false;
+	}
 
 	return true;
 }

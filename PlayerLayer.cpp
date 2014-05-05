@@ -222,17 +222,17 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     CCLOG("%f,%f",touchPos.x,touchPos.y);
     int iPlayerCount = m_data->size();
     this->getChildByTag(iPlayerCount*6)->runAction(CCFadeOut::create(0.2f));
-    if (touchPos.y >= 0 and touchPos.y <= 180) {
-        if (touchPos.x >= 0 and touchPos.x <= 200) {
+    if (touchPos.y >= 0 && touchPos.y <= 180) {
+        if (touchPos.x >= 0 && touchPos.x <= 200) {
             this->getChildByTag(iPlayerCount*6)->setPosition(ccp(150,150));
         }
-        else if (touchPos.x > 200 and touchPos.x <= 400) {
+        else if (touchPos.x > 200 && touchPos.x <= 400) {
             this->getChildByTag(iPlayerCount*6)->setPosition(ccp(350,150));
         }
-        else if (touchPos.x > 400 and touchPos.x <= 600) {
+        else if (touchPos.x > 400 && touchPos.x <= 600) {
             this->getChildByTag(iPlayerCount*6)->setPosition(ccp(550,150));
         }
-        else if (touchPos.x > 600 and touchPos.x <= 800) {
+        else if (touchPos.x > 600 && touchPos.x <= 800) {
             this->getChildByTag(iPlayerCount*6)->setPosition(ccp(750,150));
         }
         else {

@@ -86,8 +86,8 @@ void MonsterLayer::onEnter()
 		//float fPlayerWidth = pSprite->getContentSize().width;
 		//float fPlayerHeight = pSprite->getContentSize().height;
 		//float x = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
-		//CCDelayTime* delayAction = CCDelayTime::create((float)i*0.5);
-		CCActionInterval *actionTo = CCFadeIn::create(0.5f);
-		pSprite->runAction(actionTo);
+		CCDelayTime* delayAction = CCDelayTime::create(2.5f);
+		CCActionInterval *actionTo = CCFadeIn::create(1.0f);
+		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
 	}
 }

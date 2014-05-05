@@ -29,13 +29,15 @@ public:
 	void setMonster(MonsterData newMonster);
 	map<int,PlayerData> &getPlayers();
 	map<int,MonsterData> &getMonsters();
-	string &getMapName();
+	string getMapName();
+	string getBarName();
 	void setMapName(string &mapName);
 	static BattleData *loadData(int iSceneNo);
 
 private:
 	string m_mapName;
 	string m_mapBgm;
+	string m_barName;
 	map<int,PlayerData> m_players;
 	map<int,MonsterData> m_monsters;
 	WINNING_CONDITIONS m_winCon;
