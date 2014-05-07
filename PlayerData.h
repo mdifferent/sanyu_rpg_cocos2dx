@@ -11,13 +11,16 @@ enum PLAYER_PROP_TYPE
 	MAX_SP,
 	CURRENT_SP,
 	LEVEL,
-	EXP
+	EXP,
+	ATTACK,
+	DEFENSE
 };
 
 class PlayerData
 {
 public:
-	PlayerData(string cName);
+	PlayerData(const string cName);
+	PlayerData(const PlayerData &cName);
 	~PlayerData(void);
 	string getPlayerName() const;
 	
@@ -25,6 +28,9 @@ public:
 	int getProperty(PLAYER_PROP_TYPE cProName);
 	
 	int useItem(string &name);
+	void getItem(const string &sName,const int iCount = 1);
+
+	void learnSkill(const string &name);
 
 private:
 	string m_name;
