@@ -16,6 +16,8 @@ enum PLAYER_PROP_TYPE
 	DEFENSE
 };
 
+const static string enum2Tag[] = {"MaxHP","HP","MaxSP","SP","Level","Exp","Attack","Defense"};
+
 class PlayerData
 {
 public:
@@ -30,7 +32,11 @@ public:
 	int useItem(string &name);
 	void getItem(const string &sName,const int iCount = 1);
 
-	void learnSkill(const string &name);
+	map<PLAYER_PROP_TYPE,int> *getPropertyList(){return &m_properties;};
+	map<string,int> *getItemList(){return &m_items;};
+	map<string,int> *getSkillList(){return &m_skills;};
+
+	void learnSkill(const string &name,const int level=1);
 
 private:
 	string m_name;

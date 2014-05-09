@@ -19,7 +19,7 @@ bool MonsterLayer::init()
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
 	for (int i = 0;i<iPlayerCount;++i)
 	{
-		string name = m_data->at(i).getMonsterName();
+		string name = m_data->at(i)->getMonsterName();
 		const char *pName = name.c_str();
         CCLOG("%s",pName);
 		if (pName)
@@ -49,7 +49,7 @@ bool MonsterLayer::init()
     return true;
 }
 
-MonsterLayer *MonsterLayer::create(map<int,MonsterData> &dataSet)
+MonsterLayer *MonsterLayer::create(map<int,MonsterData*> *dataSet)
 {
 	MonsterLayer *pLayer = new MonsterLayer();
 	if (!pLayer)
@@ -59,9 +59,10 @@ MonsterLayer *MonsterLayer::create(map<int,MonsterData> &dataSet)
 	}
 	else
 	{
-        int iPlayerCount = dataSet.size();
+        int iPlayerCount = dataSet->size();
         pLayer->m_monsters = CCArray::createWithCapacity(iPlayerCount);
-        pLayer->m_data = &dataSet;
+        pLayer->m_data = dataSet;
+		pLayer->m_waitForClick = false;
         if (pLayer->init())
         {
             pLayer->autorelease();
@@ -90,4 +91,42 @@ void MonsterLayer::onEnter()
 		CCActionInterval *actionTo = CCFadeIn::create(1.0f);
 		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
 	}
+}
+
+bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
+{
+	CCPoint touchPos = pTouch->getLocation();
+	CCLOG("%f,%f",touchPos.x,touchPos.y);
+	int iMonsterCount = m_data->size();
+	if (m_waitForClick)
+	{
+		for (int i = 0;i<iMonsterCount;++i)
+		{
+			CCSize size = this->getChildByTag(i)->getContentSize();
+			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+			float fLeftCornerX = middlePoint.x - size.width/2;
+			float fLeftCornerY = middlePoint.y - size.height/2;
+			if (touchPos.y > PLAYER_SPRITE_HEIGHT)
+			{
+				if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width)
+				{
+					this->getChildByTag(i)->runAction(CCRepeat::create(
+						CCSequence::createWithTwoActions(
+						CCMoveBy::create(0.05f,ccp(10,10)),CCMoveBy::create(0.05f,ccp(-10,-10))),5));
+					//TODO:Modify data and judge whether dead
+					return true;
+				}
+				else
+					continue;
+			}
+			else
+			{
+				//TODO:Call delegate that get player action again
+				return false;
+			}
+		}
+	}
+	else
+		return false;
+	return true;
 }

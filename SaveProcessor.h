@@ -1,6 +1,6 @@
 #pragma once
 #include "PlayerData.h"
-#include "../support/tinyxml2/tinyxml2.h"
+#include "../cocos2dx/support/tinyxml2/tinyxml2.h"
 
 using namespace tinyxml2;
 
@@ -11,8 +11,9 @@ class SaveProcessor
 public:
 	SaveProcessor(void);
 	~SaveProcessor(void);
-	static bool init();
 	static map<int, PlayerData *> *loadPlayerData(int iSaveNo);
-	static bool savePlayerData();
+	static bool savePlayerDataSet(const int iSaveNo, map<int, PlayerData *> *pData);
+private:
+	static XMLElement *findNthSaveData(int iSaveNo);
 };
 

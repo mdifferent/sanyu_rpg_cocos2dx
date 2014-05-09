@@ -50,7 +50,10 @@ void PlayerData::getItem(const string &sName,const int iCount)
 		m_items.insert(std::make_pair(sName,iCount));
 }
 
-void PlayerData::learnSkill(const string &name)
+void PlayerData::learnSkill(const string &name, const int level)
 {
-
+	if (m_skills.find(name) == m_skills.end())
+		m_skills.insert(make_pair<string,int>(name,level));
+	else
+		m_skills[name] += level;
 }

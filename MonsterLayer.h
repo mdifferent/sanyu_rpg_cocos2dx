@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include "MonsterData.h"
+#include "ActionDelegate.h"
+
 USING_NS_CC;
 class MonsterLayer :
 	public CCLayer
@@ -11,11 +13,17 @@ class MonsterLayer :
 public:
 	MonsterLayer(void);
 	~MonsterLayer(void);
-	static MonsterLayer *create(map<int,MonsterData> &data);
+	static MonsterLayer *create(map<int,MonsterData*> *data);
 	void onEnter();
     bool init();
+	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
+	void setDelegate(ActionDelegate *pDelegate){m_pDelegate = pDelegate;};
+	bool setWaitForClick(bool bWait){m_waitForClick = bWait;};
+
 private:
 	CCArray *m_monsters;
-    map<int, MonsterData> *m_data;
+    map<int, MonsterData*> *m_data;
+	bool m_waitForClick;
+	ActionDelegate *m_pDelegate;
 };
 

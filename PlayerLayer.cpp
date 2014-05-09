@@ -1,12 +1,5 @@
 #include "PlayerLayer.h"
-
-const char *HP_BAR_IMG_FILE_PATH = "sanyu/hp_bar.png";
-const char *SP_BAR_IMG_FILE_PATH = "sanyu/sp_bar.png";
-const int NAME_FONT_SIZE = 20;
-const int MENU_FONT_SIZE = 20;
-const int HP_NUM_FONT_SIZE = 16;
-const char *NAME_FONT = "Arial";
-
+#include "BattleField.h"
 
 PlayerLayer::PlayerLayer(void)
 {
@@ -15,6 +8,7 @@ PlayerLayer::PlayerLayer(void)
 
 PlayerLayer::~PlayerLayer(void)
 {
+	
 }
 
 bool PlayerLayer::init()
@@ -27,7 +21,7 @@ bool PlayerLayer::init()
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	for (int i = 0;i<iPlayerCount;++i)
 	{
-		string name = m_data->at(i).getPlayerName();
+		string name = m_data->at(i)->getPlayerName();
 		const char *pName = name.c_str();
         CCLOG("%s",pName);
 		if (pName)
@@ -66,8 +60,8 @@ bool PlayerLayer::init()
 				addChild(pNameBar,2,iPlayerCount*3+i);
 
 				//Player HP number
-				int iMaxHP = m_data->at(i).getProperty(MAX_HP);
-				int iCurrentHP = m_data->at(i).getProperty(CURRENT_HP);
+				int iMaxHP = m_data->at(i)->getProperty(MAX_HP);
+				int iCurrentHP = m_data->at(i)->getProperty(CURRENT_HP);
 				char cHPPair[15];
 				sprintf(cHPPair,"%d/%d",iCurrentHP,iMaxHP);
 				CCLabelTTF* pHPLabel = CCLabelTTF::create(cHPPair, NAME_FONT, HP_NUM_FONT_SIZE);
@@ -76,8 +70,8 @@ bool PlayerLayer::init()
 				addChild(pHPLabel,2,iPlayerCount*4+i);
 
 				//Player SP number
-				int iMaxSP = m_data->at(i).getProperty(MAX_SP);
-				int iCurrentSP = m_data->at(i).getProperty(CURRENT_SP);
+				int iMaxSP = m_data->at(i)->getProperty(MAX_SP);
+				int iCurrentSP = m_data->at(i)->getProperty(CURRENT_SP);
 				char cSPPair[15];
 				sprintf(cSPPair,"%d/%d",iCurrentSP,iMaxSP);
 				CCLabelTTF* pSPLabel = CCLabelTTF::create(cSPPair, NAME_FONT, HP_NUM_FONT_SIZE);
@@ -118,6 +112,7 @@ bool PlayerLayer::init()
 void PlayerLayer::playerAttackCallback(CCObject* pSender)
 {
     CCLOG("ATTACK");
+	m_pDelegate->runAttack();
 }
 
 void PlayerLayer::playerSkillCallback(CCObject* pSender)
@@ -139,7 +134,7 @@ void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 
 
 
-PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
+PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
 {
 	PlayerLayer *pLayer = new PlayerLayer();
 	if (!pLayer)
@@ -151,16 +146,25 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData> &dataSet)
 	{
         //int iPlayerCount = dataSet.size();
         //pLayer->m_players = CCArray::createWithCapacity(iPlayerCount);
-        pLayer->m_data = &dataSet;
-        if (pLayer->init())
-        {
-            pLayer->autorelease();
-        }
-        else
-        {
-            CC_SAFE_DELETE(pLayer);
-            return NULL;
-        }
+		if (dataSet)
+		{
+			pLayer->m_data = dataSet;
+			if (pLayer->init())
+			{
+				pLayer->autorelease();
+			}
+			else
+			{
+				CC_SAFE_DELETE(pLayer);
+				return NULL;
+			}
+		}
+		else
+		{
+			CCLOG("Player data is empty!");
+			CC_SAFE_DELETE(pLayer);
+			return NULL;
+		}
     }
 	return pLayer;
 }
@@ -184,8 +188,8 @@ void PlayerLayer::onEnter()
 		
 		//Add HP bar
 		CCDelayTime* pBarDelayAction = CCDelayTime::create((float)iPlayerCount*0.4);	//Fill bar after head in position
-		int iCurrentHp = m_data->at(i).getProperty(CURRENT_HP);
-		int iMaxHp = m_data->at(i).getProperty(MAX_HP);
+		int iCurrentHp = m_data->at(i)->getProperty(CURRENT_HP);
+		int iMaxHp = m_data->at(i)->getProperty(MAX_HP);
 		float fHpPercent = 0;
 		if (iCurrentHp == iMaxHp)
 			fHpPercent = 100;
@@ -195,8 +199,8 @@ void PlayerLayer::onEnter()
 		this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::create(pBarDelayAction,hpPro,NULL));
 
 		//Add SP bar
-		int iCurrentSp = m_data->at(i).getProperty(CURRENT_SP);
-		int iMaxSp = m_data->at(i).getProperty(MAX_SP);
+		int iCurrentSp = m_data->at(i)->getProperty(CURRENT_SP);
+		int iMaxSp = m_data->at(i)->getProperty(MAX_SP);
 		float fSpPercent = 0;
 		if (iCurrentSp == iMaxSp)
 			fSpPercent = 100;
@@ -222,25 +226,18 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     CCLOG("%f,%f",touchPos.x,touchPos.y);
     int iPlayerCount = m_data->size();
     this->getChildByTag(iPlayerCount*6)->runAction(CCFadeOut::create(0.2f));
-    if (touchPos.y >= 0 && touchPos.y <= 180) {
-        if (touchPos.x >= 0 && touchPos.x <= 200) {
-            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(150,150));
-        }
-        else if (touchPos.x > 200 && touchPos.x <= 400) {
-            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(350,150));
-        }
-        else if (touchPos.x > 400 && touchPos.x <= 600) {
-            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(550,150));
-        }
-        else if (touchPos.x > 600 && touchPos.x <= 800) {
-            this->getChildByTag(iPlayerCount*6)->setPosition(ccp(750,150));
-        }
-        else {
-            return false;
-        }
-        this->getChildByTag(iPlayerCount*6)->runAction(CCFadeIn::create(0.2f));
-        return true;
+	for (int i = 0;i<iPlayerCount;++i) {
+		CCSize size = this->getChildByTag(i)->getContentSize();
+		CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+		float fLeftCornerX = middlePoint.x - size.width/2;
+		if (touchPos.y >= 0 && touchPos.y <= size.height) {
+			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
+				this->getChildByTag(iPlayerCount*6)->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
+				this->getChildByTag(iPlayerCount*6)->runAction(CCFadeIn::create(0.2f));
+				return true;
+			}
+		}
     }
-    else
-        return false;
+	//Default show menu on the left most player who haven't run action
+	return false;
 }

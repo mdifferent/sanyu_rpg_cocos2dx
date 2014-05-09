@@ -1,5 +1,6 @@
 #include "BattleField.h"
 
+
 BattleField::BattleField(void)
 {
 }
@@ -87,6 +88,10 @@ bool BattleField::init()
 		CCLOG("Add monster layer error!");
 		return false;
 	}
+
+	m_delegate = new ActionDelegate(m_players,m_monsters);
+	m_players->setDelegate(m_delegate);
+	m_monsters->setDelegate(m_delegate);
 
 	return true;
 }
