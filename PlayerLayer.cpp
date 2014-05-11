@@ -1,5 +1,13 @@
 #include "PlayerLayer.h"
-#include "BattleField.h"
+
+const char *HP_BAR_IMG_FILE_PATH = "sanyu/hp_bar.png";
+const char *SP_BAR_IMG_FILE_PATH = "sanyu/sp_bar.png";
+const int NAME_FONT_SIZE = 20;
+const int MENU_FONT_SIZE = 20;
+const int HP_NUM_FONT_SIZE = 16;
+const char *NAME_FONT = "Arial";
+const int PLAYER_SPRITE_HEIGHT = 180;
+const int PLAYER_SPRITE_WIDTH = 200;
 
 PlayerLayer::PlayerLayer(void)
 {
@@ -106,30 +114,34 @@ bool PlayerLayer::init()
     pMenu->setOpacity(0);
 	addChild(pMenu,3,iPlayerCount*6);
     
+    m_status = WAIT_COMMAND;
     return true;
 }
 
 void PlayerLayer::playerAttackCallback(CCObject* pSender)
 {
     CCLOG("ATTACK");
-	m_pDelegate->runAttack();
+    m_status = ATTACK;
 }
 
 void PlayerLayer::playerSkillCallback(CCObject* pSender)
 {
     CCLOG("SKILL");
+    m_status = SKILL;
 }
 
 
 void PlayerLayer::playerGuardCallback(CCObject* pSender)
 {
     CCLOG("GUARD");
+    m_status = GUARD;
 }
 
 
 void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 {
     CCLOG("ESCAPE");
+    m_status = ESCAPE;
 }
 
 

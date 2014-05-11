@@ -88,10 +88,30 @@ bool BattleField::init()
 		CCLOG("Add monster layer error!");
 		return false;
 	}
-
+    /*
 	m_delegate = new ActionDelegate(m_players,m_monsters);
 	m_players->setDelegate(m_delegate);
 	m_monsters->setDelegate(m_delegate);
-
+*/
 	return true;
+}
+
+void BattleField::updateGame(float ft)
+{
+    if (m_players->getStatus() == WAIT_COMMAND) {
+        return;
+    }
+    else if (m_players->getStatus() == ATTACK) {
+        m_monsters->setTouchEnabled(true);
+        m_monsters->setWaitForClick(true);
+    }
+    else if (m_players->getStatus() == SKILL) {
+        
+    }
+    else if (m_players->getStatus() == GUARD) {
+        
+    }
+    else if (m_players->getStatus() == ESCAPE) {
+        
+    }
 }

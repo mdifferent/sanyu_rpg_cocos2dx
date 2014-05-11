@@ -1,9 +1,4 @@
 #include "HelloWorldScene.h"
-#include "BackgroundLayer.h"
-#include "InfoBarLayer.h"
-#include "PlayerLayer.h"
-#include "MonsterLayer.h"
-#include "BattleData.h"
 #include "BattleField.h"
 
 USING_NS_CC;

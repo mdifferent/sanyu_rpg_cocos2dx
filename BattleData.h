@@ -32,10 +32,10 @@ public:
 
 	map<int,PlayerData*> *getPlayers(){return m_players;};
 	map<int,MonsterData*> *getMonsters(){return m_monsters;};
-	string getMapName(){return m_mapName;};
-	string getBarName(){return m_barName;};
-	void setMapName(string &mapName){this->m_mapName = mapName;};
-	void setMapBgm(string &bgmName){this->m_mapBgm = bgmName;};
+	string &getMapName(){return m_mapName;};
+	string &getBarName(){return m_barName;};
+	void setMapName(string mapName){this->m_mapName = mapName;};
+	void setMapBgm(string bgmName){this->m_mapBgm = bgmName;};
 
 
 private:

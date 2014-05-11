@@ -1,5 +1,5 @@
 #include "MonsterLayer.h"
-
+const float PLAYER_SPRITE_HEIGHT = 180;
 
 MonsterLayer::MonsterLayer(void)
 {
@@ -105,7 +105,7 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			CCSize size = this->getChildByTag(i)->getContentSize();
 			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 			float fLeftCornerX = middlePoint.x - size.width/2;
-			float fLeftCornerY = middlePoint.y - size.height/2;
+			//float fLeftCornerY = middlePoint.y - size.height/2;
 			if (touchPos.y > PLAYER_SPRITE_HEIGHT)
 			{
 				if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width)
@@ -122,6 +122,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			else
 			{
 				//TODO:Call delegate that get player action again
+                this->setWaitForClick(false);
+                this->setTouchEnabled(false);
 				return false;
 			}
 		}
