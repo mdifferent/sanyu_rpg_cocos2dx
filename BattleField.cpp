@@ -88,30 +88,40 @@ bool BattleField::init()
 		CCLOG("Add monster layer error!");
 		return false;
 	}
-    /*
-	m_delegate = new ActionDelegate(m_players,m_monsters);
-	m_players->setDelegate(m_delegate);
-	m_monsters->setDelegate(m_delegate);
-*/
+	this->schedule( schedule_selector(BattleField::updateGame),0.5);
 	return true;
 }
 
 void BattleField::updateGame(float ft)
 {
-    if (m_players->getStatus() == WAIT_COMMAND) {
-        return;
-    }
-    else if (m_players->getStatus() == ATTACK) {
-        m_monsters->setTouchEnabled(true);
-        m_monsters->setWaitForClick(true);
-    }
-    else if (m_players->getStatus() == SKILL) {
-        
-    }
-    else if (m_players->getStatus() == GUARD) {
-        
-    }
-    else if (m_players->getStatus() == ESCAPE) {
-        
-    }
+	switch(m_monsters->getStatus()) {
+	case SLEEP:
+		CCLOG("MONSTER:SLEEP");
+		switch(m_players->getStatus()) {
+		case WAIT_COMMAND:
+			CCLOG("PLAYER:WAIT_COMMAND");
+			return;
+		case ATTACK:
+			CCLOG("PLAYER:ATTACK");
+			m_monsters->setTouchEnabled(true);
+			m_monsters->setStatus(WAIT_TARGET);
+			return;
+		case SKILL:
+			CCLOG("PLAYER:SKILL");
+			return;
+		case GUARD:
+			CCLOG("PLAYER:GUARD");
+			return;
+		case ESCAPE:
+			CCLOG("PLAYER:ESCAPE");
+			return;
+		}
+	case WAIT_TARGET:
+		CCLOG("MONSTER:WAIT_TARGET");
+		break;
+	case TARGET_SELECTED:
+		CCLOG("MONSTER:TARGET_SELECTED");
+		m_players->setStatus(WAIT_COMMAND);
+		m_monsters->setStatus(SLEEP);
+	}
 }

@@ -15,6 +15,7 @@ bool MonsterLayer::init()
     if(!CCLayer::init())
         return false;
     int iPlayerCount = m_data->size();
+	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,1,false);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
 	for (int i = 0;i<iPlayerCount;++i)
@@ -62,7 +63,7 @@ MonsterLayer *MonsterLayer::create(map<int,MonsterData*> *dataSet)
         int iPlayerCount = dataSet->size();
         pLayer->m_monsters = CCArray::createWithCapacity(iPlayerCount);
         pLayer->m_data = dataSet;
-		pLayer->m_waitForClick = false;
+		pLayer->m_status = SLEEP;
         if (pLayer->init())
         {
             pLayer->autorelease();
@@ -79,14 +80,10 @@ MonsterLayer *MonsterLayer::create(map<int,MonsterData*> *dataSet)
 void MonsterLayer::onEnter()
 {
     CCLayer::onEnter();
-	//float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	int iPlayerCount = m_monsters->count();
 	for(int i=0;i<iPlayerCount;i++)
 	{
 		CCSprite *pSprite = (CCSprite *)m_monsters->objectAtIndex(i);
-		//float fPlayerWidth = pSprite->getContentSize().width;
-		//float fPlayerHeight = pSprite->getContentSize().height;
-		//float x = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
 		CCDelayTime* delayAction = CCDelayTime::create(2.5f);
 		CCActionInterval *actionTo = CCFadeIn::create(1.0f);
 		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
@@ -98,7 +95,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 	CCPoint touchPos = pTouch->getLocation();
 	CCLOG("%f,%f",touchPos.x,touchPos.y);
 	int iMonsterCount = m_data->size();
-	if (m_waitForClick)
+	CCLOG("Monster layer is waiting for target selection!");
+	if (m_status == WAIT_TARGET)
 	{
 		for (int i = 0;i<iMonsterCount;++i)
 		{
@@ -113,6 +111,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					this->getChildByTag(i)->runAction(CCRepeat::create(
 						CCSequence::createWithTwoActions(
 						CCMoveBy::create(0.05f,ccp(10,10)),CCMoveBy::create(0.05f,ccp(-10,-10))),5));
+					this->setStatus(TARGET_SELECTED);
+					//this->setTouchEnabled(false);
 					//TODO:Modify data and judge whether dead
 					return true;
 				}
@@ -122,8 +122,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			else
 			{
 				//TODO:Call delegate that get player action again
-                this->setWaitForClick(false);
-                this->setTouchEnabled(false);
+				this->setStatus(SLEEP);
+                //this->setTouchEnabled(false);
 				return false;
 			}
 		}

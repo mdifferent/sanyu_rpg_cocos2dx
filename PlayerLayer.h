@@ -39,10 +39,8 @@ public:
     void playerGuardCallback(CCObject* pSender);
     void playerEscapeCallback(CCObject* pSender);
 
-	//void setDelegate(ActionDelegate *pDelegate){m_pDelegate = pDelegate;};
     
 private:
-	//CCArray *m_players;
     map<int, PlayerData*> *m_data;
 	PLAYER_LAYER_STATUS m_status;
 };

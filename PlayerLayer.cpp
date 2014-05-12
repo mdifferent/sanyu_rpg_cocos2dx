@@ -24,7 +24,7 @@ bool PlayerLayer::init()
     if(!CCLayer::init())
         return false;
 	//this->setTouchEnabled(true);
-	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
+	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,0,true);
     int iPlayerCount = m_data->size();
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	for (int i = 0;i<iPlayerCount;++i)
@@ -112,6 +112,7 @@ bool PlayerLayer::init()
 	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pGuardItem,pEscapeItem,NULL);
 	pMenu->alignItemsVertically();
     pMenu->setOpacity(0);
+	pMenu->setPosition(ccp(-10,-10));
 	addChild(pMenu,3,iPlayerCount*6);
     
     m_status = WAIT_COMMAND;
@@ -235,7 +236,7 @@ void PlayerLayer::onEnter()
 bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
     CCPoint touchPos = pTouch->getLocation();
-    CCLOG("%f,%f",touchPos.x,touchPos.y);
+    //CCLOG("%f,%f",touchPos.x,touchPos.y);
     int iPlayerCount = m_data->size();
     this->getChildByTag(iPlayerCount*6)->runAction(CCFadeOut::create(0.2f));
 	for (int i = 0;i<iPlayerCount;++i) {
