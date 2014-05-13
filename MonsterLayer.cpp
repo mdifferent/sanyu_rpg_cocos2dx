@@ -15,6 +15,7 @@ bool MonsterLayer::init()
     if(!CCLayer::init())
         return false;
     int iPlayerCount = m_data->size();
+	this->setTouchEnabled(true);
 	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,1,false);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
@@ -112,7 +113,6 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 						CCSequence::createWithTwoActions(
 						CCMoveBy::create(0.05f,ccp(10,10)),CCMoveBy::create(0.05f,ccp(-10,-10))),5));
 					this->setStatus(TARGET_SELECTED);
-					//this->setTouchEnabled(false);
 					//TODO:Modify data and judge whether dead
 					return true;
 				}
@@ -123,8 +123,7 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			{
 				//TODO:Call delegate that get player action again
 				this->setStatus(SLEEP);
-                //this->setTouchEnabled(false);
-				return false;
+				return true;
 			}
 		}
 	}

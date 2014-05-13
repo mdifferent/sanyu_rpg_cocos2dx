@@ -103,7 +103,6 @@ void BattleField::updateGame(float ft)
 			return;
 		case ATTACK:
 			CCLOG("PLAYER:ATTACK");
-			m_monsters->setTouchEnabled(true);
 			m_monsters->setStatus(WAIT_TARGET);
 			return;
 		case SKILL:

@@ -23,7 +23,7 @@ bool PlayerLayer::init()
 {
     if(!CCLayer::init())
         return false;
-	//this->setTouchEnabled(true);
+	this->setTouchEnabled(true);
 	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,0,true);
     int iPlayerCount = m_data->size();
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
@@ -111,7 +111,8 @@ bool PlayerLayer::init()
                                                            this,menu_selector(PlayerLayer::playerEscapeCallback));
 	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pGuardItem,pEscapeItem,NULL);
 	pMenu->alignItemsVertically();
-    pMenu->setOpacity(0);
+	pMenu->setEnabled(false);
+	pMenu->setVisible(false);
 	pMenu->setPosition(ccp(-10,-10));
 	addChild(pMenu,3,iPlayerCount*6);
     
@@ -184,6 +185,7 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
 
 void PlayerLayer::onEnter()
 {
+	CCLOG("Player layer onEnter");
     CCLayer::onEnter();
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	int iPlayerCount = m_data->size();
@@ -236,19 +238,25 @@ void PlayerLayer::onEnter()
 bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
     CCPoint touchPos = pTouch->getLocation();
-    //CCLOG("%f,%f",touchPos.x,touchPos.y);
     int iPlayerCount = m_data->size();
-    this->getChildByTag(iPlayerCount*6)->runAction(CCFadeOut::create(0.2f));
+	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
 	for (int i = 0;i<iPlayerCount;++i) {
 		CCSize size = this->getChildByTag(i)->getContentSize();
 		CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 		float fLeftCornerX = middlePoint.x - size.width/2;
 		if (touchPos.y >= 0 && touchPos.y <= size.height) {
 			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
-				this->getChildByTag(iPlayerCount*6)->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
-				this->getChildByTag(iPlayerCount*6)->runAction(CCFadeIn::create(0.2f));
+				pMenu->setEnabled(true);
+				pMenu->setVisible(true);
+				pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
+				pMenu->runAction(CCFadeIn::create(0.2f));
 				return true;
 			}
+		}
+		else {
+			int iOp = pMenu->getOpacity();
+			if (iOp>0)
+				pMenu->runAction(CCFadeOut::create(0.2f));
 		}
     }
 	//Default show menu on the left most player who haven't run action
