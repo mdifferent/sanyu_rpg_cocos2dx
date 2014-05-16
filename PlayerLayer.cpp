@@ -11,6 +11,7 @@ const int PLAYER_SPRITE_WIDTH = 200;
 
 PlayerLayer::PlayerLayer(void)
 {
+	m_selectedPlayer = 0;
 }
 
 
@@ -29,7 +30,7 @@ bool PlayerLayer::init()
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	for (int i = 0;i<iPlayerCount;++i)
 	{
-		string name = m_data->at(i)->getPlayerName();
+		string name = m_data->at(i)->getName();
 		const char *pName = name.c_str();
         CCLOG("%s",pName);
 		if (pName)
@@ -109,7 +110,9 @@ bool PlayerLayer::init()
                                                           this,menu_selector(PlayerLayer::playerGuardCallback));
 	CCMenuItemLabel *pEscapeItem = CCMenuItemLabel::create(CCLabelTTF::create("ESCAPE",NAME_FONT,MENU_FONT_SIZE),
                                                            this,menu_selector(PlayerLayer::playerEscapeCallback));
-	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pGuardItem,pEscapeItem,NULL);
+	CCMenuItemLabel *pItemItem = CCMenuItemLabel::create(CCLabelTTF::create("ITEM",NAME_FONT,MENU_FONT_SIZE),
+                                                           this,menu_selector(PlayerLayer::playerItemCallback));
+	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pItemItem,pGuardItem,pEscapeItem,NULL);
 	pMenu->alignItemsVertically();
 	pMenu->setEnabled(false);
 	pMenu->setVisible(false);
@@ -132,13 +135,11 @@ void PlayerLayer::playerSkillCallback(CCObject* pSender)
     m_status = SKILL;
 }
 
-
 void PlayerLayer::playerGuardCallback(CCObject* pSender)
 {
     CCLOG("GUARD");
     m_status = GUARD;
 }
-
 
 void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 {
@@ -146,7 +147,10 @@ void PlayerLayer::playerEscapeCallback(CCObject* pSender)
     m_status = ESCAPE;
 }
 
-
+void PlayerLayer::playerItemCallback(CCObject* pSender) {
+	CCLOG("ITEM");
+    m_status = ITEM;
+}
 
 PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
 {
@@ -237,6 +241,7 @@ void PlayerLayer::onEnter()
 
 bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
+	//resetSelectedPlayer();
     CCPoint touchPos = pTouch->getLocation();
     int iPlayerCount = m_data->size();
 	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
@@ -250,6 +255,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 				pMenu->setVisible(true);
 				pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
 				pMenu->runAction(CCFadeIn::create(0.2f));
+				m_selectedPlayer = i;
 				return true;
 			}
 		}

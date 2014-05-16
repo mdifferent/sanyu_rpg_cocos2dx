@@ -26,9 +26,11 @@ public:
 	void onEnter();
     bool init();
     
-    PLAYER_LAYER_STATUS getStatus() {return m_status;};
-    void setStatus(PLAYER_LAYER_STATUS status) {m_status = status;};
-	
+    PLAYER_LAYER_STATUS getStatus() {return m_status;}
+    void setStatus(PLAYER_LAYER_STATUS status) {m_status = status;}
+	int getSelectedPlayer() {CCLOG("Selected Player:%d",m_selectedPlayer);return m_selectedPlayer;}
+	//void resetSelectedPlayer() {m_selectedPlayer=-1;}
+
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
 	/*virtual void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
     virtual void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent);  
@@ -38,10 +40,12 @@ public:
     void playerSkillCallback(CCObject* pSender);
     void playerGuardCallback(CCObject* pSender);
     void playerEscapeCallback(CCObject* pSender);
+	void playerItemCallback(CCObject* pSender);
 
     
 private:
     map<int, PlayerData*> *m_data;
 	PLAYER_LAYER_STATUS m_status;
+	int m_selectedPlayer;
 };
 

@@ -30,8 +30,10 @@ public:
 	void setMonster(MonsterData newMonster);
 	static BattleData *loadData(int iSceneNo);
 
-	map<int,PlayerData*> *getPlayers(){return m_players;};
-	map<int,MonsterData*> *getMonsters(){return m_monsters;};
+	map<int,PlayerData*> *getPlayers() const {return m_players;}
+	map<int,MonsterData*> *getMonsters() const {return m_monsters;}
+	PlayerData *getPlayer(int i) const {return m_players->at(i);}
+	MonsterData *getMonster(int i) const {return m_monsters->at(i);}
 	string &getMapName(){return m_mapName;};
 	string &getBarName(){return m_barName;};
 	void setMapName(string mapName){this->m_mapName = mapName;};

@@ -21,7 +21,7 @@ bool MonsterLayer::init()
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
 	for (int i = 0;i<iPlayerCount;++i)
 	{
-		string name = m_data->at(i)->getMonsterName();
+		string name = m_data->at(i)->getName();
 		const char *pName = name.c_str();
         CCLOG("%s",pName);
 		if (pName)
@@ -93,6 +93,8 @@ void MonsterLayer::onEnter()
 
 bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
+	if (m_status == SLEEP)
+		return false;
 	CCPoint touchPos = pTouch->getLocation();
 	CCLOG("%f,%f",touchPos.x,touchPos.y);
 	int iMonsterCount = m_data->size();
@@ -114,6 +116,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 						CCMoveBy::create(0.05f,ccp(10,10)),CCMoveBy::create(0.05f,ccp(-10,-10))),5));
 					this->setStatus(TARGET_SELECTED);
 					//TODO:Modify data and judge whether dead
+					CCLOG("Target is %d",i);
+					m_target = i;
 					return true;
 				}
 				else

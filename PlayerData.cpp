@@ -1,10 +1,6 @@
 #include "PlayerData.h"
 
-
-PlayerData::PlayerData(const string sName):m_name(sName)
-{
-}
-
+/*
 PlayerData::PlayerData(const PlayerData &cName):
 	m_name(cName.m_name),
 	m_properties(cName.m_properties),
@@ -12,12 +8,9 @@ PlayerData::PlayerData(const PlayerData &cName):
 	m_skills(cName.m_skills)
 {
 }
+*/
 
-
-PlayerData::~PlayerData(void)
-{
-}
-
+/*
 string PlayerData::getPlayerName() const
 {
 	return m_name;
@@ -40,6 +33,16 @@ void PlayerData::setProperty(PLAYER_PROP_TYPE cProName,int iProValue)
 		m_properties[cProName] = iProValue;
 	else
 		m_properties.insert(std::make_pair(cProName,iProValue));
+}
+*/
+
+int PlayerData::useItem(const string &name) {
+	m_items[name]--;
+	if (m_items[name] == 0) {
+		m_items.erase(name);
+		return 0;
+	}
+	return m_items[name];
 }
 
 void PlayerData::getItem(const string &sName,const int iCount)

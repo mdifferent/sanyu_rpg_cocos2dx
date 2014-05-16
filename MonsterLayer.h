@@ -27,10 +27,12 @@ public:
 
 	void setStatus(MONSTER_LAYER_STATUS status){m_status = status;};
 	MONSTER_LAYER_STATUS getStatus(){return m_status;};
+	int getTarget() {return m_target;}
 
 private:
 	CCArray *m_monsters;
     map<int, MonsterData*> *m_data;
 	MONSTER_LAYER_STATUS m_status;
+	int m_target;
 };
 
