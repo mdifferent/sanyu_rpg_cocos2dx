@@ -16,6 +16,14 @@ enum PLAYER_PROP_TYPE
 	DEFENSE
 };
 
+enum BATTLER_STATUS {
+    NORMAL,
+    DEAD,
+    FINISHED,
+    BUFF,
+    DEBUFF
+};
+
 const static string enum2Tag[] = {"MaxHP","HP","MaxSP","SP","Level","Exp","Attack","Defense"};
 
 class AbstractBattlerData
@@ -30,9 +38,13 @@ public:
 	map<PLAYER_PROP_TYPE,int> *getPropertyList(){return &m_properties;};
 	map<string,int> *getItemList(){return &m_items;};
 	map<string,int> *getSkillList(){return &m_skills;};
+    
+    void setStatus(BATTLER_STATUS);
+    BATTLER_STATUS getStatus() {return m_status;}
 
 protected:
 	string m_name;
+    BATTLER_STATUS m_status;
 	map<PLAYER_PROP_TYPE,int> m_properties;	//name-value
 	map<string,int> m_items;		//name-amount
 	map<string,int> m_skills;		//name-status

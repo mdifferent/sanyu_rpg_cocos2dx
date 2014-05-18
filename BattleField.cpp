@@ -132,7 +132,15 @@ void BattleField::updateGame(float ft)
 			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
 			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(DEFENSE);
 			int iDamage = iAttackValue - iDefenseValue;
-
+            //TODO:BUFF and DEBUFF may be consider in the futrue
+            int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
+            if (iMonsterCurrentHP < iDamage) {
+                m_data->getMonster(iAttackTarget)->setStatus(DEAD);
+            } else {
+                m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iDamage);
+            }
+            m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
+            break;
 		}
 		m_players->setStatus(WAIT_COMMAND);
 		m_monsters->setStatus(SLEEP);

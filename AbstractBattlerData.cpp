@@ -18,3 +18,10 @@ void AbstractBattlerData::setProperty(PLAYER_PROP_TYPE cProName,int iProValue)
 	else
 		m_properties.insert(std::make_pair(cProName,iProValue));
 }
+
+void AbstractBattlerData::setStatus(BATTLER_STATUS status) {
+    m_status = status;
+    if (m_status == DEAD) {
+        setProperty(CURRENT_HP, 0);
+    }
+}
