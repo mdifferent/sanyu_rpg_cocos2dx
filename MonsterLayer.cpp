@@ -1,5 +1,6 @@
 #include "MonsterLayer.h"
 const float PLAYER_SPRITE_HEIGHT = 180;
+const char* const FONT_PATH = "sanyu/numbers.fnt";
 
 MonsterLayer::MonsterLayer(void)
 {
@@ -48,6 +49,10 @@ bool MonsterLayer::init()
             return false;
         }
 	}
+	m_pFont = CCLabelBMFont::create("0","fonts/numbers.fnt");
+	m_pFont->setColor(ccYELLOW);
+	m_pFont->setOpacity(0);
+	addChild(m_pFont,4);
     return true;
 }
 
@@ -85,7 +90,7 @@ void MonsterLayer::onEnter()
 	for(int i=0;i<iPlayerCount;i++)
 	{
 		CCSprite *pSprite = (CCSprite *)m_monsters->objectAtIndex(i);
-		CCDelayTime* delayAction = CCDelayTime::create(2.5f);
+		CCDelayTime* delayAction = CCDelayTime::create(2.0f);
 		CCActionInterval *actionTo = CCFadeIn::create(1.0f);
 		pSprite->runAction(CCSequence::create(delayAction,actionTo,NULL));
 	}
@@ -106,16 +111,14 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			CCSize size = this->getChildByTag(i)->getContentSize();
 			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 			float fLeftCornerX = middlePoint.x - size.width/2;
-			//float fLeftCornerY = middlePoint.y - size.height/2;
 			if (touchPos.y > PLAYER_SPRITE_HEIGHT)
 			{
 				if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width)
 				{
+					CCMoveBy *pMoveAction = CCMoveBy::create(0.05f,ccp(10,10));
 					this->getChildByTag(i)->runAction(CCRepeat::create(
-						CCSequence::createWithTwoActions(
-						CCMoveBy::create(0.05f,ccp(10,10)),CCMoveBy::create(0.05f,ccp(-10,-10))),5));
+						CCSequence::createWithTwoActions(pMoveAction,pMoveAction->reverse()),4));
 					this->setStatus(TARGET_SELECTED);
-					//TODO:Modify data and judge whether dead
 					CCLOG("Target is %d",i);
 					m_target = i;
 					return true;
@@ -134,4 +137,28 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 	else
 		return false;
 	return true;
+}
+
+void MonsterLayer::killMosnter(int i) {
+	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
+}
+
+void MonsterLayer::onAttacked(int iNum, int iDamage) {
+	CCSprite *pMonster = dynamic_cast<CCSprite*>(this->getChildByTag(iNum));
+	if (pMonster->getOpacity() > 0) {
+		m_pFont->setPosition(pMonster->getPosition());
+		char cDamage[10];
+		_itoa(iDamage,cDamage,10);
+		m_pFont->setString(cDamage);
+		int iNumCount = m_pFont->getChildrenCount();
+		int i = 0;
+		for (i=0;i<iNumCount;i++) {
+			m_pFont->getChildByTag(i)->runAction(CCSequence::create(
+				CCDelayTime::create(0.1f*i),
+				CCFadeIn::create(0.1f),
+				CCMoveBy::create(0.1f,ccp(0,25)),NULL));
+		}
+		m_pFont->runAction(CCSequence::create(CCDelayTime::create(0.1f*i),CCFadeOut::create(0.2f),NULL));
+		m_pFont->setPosition(pMonster->getPosition());
+	}
 }
