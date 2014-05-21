@@ -1,6 +1,7 @@
 #include "MonsterLayer.h"
 const float PLAYER_SPRITE_HEIGHT = 180;
-const char* const FONT_PATH = "sanyu/numbers.fnt";
+const char* const FONT_PATH = "fonts/numbers.fnt";
+const char* const MONSTER_HP_BAR_PATH = "sanyu/monster_hpbar.png";
 
 MonsterLayer::MonsterLayer(void)
 {
@@ -11,48 +12,44 @@ MonsterLayer::~MonsterLayer(void)
 {
 }
 
-bool MonsterLayer::init()
-{
-    if(!CCLayer::init())
-        return false;
+bool MonsterLayer::init() {
+	CCAssert(CCLayer::init(),"CCLayer init failed!");
     int iPlayerCount = m_data->size();
 	this->setTouchEnabled(true);
 	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,1,false);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
-	for (int i = 0;i<iPlayerCount;++i)
-	{
+	for (int i = 0;i<iPlayerCount;++i) {
 		string name = m_data->at(i)->getName();
 		const char *pName = name.c_str();
         CCLOG("%s",pName);
-		if (pName)
-		{
-			CCSprite *pSprite = CCSprite::create(pName);
-			if (pSprite != NULL)
-			{
-				float fPlayerWidth = pSprite->getContentSize().width;
-				float fPlayerHeight = pSprite->getContentSize().height;
-				pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5));
-				pSprite->setOpacity(0);
-				addChild(pSprite,0,i);
-				m_monsters->addObject(pSprite);
-			}
-			else
-            {
-				CCLOG("Error in create sprite of monster %s",pName);
-                return false;
-            }
-		}
-		else
-        {
-			CCLOG("Error in get name of monster %s",pName);
-            return false;
-        }
+		CCAssert(pName,"Get Monster name failed!");
+		
+		CCSprite *pSprite = CCSprite::create(pName);
+		CCAssert(pSprite,"Get Monster sprite failed!");
+		float fPlayerWidth = pSprite->getContentSize().width;
+		float fPlayerHeight = pSprite->getContentSize().height;
+		pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5));
+		pSprite->setOpacity(0);
+		addChild(pSprite,0,i);
+		m_monsters->addObject(pSprite);
+		
+		//HP Bar				
+		CCProgressTimer *hpBarTimer = CCProgressTimer::create(CCSprite::create(MONSTER_HP_BAR_PATH));
+		hpBarTimer->setType(kCCProgressTimerTypeBar);
+		hpBarTimer->setMidpoint(ccp(0,0));
+		hpBarTimer->setPercentage(100);
+		hpBarTimer->setBarChangeRate(ccp(1,0));
+		hpBarTimer->setPosition(ccp(pSprite->getPositionX(),pSprite->getPositionY()+fPlayerHeight*0.5));
+		hpBarTimer->setOpacity(0);
+		addChild(hpBarTimer,1,iPlayerCount+i);
 	}
-	m_pFont = CCLabelBMFont::create("0","fonts/numbers.fnt");
+	//Damage number
+	m_pFont = CCLabelBMFont::create("0",FONT_PATH);
 	m_pFont->setColor(ccYELLOW);
 	m_pFont->setOpacity(0);
 	addChild(m_pFont,4);
+
     return true;
 }
 
@@ -140,12 +137,25 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 }
 
 void MonsterLayer::killMosnter(int i) {
+	CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(m_data->size()+i));
+	hpPro->runAction(CCSequence::create(CCFadeIn::create(0.2f),CCProgressTo::create(0.3f, 0),CCFadeOut::create(0.2f),NULL));
 	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
 }
 
 void MonsterLayer::onAttacked(int iNum, int iDamage) {
 	CCSprite *pMonster = dynamic_cast<CCSprite*>(this->getChildByTag(iNum));
+	int iMonsterCount = m_data->size();
+	
 	if (pMonster->getOpacity() > 0) {
+		//HP bar
+		float iCurrentHp = m_data->at(iNum)->getProperty(CURRENT_HP);
+		float iMaxHp = m_data->at(iNum)->getProperty(MAX_HP);
+		float fFromPercent = ((iCurrentHp+iDamage)/iMaxHp)*100.0f;
+		float fToPercent = (iCurrentHp/iMaxHp)*100.0f;
+		CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iMonsterCount+iNum));
+		hpPro->runAction(CCSequence::create(CCFadeIn::create(0.3f),
+			CCProgressFromTo::create(0.3f, fFromPercent,fToPercent),NULL));
+		//Damage number
 		m_pFont->setPosition(pMonster->getPosition());
 		char cDamage[10];
 		_itoa(iDamage,cDamage,10);
@@ -159,6 +169,7 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 				CCMoveBy::create(0.1f,ccp(0,25)),NULL));
 		}
 		m_pFont->runAction(CCSequence::create(CCDelayTime::create(0.1f*i),CCFadeOut::create(0.2f),NULL));
+		hpPro->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCFadeOut::create(0.2f),NULL));
 		m_pFont->setPosition(pMonster->getPosition());
 	}
 }

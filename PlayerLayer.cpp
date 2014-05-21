@@ -162,8 +162,6 @@ PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
 	}
 	else
 	{
-        //int iPlayerCount = dataSet.size();
-        //pLayer->m_players = CCArray::createWithCapacity(iPlayerCount);
 		if (dataSet)
 		{
 			pLayer->m_data = dataSet;

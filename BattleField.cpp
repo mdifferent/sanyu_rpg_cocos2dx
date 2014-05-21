@@ -137,8 +137,9 @@ void BattleField::updateGame(float ft)
 			CCLOG("iDamage:%d",iDamage);
             //TODO:BUFF and DEBUFF may be consider in the futrue
             int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
-            if (iMonsterCurrentHP < iDamage) {
+            if (iMonsterCurrentHP <= iDamage) {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
+				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
 				m_monsters->killMosnter(iAttackTarget);
             } else {
                 m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iDamage);
