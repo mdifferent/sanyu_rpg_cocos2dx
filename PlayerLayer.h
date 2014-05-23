@@ -42,6 +42,8 @@ public:
     void playerEscapeCallback(CCObject* pSender);
 	void playerItemCallback(CCObject* pSender);
 
+	void onPlayerKilled(int i);
+	void onPlayerAttacked(int iNum, int iDamage);
     
 private:
     map<int, PlayerData*> *m_data;

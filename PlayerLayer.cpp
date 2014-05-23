@@ -127,17 +127,20 @@ void PlayerLayer::playerAttackCallback(CCObject* pSender)
 {
     CCLOG("ATTACK");
     m_status = ATTACK;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 void PlayerLayer::playerSkillCallback(CCObject* pSender)
 {
     CCLOG("SKILL");
     m_status = SKILL;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 void PlayerLayer::playerGuardCallback(CCObject* pSender)
 {
     CCLOG("GUARD");
+	m_data->at(m_selectedPlayer)->setStatus(DEFENSE);
     m_status = GUARD;
 }
 
@@ -145,11 +148,13 @@ void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 {
     CCLOG("ESCAPE");
     m_status = ESCAPE;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 void PlayerLayer::playerItemCallback(CCObject* pSender) {
 	CCLOG("ITEM");
     m_status = ITEM;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
@@ -244,6 +249,8 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     int iPlayerCount = m_data->size();
 	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
 	for (int i = 0;i<iPlayerCount;++i) {
+		if (m_data->at(i)->getStatus() == DEAD)
+			continue;
 		CCSize size = this->getChildByTag(i)->getContentSize();
 		CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 		float fLeftCornerX = middlePoint.x - size.width/2;
@@ -265,4 +272,10 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
     }
 	//Default show menu on the left most player who haven't run action
 	return false;
+}
+
+void PlayerLayer::killPlayer(int i) {
+	CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(m_data->size()+i));
+	hpPro->runAction(CCSequence::create(CCFadeIn::create(0.2f),CCProgressTo::create(0.3f, 0),CCFadeOut::create(0.2f),NULL));
+	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
 }

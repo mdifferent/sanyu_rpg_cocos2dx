@@ -4,6 +4,7 @@ const int CELL_WIDHT = 300;
 const int CELL_HEIGHT = 40;
 const char *CELL_FONT = "Arial";
 const int CELL_FONT_SIZE = 25;
+const int MAX_HP = 999;
 
 BattleField::BattleField(void)
 {
@@ -50,21 +51,21 @@ bool BattleField::init()
 	//Init map
 	m_bg = BackgroundLayer::createWithMapName(m_data->getMapName());
 	m_info_back = InfoBarLayer::createWithBarName(m_data->getBarName());
-	m_players = PlayerLayer::create(m_data->getPlayers());
-	m_monsters = MonsterLayer::create(m_data->getMonsters());
-	if (m_bg && m_info_back && m_players && m_monsters) {
+	m_playerLayer = PlayerLayer::create(m_data->getPlayers());
+	m_monsterLayer = MonsterLayer::create(m_data->getMonsters());
+	if (m_bg && m_info_back && m_playerLayer && m_monsterLayer) {
 		this->addChild(m_bg,0);
 		this->addChild(m_info_back,1);
-		this->addChild(m_players,2);
-		this->addChild(m_monsters,2);
+		this->addChild(m_playerLayer,2);
+		this->addChild(m_monsterLayer,2);
 		bRet = true;
 	}
 	else {
 		CCLOG("Init layer error!");
 		CC_SAFE_DELETE(m_bg);
 		CC_SAFE_DELETE(m_info_back);
-		CC_SAFE_DELETE(m_players);
-		CC_SAFE_DELETE(m_monsters);
+		CC_SAFE_DELETE(m_playerLayer);
+		CC_SAFE_DELETE(m_monsterLayer);
 		return false;
 	}
 	//m_selectlist = ListLayer::createWithDataSource(this);
@@ -81,27 +82,26 @@ bool BattleField::init()
 		CC_SAFE_DELETE(m_selectlist);
 		CC_SAFE_DELETE(m_bg);
 		CC_SAFE_DELETE(m_info_back);
-		CC_SAFE_DELETE(m_players);
-		CC_SAFE_DELETE(m_monsters);
+		CC_SAFE_DELETE(m_playerLayer);
+		CC_SAFE_DELETE(m_monsterLayer);
 		return false;
 	}
-	m_roundFinish = false;
+	m_roundOwner = PLAYER;
 	this->schedule( schedule_selector(BattleField::updateGame),0.5);
 	return true;
 }
 
-void BattleField::updateGame(float ft)
-{
-	switch(m_monsters->getStatus()) {
+void BattleField::runPlayerRound() {
+	switch(m_monsterLayer->getStatus()) {
 	case SLEEP:
 		CCLOG("MONSTER:SLEEP");
-		switch(m_players->getStatus()) {
+		switch(m_playerLayer->getStatus()) {
 		case WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
 			return;
 		case ATTACK:
 			CCLOG("PLAYER:ATTACK");
-			m_monsters->setStatus(WAIT_TARGET);
+			m_monsterLayer->setStatus(WAIT_TARGET);
 			return;
 		case SKILL:
 			CCLOG("PLAYER:SKILL");
@@ -125,13 +125,13 @@ void BattleField::updateGame(float ft)
 		break;
 	case TARGET_SELECTED:
 		CCLOG("MONSTER:TARGET_SELECTED");
-		switch(m_players->getStatus()) {
+		switch(m_playerLayer->getStatus()) {
 		case ATTACK:
-			int iAttackSource = m_players->getSelectedPlayer();
-			int iAttackTarget = m_monsters->getTarget();
+			int iAttackSource = m_playerLayer->getSelectedPlayer();
+			int iAttackTarget = m_monsterLayer->getTarget();
 			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
 			CCLOG("iAttackValue:%d",iAttackValue);
-			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(DEFENSE);
+			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
 			CCLOG("iDefenseValue:%d",iDefenseValue);
 			int iDamage = iAttackValue - iDefenseValue;
 			CCLOG("iDamage:%d",iDamage);
@@ -140,24 +140,72 @@ void BattleField::updateGame(float ft)
             if (iMonsterCurrentHP <= iDamage) {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
 				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
-				m_monsters->killMosnter(iAttackTarget);
+				m_monsterLayer->killMosnter(iAttackTarget);
             } else {
                 m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iDamage);
-				m_monsters->onAttacked(iAttackTarget, iDamage);
+				m_monsterLayer->onAttacked(iAttackTarget, iDamage);
             }
 			CCLOG("Remain HP:%d",m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP));
-            m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
+			m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
+			m_playersStatus[iAttackSource] = true;
             break;
 		}
-		m_players->setStatus(WAIT_COMMAND);
-		m_monsters->setStatus(SLEEP);
-		//m_players->resetSelectedPlayer();
+		m_playerLayer->setStatus(WAIT_COMMAND);
+		m_monsterLayer->setStatus(SLEEP);
+		for (int i=0;i<m_playersStatus.size();i++)
+			if (!m_playersStatus[i])
+				return;
+		if (m_roundOwner == PLAYER)
+			m_roundOwner = COMPUTER;
+	}
+}
+
+void BattleField::runComputerRound() {
+	map<int,MonsterData*> *pMonsters = m_data->getMonsters();
+	map<int,PlayerData*> *pPlayers = m_data->getPlayers();
+	int iMosnterCount = pMonsters->size();
+	int iAttackTarget = -1;
+	int iMinHP = MAX_HP;
+	for (int i=0;i<iMosnterCount;i++) {
+		if (pMonsters->at(i)->getStatus() != DEAD) {
+			for (int j=0;j<pPlayers->size();j++) {
+				if (pPlayers->at(j)->getStatus() != DEAD && 
+					pPlayers->at(j)->getProperty(CURRENT_HP) < iMinHP) {
+					iMinHP = pPlayers->at(j)->getProperty(CURRENT_HP);
+					iAttackTarget = j;
+				}
+			}
+			int iDefenseValue = pPlayers->at(iAttackTarget)->getProperty(MELEE_DEFENSE);
+			int iAttackValue = pMonsters->at(i)->getProperty(MELEE_ATTACK);
+			int iDamageValue = pPlayers->at(iAttackTarget)->getStatus() == DEFENSE ? iAttackValue-iDefenseValue : iAttackValue;
+			int iPlayerCurrentHP = pPlayers->at(iAttackTarget)->getProperty(CURRENT_HP);
+			if (iDamageValue >= iPlayerCurrentHP) {
+				pPlayers->at(iAttackTarget)->setStatus(DEAD);
+				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP,0);
+				m_playerLayer->onPlayerKilled(iAttackTarget);
+			}
+			else {
+				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP, iPlayerCurrentHP-iDamageValue);
+				m_playerLayer->onPlayerAttacked(iAttackTarget,iDamageValue);
+			}
+		}
+	}
+}
+
+void BattleField::updateGame(float ft)
+{
+	switch(m_roundOwner) {
+	case PLAYER:
+		runPlayerRound();
+		break;
+	case COMPUTER:
+		runComputerRound();
 	}
 }
 
 CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int idx) {
 	CCLOG("No of cell=%d",idx);
-	int iPlayerNum = m_players->getSelectedPlayer();
+	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	CCTableViewCell *cell = table->dequeueCell();
 	if (!cell) {
 		cell = new CCTableViewCell();
@@ -212,8 +260,8 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 
 unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 {
-	int iPlayerNum = m_players->getSelectedPlayer();
-	switch(m_players->getStatus()) {
+	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	switch(m_playerLayer->getStatus()) {
 	case ITEM:
 		return m_data->getPlayer(iPlayerNum)->getItemList()->size();
 	case SKILL:
@@ -226,7 +274,7 @@ unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	CCLog("cell touched at index: %i", cell->getIdx());
 	m_selectlist->setVisible(false);
-	m_monsters->setStatus(WAIT_TARGET);
+	m_monsterLayer->setStatus(WAIT_TARGET);
 
 	if(m_selectlist->isTouchEnabled())
 		CCLOG("Touch enable");

@@ -40,7 +40,8 @@ bool MonsterLayer::init() {
 		hpBarTimer->setMidpoint(ccp(0,0));
 		hpBarTimer->setPercentage(100);
 		hpBarTimer->setBarChangeRate(ccp(1,0));
-		hpBarTimer->setPosition(ccp(pSprite->getPositionX(),pSprite->getPositionY()+fPlayerHeight*0.5));
+		hpBarTimer->setPosition(ccp(pSprite->getPositionX(),
+			pSprite->getPositionY() + fPlayerHeight*0.5 + hpBarTimer->getContentSize().height*0.5));
 		hpBarTimer->setOpacity(0);
 		addChild(hpBarTimer,1,iPlayerCount+i);
 	}

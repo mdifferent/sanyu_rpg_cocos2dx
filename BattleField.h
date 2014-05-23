@@ -11,6 +11,11 @@
 USING_NS_CC;
 using namespace cocos2d::extension;
 
+enum ROUND_OWNER {
+	PLAYER,
+	COMPUTER
+};
+
 class BattleField :
 	public CCScene,public CCTableViewDataSource,public CCTableViewDelegate
 {
@@ -34,15 +39,18 @@ public:
 	void setListContent(LIST_TYPE);
 
 private:
+	void runPlayerRound();
+	void runComputerRound();
+
 	BackgroundLayer *m_bg;
 	InfoBarLayer *m_info_back;
-	PlayerLayer *m_players;
-	MonsterLayer *m_monsters;
+	PlayerLayer *m_playerLayer;
+	MonsterLayer *m_monsterLayer;
 	ListLayer *m_selectlist;
 
 	int m_sceneNo;
 	BattleData *m_data;
-	bool m_roundFinish;
+	ROUND_OWNER m_roundOwner;
 	map<int,bool> m_playersStatus;
 };
 
