@@ -4,7 +4,7 @@ const int CELL_WIDHT = 300;
 const int CELL_HEIGHT = 40;
 const char *CELL_FONT = "Arial";
 const int CELL_FONT_SIZE = 25;
-const int MAX_HP = 999;
+const int TOP_HP = 999;
 
 BattleField::BattleField(void)
 {
@@ -47,7 +47,13 @@ bool BattleField::init()
 		return false;
 	}
 	m_data = BattleData::loadData(m_sceneNo);
-		
+	int iPlayerCount = m_data->getPlayers()->size();
+	int iMonsterCount = m_data->getMonsters()->size();
+	for (int i=0;i<iPlayerCount;i++)
+		m_playersStatus.insert(make_pair<int,bool>(i,false));
+	for (int i=0;i<iMonsterCount;i++)
+		m_monstersStatus.insert(make_pair<int,bool>(i,true));
+
 	//Init map
 	m_bg = BackgroundLayer::createWithMapName(m_data->getMapName());
 	m_info_back = InfoBarLayer::createWithBarName(m_data->getBarName());
@@ -152,23 +158,40 @@ void BattleField::runPlayerRound() {
 		}
 		m_playerLayer->setStatus(WAIT_COMMAND);
 		m_monsterLayer->setStatus(SLEEP);
-		for (int i=0;i<m_playersStatus.size();i++)
-			if (!m_playersStatus[i])
-				return;
-		if (m_roundOwner == PLAYER)
-			m_roundOwner = COMPUTER;
 	}
+}
+
+bool BattleField::checkRoundFinished() {
+	bool bRes = true;
+	if (m_roundOwner == PLAYER) {
+		int iPlayerCount = m_playersStatus.size();
+		for (int i=0;i<iPlayerCount;i++)
+			if (!m_playersStatus[i])		//False = haven't run action
+				bRes = false;
+	}
+	else if (m_roundOwner == COMPUTER) {
+		int iMonsterCount = m_monstersStatus.size();
+		for (int i=0;i<iMonsterCount;i++)
+			if (!m_monstersStatus[i])
+				bRes = false;
+	}
+	return bRes;
+}
+
+void BattleField::switchOwner() {
+	m_roundOwner = m_roundOwner == PLAYER ? COMPUTER : PLAYER;
 }
 
 void BattleField::runComputerRound() {
 	map<int,MonsterData*> *pMonsters = m_data->getMonsters();
 	map<int,PlayerData*> *pPlayers = m_data->getPlayers();
 	int iMosnterCount = pMonsters->size();
+	int iPlayerCount = pPlayers->size();
 	int iAttackTarget = -1;
 	int iMinHP = MAX_HP;
 	for (int i=0;i<iMosnterCount;i++) {
 		if (pMonsters->at(i)->getStatus() != DEAD) {
-			for (int j=0;j<pPlayers->size();j++) {
+			for (int j=0;j<iPlayerCount;j++) {
 				if (pPlayers->at(j)->getStatus() != DEAD && 
 					pPlayers->at(j)->getProperty(CURRENT_HP) < iMinHP) {
 					iMinHP = pPlayers->at(j)->getProperty(CURRENT_HP);
@@ -201,6 +224,8 @@ void BattleField::updateGame(float ft)
 	case COMPUTER:
 		runComputerRound();
 	}
+	if (checkRoundFinished())
+		switchOwner();
 }
 
 CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int idx) {

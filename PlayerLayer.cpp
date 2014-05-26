@@ -274,7 +274,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 	return false;
 }
 
-void PlayerLayer::killPlayer(int i) {
+void PlayerLayer::onPlayerKilled(int i) {
 	CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(m_data->size()+i));
 	hpPro->runAction(CCSequence::create(CCFadeIn::create(0.2f),CCProgressTo::create(0.3f, 0),CCFadeOut::create(0.2f),NULL));
 	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));

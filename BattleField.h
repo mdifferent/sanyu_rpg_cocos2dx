@@ -41,6 +41,8 @@ public:
 private:
 	void runPlayerRound();
 	void runComputerRound();
+	bool BattleField::checkRoundFinished();
+	void switchOwner();
 
 	BackgroundLayer *m_bg;
 	InfoBarLayer *m_info_back;
@@ -52,5 +54,6 @@ private:
 	BattleData *m_data;
 	ROUND_OWNER m_roundOwner;
 	map<int,bool> m_playersStatus;
+	map<int,bool> m_monstersStatus;
 };
 

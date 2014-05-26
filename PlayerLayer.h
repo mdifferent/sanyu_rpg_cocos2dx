@@ -43,7 +43,7 @@ public:
 	void playerItemCallback(CCObject* pSender);
 
 	void onPlayerKilled(int i);
-	void onPlayerAttacked(int iNum, int iDamage);
+	void onPlayerAttacked(int iNum, int iDamage){};
     
 private:
     map<int, PlayerData*> *m_data;
