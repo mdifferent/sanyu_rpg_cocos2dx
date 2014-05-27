@@ -50,9 +50,9 @@ bool BattleField::init()
 	int iPlayerCount = m_data->getPlayers()->size();
 	int iMonsterCount = m_data->getMonsters()->size();
 	for (int i=0;i<iPlayerCount;i++)
-		m_playersStatus.insert(make_pair<int,bool>(i,false));
+		m_isPlayerFinished.insert(make_pair<int,bool>(i,false));
 	for (int i=0;i<iMonsterCount;i++)
-		m_monstersStatus.insert(make_pair<int,bool>(i,true));
+		m_isMonsterFinished.insert(make_pair<int,bool>(i,true));
 
 	//Init map
 	m_bg = BackgroundLayer::createWithMapName(m_data->getMapName());
@@ -116,6 +116,10 @@ void BattleField::runPlayerRound() {
 			return;
 		case GUARD:
 			CCLOG("PLAYER:GUARD");
+			//m_data->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
+			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+			m_playerLayer->setStatus(WAIT_COMMAND);
+			m_monsterLayer->setStatus(SLEEP);
 			return;
 		case ESCAPE:
 			CCLOG("PLAYER:ESCAPE");
@@ -147,13 +151,14 @@ void BattleField::runPlayerRound() {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
 				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
 				m_monsterLayer->killMosnter(iAttackTarget);
-            } else {
+            }  
+			else {
                 m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iDamage);
 				m_monsterLayer->onAttacked(iAttackTarget, iDamage);
             }
 			CCLOG("Remain HP:%d",m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP));
 			m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
-			m_playersStatus[iAttackSource] = true;
+			m_isPlayerFinished[iAttackSource] = true;
             break;
 		}
 		m_playerLayer->setStatus(WAIT_COMMAND);
@@ -161,35 +166,16 @@ void BattleField::runPlayerRound() {
 	}
 }
 
-bool BattleField::checkRoundFinished() {
-	bool bRes = true;
-	if (m_roundOwner == PLAYER) {
-		int iPlayerCount = m_playersStatus.size();
-		for (int i=0;i<iPlayerCount;i++)
-			if (!m_playersStatus[i])		//False = haven't run action
-				bRes = false;
-	}
-	else if (m_roundOwner == COMPUTER) {
-		int iMonsterCount = m_monstersStatus.size();
-		for (int i=0;i<iMonsterCount;i++)
-			if (!m_monstersStatus[i])
-				bRes = false;
-	}
-	return bRes;
-}
-
-void BattleField::switchOwner() {
-	m_roundOwner = m_roundOwner == PLAYER ? COMPUTER : PLAYER;
-}
-
 void BattleField::runComputerRound() {
+	CCLOG("COMPUTER ROUND");
 	map<int,MonsterData*> *pMonsters = m_data->getMonsters();
 	map<int,PlayerData*> *pPlayers = m_data->getPlayers();
 	int iMosnterCount = pMonsters->size();
 	int iPlayerCount = pPlayers->size();
 	int iAttackTarget = -1;
-	int iMinHP = MAX_HP;
+	int iMinHP = TOP_HP;
 	for (int i=0;i<iMosnterCount;i++) {
+		CCLOG("Monster %d",i);
 		if (pMonsters->at(i)->getStatus() != DEAD) {
 			for (int j=0;j<iPlayerCount;j++) {
 				if (pPlayers->at(j)->getStatus() != DEAD && 
@@ -206,12 +192,57 @@ void BattleField::runComputerRound() {
 				pPlayers->at(iAttackTarget)->setStatus(DEAD);
 				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP,0);
 				m_playerLayer->onPlayerKilled(iAttackTarget);
+				m_playerLayer->onPlayerHPModified(iAttackTarget,0-iDamageValue);
 			}
 			else {
 				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP, iPlayerCurrentHP-iDamageValue);
-				m_playerLayer->onPlayerAttacked(iAttackTarget,iDamageValue);
+				m_playerLayer->onPlayerHPModified(iAttackTarget,0-iDamageValue);
 			}
+			m_data->getMonster(i)->setStatus(FINISHED);
+			m_isMonsterFinished[i] = true;
 		}
+	}
+}
+
+bool BattleField::checkRoundFinished() {
+	bool bRes = true;
+	if (m_roundOwner == PLAYER) {
+		int iPlayerCount = m_isPlayerFinished.size();
+		for (int i=0;i<iPlayerCount;i++)
+			if (m_isPlayerFinished[i] == false)		//False = haven't run action
+				bRes = false;
+	}
+	else if (m_roundOwner == COMPUTER) {
+		int iMonsterCount = m_isMonsterFinished.size();
+		for (int i=0;i<iMonsterCount;i++)
+			if (m_isMonsterFinished[i] == false)
+				bRes = false;
+	}
+	return bRes;
+}
+
+void BattleField::switchOwner() {
+	if (m_roundOwner == PLAYER) {
+		map<int,bool>::iterator it = m_isMonsterFinished.begin();
+		while ( it != m_isMonsterFinished.end()) {
+			if (m_data->getMonster(it->first)->getStatus() == DEAD)
+				it->second = true;
+			else
+				it->second = false;
+			it++;
+		}
+		m_roundOwner = COMPUTER;
+	}
+	else if (m_roundOwner == COMPUTER) {
+		map<int,bool>::iterator it = m_isPlayerFinished.begin();
+		while ( it != m_isPlayerFinished.end()) {
+			if (m_data->getPlayer(it->first)->getStatus() == DEAD)
+				it->second = true;
+			else
+				it->second = false;
+			it++;
+		}
+		m_roundOwner = PLAYER;
 	}
 }
 

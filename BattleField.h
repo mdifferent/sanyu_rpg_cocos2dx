@@ -53,7 +53,7 @@ private:
 	int m_sceneNo;
 	BattleData *m_data;
 	ROUND_OWNER m_roundOwner;
-	map<int,bool> m_playersStatus;
-	map<int,bool> m_monstersStatus;
+	map<int,bool> m_isPlayerFinished;
+	map<int,bool> m_isMonsterFinished;
 };
 

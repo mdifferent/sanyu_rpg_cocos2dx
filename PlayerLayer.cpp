@@ -8,6 +8,7 @@ const int HP_NUM_FONT_SIZE = 16;
 const char *NAME_FONT = "Arial";
 const int PLAYER_SPRITE_HEIGHT = 180;
 const int PLAYER_SPRITE_WIDTH = 200;
+const char* const FONT_PATH = "fonts/numbers.fnt";
 
 PlayerLayer::PlayerLayer(void)
 {
@@ -118,43 +119,14 @@ bool PlayerLayer::init()
 	pMenu->setVisible(false);
 	pMenu->setPosition(ccp(-10,-10));
 	addChild(pMenu,3,iPlayerCount*6);
-    
+	
+	m_pFont = CCLabelBMFont::create("0",FONT_PATH);
+    m_pFont->setColor(ccYELLOW);
+	m_pFont->setOpacity(0);
+	addChild(m_pFont,4);
+
     m_status = WAIT_COMMAND;
     return true;
-}
-
-void PlayerLayer::playerAttackCallback(CCObject* pSender)
-{
-    CCLOG("ATTACK");
-    m_status = ATTACK;
-	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
-}
-
-void PlayerLayer::playerSkillCallback(CCObject* pSender)
-{
-    CCLOG("SKILL");
-    m_status = SKILL;
-	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
-}
-
-void PlayerLayer::playerGuardCallback(CCObject* pSender)
-{
-    CCLOG("GUARD");
-	m_data->at(m_selectedPlayer)->setStatus(DEFENSE);
-    m_status = GUARD;
-}
-
-void PlayerLayer::playerEscapeCallback(CCObject* pSender)
-{
-    CCLOG("ESCAPE");
-    m_status = ESCAPE;
-	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
-}
-
-void PlayerLayer::playerItemCallback(CCObject* pSender) {
-	CCLOG("ITEM");
-    m_status = ITEM;
-	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
@@ -278,4 +250,84 @@ void PlayerLayer::onPlayerKilled(int i) {
 	CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(m_data->size()+i));
 	hpPro->runAction(CCSequence::create(CCFadeIn::create(0.2f),CCProgressTo::create(0.3f, 0),CCFadeOut::create(0.2f),NULL));
 	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
+}
+
+void PlayerLayer::onPlayerHPModified(int iNum, int iDamage) {
+	CCSprite *pPlayer = dynamic_cast<CCSprite*>(this->getChildByTag(iNum));
+	int iPlayerCount = m_data->size();
+	//HP Bar modify
+	CCProgressTimer *hpBarTimer = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iPlayerCount + iNum));
+	float fCurrentHp = m_data->at(iNum)->getProperty(CURRENT_HP);
+	float fMaxHp = m_data->at(iNum)->getProperty(MAX_HP);
+	float fFromPercent = ((fCurrentHp - iDamage) / fMaxHp) * 100.0f;
+	float fToPercent = (fCurrentHp / fMaxHp) * 100.0f;
+	if (fCurrentHp - 0.0 < 1)
+		fToPercent = 0.0;
+	hpBarTimer->runAction(CCProgressFromTo::create(0.5f,fFromPercent,fToPercent));
+	//HP value modify
+	CCLabelTTF *pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*4));
+	int iCurrentHP = m_data->at(iNum)->getProperty(CURRENT_HP);
+	int iMaxHP = m_data->at(iNum)->getProperty(MAX_HP);
+	char cHPPair[15];
+	sprintf(cHPPair,"%d/%d",iCurrentHP,iMaxHP);
+	pHPLabel->setString(cHPPair);
+	//Damage Number
+	m_pFont->setPosition(pPlayer->getPosition());
+	char cDamage[10];
+	if (iDamage < 0) {
+		//cDamage[0] = '-';
+		_itoa(iDamage,cDamage,10);
+		m_pFont->setColor(ccRED);
+	}
+	else {
+		//cDamage[0] = '+';
+		_itoa(iDamage,cDamage,10);
+		m_pFont->setColor(ccGREEN);
+	}
+	m_pFont->setString(cDamage);
+	int iNumCount = m_pFont->getChildrenCount();
+	int i = 0;
+	for (i=0;i<iNumCount;i++) {
+		m_pFont->getChildByTag(i)->runAction(CCSequence::create(
+			CCDelayTime::create(0.1f*i),
+			CCFadeIn::create(0.1f),
+			CCMoveBy::create(0.1f,ccp(0,25)),NULL));
+	}
+	m_pFont->runAction(CCSequence::create(CCDelayTime::create(0.1f*i),CCFadeOut::create(0.2f),NULL));
+	m_pFont->setPosition(pPlayer->getPosition());
+}
+
+
+void PlayerLayer::playerAttackCallback(CCObject* pSender)
+{
+    CCLOG("ATTACK");
+    m_status = ATTACK;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
+}
+
+void PlayerLayer::playerSkillCallback(CCObject* pSender)
+{
+    CCLOG("SKILL");
+    m_status = SKILL;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
+}
+
+void PlayerLayer::playerGuardCallback(CCObject* pSender)
+{
+    CCLOG("GUARD");
+	m_data->at(m_selectedPlayer)->setStatus(DEFENSE);
+    m_status = GUARD;
+}
+
+void PlayerLayer::playerEscapeCallback(CCObject* pSender)
+{
+    CCLOG("ESCAPE");
+    m_status = ESCAPE;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
+}
+
+void PlayerLayer::playerItemCallback(CCObject* pSender) {
+	CCLOG("ITEM");
+    m_status = ITEM;
+	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }

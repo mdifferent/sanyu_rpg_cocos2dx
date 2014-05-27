@@ -44,8 +44,9 @@ BattleData::BattleData(void)
 	m_players->insert( std::pair<int,PlayerData*>(2,pd3));
 	m_players->insert( std::pair<int,PlayerData*>(3,pd4));
 	MonsterData *pdm1 = new MonsterData("sanyu/monster_1.png");
-	pdm1->setProperty(MAX_HP,100);
-	pdm1->setProperty(CURRENT_HP,100);
+	pdm1->setProperty(MAX_HP,200);
+	pdm1->setProperty(CURRENT_HP,200);
+	pdm1->setProperty(MELEE_ATTACK,50);
 	pdm1->setProperty(MELEE_DEFENSE,5);
     m_monsters = new map<int,MonsterData*>();
 	m_monsters->insert( std::pair<int,MonsterData*>(0,pdm1));

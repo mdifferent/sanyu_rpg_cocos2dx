@@ -43,11 +43,12 @@ public:
 	void playerItemCallback(CCObject* pSender);
 
 	void onPlayerKilled(int i);
-	void onPlayerAttacked(int iNum, int iDamage){};
+	void onPlayerHPModified(int iNum, int iValue); 	//iDamage > 0 : Recover; <0 : Damage
     
 private:
     map<int, PlayerData*> *m_data;
 	PLAYER_LAYER_STATUS m_status;
 	int m_selectedPlayer;
+	CCLabelBMFont *m_pFont;
 };
 
