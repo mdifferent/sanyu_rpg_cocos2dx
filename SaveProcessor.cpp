@@ -71,9 +71,10 @@ map<int,PlayerData*> *SaveProcessor::loadPlayerData(const int iSaveNo)
 		XMLElement *pItemElement = pPlayerElement->FirstChildElement("ItemList")->FirstChildElement("Item");
 		while(pItemElement)
 		{
-			string sItemName = string(pItemElement->Attribute("name"));
+			int iItemId = pItemElement->IntAttribute("id");
+			//string sItemName = string(pItemElement->Attribute("id"));
 			int iItemCount = atoi(pItemElement->GetText());
-			pData->getItem(sItemName,iItemCount);
+			pData->getItem(iItemId,iItemCount);
 			pItemElement = pItemElement->NextSiblingElement("Item");
 		}
 		//Get skills

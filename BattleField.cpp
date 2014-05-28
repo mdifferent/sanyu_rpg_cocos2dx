@@ -1,4 +1,5 @@
 #include "BattleField.h"
+#include "InstanceDatabase.h"
 
 const int CELL_WIDHT = 300;
 const int CELL_HEIGHT = 40;
@@ -270,10 +271,11 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 		CCLabelTTF *pLabel = NULL;
 		switch (m_selectlist->getContentType()) {
 		case ITEM_LIST:	{
-				map<string,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+				map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
 				for (int i=0;i<(int)idx;i++)
 					itemIt++;
-				pLabel = CCLabelTTF::create(itemIt->first.c_str(), CELL_FONT, CELL_FONT_SIZE); 
+				string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+				pLabel = CCLabelTTF::create(sItemName.c_str(), CELL_FONT, CELL_FONT_SIZE); 
 				break;
 			}
 		case SKILL_LIST: {
@@ -293,10 +295,11 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 		CCLabelTTF *pLabel = (CCLabelTTF*)cell->getChildByTag(456);
 		switch(m_selectlist->getContentType()) {
 		case ITEM_LIST: {
-			map<string,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+			map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
 			for (int i=0;i<(int)idx;i++)
 				itemIt++;
-			pLabel->setString(itemIt->first.c_str()); 
+			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+			pLabel->setString(sItemName.c_str()); 
 			break;
 		}
 		case SKILL_LIST: {

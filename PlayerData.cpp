@@ -36,21 +36,21 @@ void PlayerData::setProperty(PLAYER_PROP_TYPE cProName,int iProValue)
 }
 */
 
-int PlayerData::useItem(const string &name) {
-	m_items[name]--;
-	if (m_items[name] == 0) {
-		m_items.erase(name);
+int PlayerData::useItem(const int id) {
+	m_items[id]--;
+	if (m_items[id] == 0) {
+		m_items.erase(id);
 		return 0;
 	}
-	return m_items[name];
+	return m_items[id];
 }
 
-void PlayerData::getItem(const string &sName,const int iCount)
+void PlayerData::getItem(const int id,const int iCount)
 {
-	if (m_items.find(sName) != m_items.end())
-		m_items[sName] += iCount;
+	if (m_items.find(id) != m_items.end())
+		m_items[id] += iCount;
 	else
-		m_items.insert(std::make_pair(sName,iCount));
+		m_items.insert(std::make_pair(id,iCount));
 }
 
 void PlayerData::learnSkill(const string &name, const int level)

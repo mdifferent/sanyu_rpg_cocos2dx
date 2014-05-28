@@ -317,6 +317,9 @@ void PlayerLayer::playerGuardCallback(CCObject* pSender)
     CCLOG("GUARD");
 	m_data->at(m_selectedPlayer)->setStatus(DEFENSE);
     m_status = GUARD;
+	int iPlayerCount = m_data->size();
+	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
+	pMenu->runAction(CCFadeOut::create(0.2f));
 }
 
 void PlayerLayer::playerEscapeCallback(CCObject* pSender)

@@ -37,7 +37,7 @@ public:
 	int getProperty(const PLAYER_PROP_TYPE cProName) const;
 
 	map<PLAYER_PROP_TYPE,int> *getPropertyList(){return &m_properties;};
-	map<string,int> *getItemList(){return &m_items;};
+	map<int,int> *getItemList(){return &m_items;};
 	map<string,int> *getSkillList(){return &m_skills;};
     
     void setStatus(BATTLER_STATUS);
@@ -47,6 +47,6 @@ protected:
 	string m_name;
     BATTLER_STATUS m_status;
 	map<PLAYER_PROP_TYPE,int> m_properties;	//name-value
-	map<string,int> m_items;		//name-amount
-	map<string,int> m_skills;		//name-status
+	map<int,int> m_items;		//id-amount
+	map<string,int> m_skills;		//id-status
 };
