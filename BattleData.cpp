@@ -24,6 +24,8 @@ BattleData::BattleData(void)
 	pd2->setProperty(CURRENT_SP,500);
 	pd2->setProperty(MELEE_ATTACK,30);
 	pd2->getItem(1);
+	pd2->getItem(2);
+	pd2->getItem(2);
 	pd2->learnSkill("Blizzard");
 	PlayerData *pd3 = new PlayerData(name3);
 	pd3->setProperty(MAX_HP,500);

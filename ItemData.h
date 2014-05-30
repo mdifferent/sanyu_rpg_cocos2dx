@@ -29,7 +29,12 @@ public:
 	ItemData(int id,string name,ITEM_TYPE type,ITEM_TARGET_TYPE target,bool multi)
 		:m_id(id),m_name(name),m_type(type),m_target(target),m_isMultiTarget(multi){};
 	~ItemData(){}
+
 	string getItemName() const {return m_name;}
+	ITEM_TYPE getItemType() const {return m_type;}
+	ITEM_TARGET_TYPE getTargetType() const {return m_target;}
+	bool getMultiTarget() const {return m_isMultiTarget;}
+	map<ITEM_EFFECT_ATTRIBUTE,int> &getItemEffects() {return m_effects;}
 	void setEffect(pair<ITEM_EFFECT_ATTRIBUTE,int>);
 private:
 	int m_id;

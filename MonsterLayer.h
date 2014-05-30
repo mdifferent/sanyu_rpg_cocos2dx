@@ -7,16 +7,15 @@
 
 USING_NS_CC;
 
-enum MONSTER_LAYER_STATUS {
-	WAIT_TARGET,
-	TARGET_SELECTED,
-	SLEEP,
-};
-
 class MonsterLayer :
 	public CCLayer
 {
 public:
+	enum MONSTER_LAYER_STATUS {
+		WAIT_TARGET,
+		TARGET_SELECTED,
+		SLEEP,
+	};
 	MonsterLayer(void);
 	~MonsterLayer(void);
 	static MonsterLayer *create(map<int,MonsterData*> *data);

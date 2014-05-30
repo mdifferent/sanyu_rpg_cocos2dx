@@ -5,21 +5,22 @@
 #include <string>
 #include "PlayerData.h"
 
-enum PLAYER_LAYER_STATUS {
-    WAIT_COMMAND,
-    ATTACK,
-    SKILL,
-    GUARD,
-    ITEM,
-    ESCAPE
-};
-
 USING_NS_CC;
 
 class PlayerLayer :
 	public CCLayer
 {
 public:
+	enum PLAYER_LAYER_STATUS {
+		WAIT_COMMAND,
+		ATTACK,
+		SKILL,
+		GUARD,
+		ITEM,
+		ESCAPE,
+		WAIT_TARGET,
+		TARGET_SELECTED
+	};
 	PlayerLayer(void);
 	~PlayerLayer(void);
 	static PlayerLayer *create(map<int,PlayerData*> *data);

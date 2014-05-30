@@ -37,7 +37,8 @@ public:
 	void scrollViewDidZoom(CCScrollView *){}
 	
 	void setListContent(LIST_TYPE);
-
+	void setSelectedItemId(int index) {m_selectedListItemId = index;}
+	int getSelectedItemId() {return m_selectedListItemId;}
 private:
 	void runPlayerRound();
 	void runComputerRound();
@@ -55,5 +56,7 @@ private:
 	ROUND_OWNER m_roundOwner;
 	map<int,bool> m_isPlayerFinished;
 	map<int,bool> m_isMonsterFinished;
+
+	int m_selectedListItemId;
 };
 

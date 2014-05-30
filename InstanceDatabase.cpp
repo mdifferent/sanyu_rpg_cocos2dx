@@ -46,11 +46,11 @@ bool InstanceDatabase::initSkillSetByIds(list<int>) {
 
 bool InstanceDatabase::initItemSetByIds(list<int>) {
 	//TODO: stub data here
-	ItemData *p1 = new ItemData(1,"Apple",ItemData::CONSUME,ItemData::FRIEND,false);
+	ItemData *p1 = new ItemData(1,"Æ»¹û",ItemData::CONSUME,ItemData::FRIEND,false);
 	p1->setEffect(make_pair<ItemData::ITEM_EFFECT_ATTRIBUTE,int>(ItemData::CURRENT_HP,10));
 	m_itemDataset.insert(make_pair<int,ItemData*>(1,p1));
 
-	ItemData *p2 = new ItemData(2,"QuickSword",ItemData::CONSUME,ItemData::ENEMY,false);
+	ItemData *p2 = new ItemData(2,"Ñ¸½£",ItemData::CONSUME,ItemData::ENEMY,false);
 	p2->setEffect(make_pair<ItemData::ITEM_EFFECT_ATTRIBUTE,int>(ItemData::CURRENT_HP,10));
 	m_itemDataset.insert(make_pair<int,ItemData*>(2,p2));
 

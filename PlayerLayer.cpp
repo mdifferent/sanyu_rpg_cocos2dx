@@ -216,9 +216,8 @@ void PlayerLayer::onEnter()
 
 bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
-	//resetSelectedPlayer();
-    CCPoint touchPos = pTouch->getLocation();
-    int iPlayerCount = m_data->size();
+	CCPoint touchPos = pTouch->getLocation();
+	int iPlayerCount = m_data->size();
 	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
 	for (int i = 0;i<iPlayerCount;++i) {
 		if (m_data->at(i)->getStatus() == DEAD)
@@ -228,11 +227,16 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 		float fLeftCornerX = middlePoint.x - size.width/2;
 		if (touchPos.y >= 0 && touchPos.y <= size.height) {
 			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
-				pMenu->setEnabled(true);
-				pMenu->setVisible(true);
-				pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
-				pMenu->runAction(CCFadeIn::create(0.2f));
 				m_selectedPlayer = i;
+				if (m_status == WAIT_TARGET) {
+					m_status = TARGET_SELECTED;
+				}
+				else if (m_status == WAIT_COMMAND){
+					pMenu->setEnabled(true);
+					pMenu->setVisible(true);
+					pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
+					pMenu->runAction(CCFadeIn::create(0.2f));
+				}
 				return true;
 			}
 		}
@@ -241,7 +245,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			if (iOp>0)
 				pMenu->runAction(CCFadeOut::create(0.2f));
 		}
-    }
+	}
 	//Default show menu on the left most player who haven't run action
 	return false;
 }

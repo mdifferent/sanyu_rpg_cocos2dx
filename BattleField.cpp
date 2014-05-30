@@ -1,6 +1,10 @@
 #include "BattleField.h"
 #include "InstanceDatabase.h"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)  
+#include "../proj.win32/WIN32Util.h"
+#endif 
+
 const int CELL_WIDHT = 300;
 const int CELL_HEIGHT = 40;
 const char *CELL_FONT = "Arial";
@@ -48,6 +52,9 @@ bool BattleField::init()
 		return false;
 	}
 	m_data = BattleData::loadData(m_sceneNo);
+	list<int> p;
+	InstanceDatabase::getDatabaseInstance()->initItemSetByIds(p);
+
 	int iPlayerCount = m_data->getPlayers()->size();
 	int iMonsterCount = m_data->getMonsters()->size();
 	for (int i=0;i<iPlayerCount;i++)
@@ -100,54 +107,84 @@ bool BattleField::init()
 
 void BattleField::runPlayerRound() {
 	switch(m_monsterLayer->getStatus()) {
-	case SLEEP:
+	case MonsterLayer::SLEEP:
 		CCLOG("MONSTER:SLEEP");
 		switch(m_playerLayer->getStatus()) {
-		case WAIT_COMMAND:
+		case PlayerLayer::WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
 			return;
-		case ATTACK:
+		case PlayerLayer::ATTACK:
 			CCLOG("PLAYER:ATTACK");
-			m_monsterLayer->setStatus(WAIT_TARGET);
+			m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
 			return;
-		case SKILL:
+		case PlayerLayer::SKILL:
 			CCLOG("PLAYER:SKILL");
 			m_selectlist->setVisible(true);
 			m_selectlist->setContentType(SKILL_LIST);
 			return;
-		case GUARD:
+		case PlayerLayer::GUARD:
 			CCLOG("PLAYER:GUARD");
-			//m_data->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
+			//m_dalta->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
 			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
-			m_playerLayer->setStatus(WAIT_COMMAND);
-			m_monsterLayer->setStatus(SLEEP);
+			m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 			return;
-		case ESCAPE:
+		case PlayerLayer::ESCAPE:
 			CCLOG("PLAYER:ESCAPE");
 			return;
-		case ITEM:
+		case PlayerLayer::ITEM:
 			CCLOG("PLAYER:ITEM");
 			m_selectlist->setVisible(true);
 			m_selectlist->setContentType(ITEM_LIST);
+			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+			m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useItem(getSelectedItemId());
+			return;
+		case PlayerLayer::WAIT_TARGET:
+			CCLOG("PLAYER:WAIT_TARGET");
+			m_selectlist->setVisible(false);
+			//BUG:Cancel after select item, mark player as finished at where?
+			//Select command again ? or select target?
+			return;
+		case PlayerLayer::TARGET_SELECTED:
+			//TODO:use item to recover
+			int iItemId = getSelectedItemId();
+			int iTargetPlayer = m_playerLayer->getSelectedPlayer();
+			int iCurrentHP = m_data->getPlayer(iTargetPlayer)->getProperty(CURRENT_HP);
+			int iMaxHP =  m_data->getPlayer(iTargetPlayer)->getProperty(MAX_HP);
+			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(iItemId);
+			map<ItemData::ITEM_EFFECT_ATTRIBUTE,int> effect = pItem->getItemEffects();
+			map<ItemData::ITEM_EFFECT_ATTRIBUTE,int>::iterator effIter = effect.begin();
+			while (effIter != effect.end()) {
+				switch(effIter->first) {
+				case ItemData::CURRENT_HP:
+					if (iCurrentHP+effIter->second > iMaxHP)
+						m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iMaxHP);
+					else
+						m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iCurrentHP+effIter->second);
+					m_playerLayer->onPlayerHPModified(iTargetPlayer,effIter->second);
+					break;
+				case ItemData::CURRENT_SP:
+					break;
+				};
+				effIter++;
+			}
+			m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 			return;
 		}
-	case WAIT_TARGET:
+	case MonsterLayer::WAIT_TARGET:
 		CCLOG("MONSTER:WAIT_TARGET");
 		break;
-	case TARGET_SELECTED:
+	case MonsterLayer::TARGET_SELECTED:
 		CCLOG("MONSTER:TARGET_SELECTED");
+		int iAttackTarget = m_monsterLayer->getTarget();
+		int iAttackSource = m_playerLayer->getSelectedPlayer();
+		int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
 		switch(m_playerLayer->getStatus()) {
-		case ATTACK:
-			int iAttackSource = m_playerLayer->getSelectedPlayer();
-			int iAttackTarget = m_monsterLayer->getTarget();
+		case PlayerLayer::ATTACK: {
 			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
-			CCLOG("iAttackValue:%d",iAttackValue);
 			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
-			CCLOG("iDefenseValue:%d",iDefenseValue);
 			int iDamage = iAttackValue - iDefenseValue;
-			CCLOG("iDamage:%d",iDamage);
             //TODO:BUFF and DEBUFF may be consider in the futrue
-            int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
             if (iMonsterCurrentHP <= iDamage) {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
 				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
@@ -162,8 +199,40 @@ void BattleField::runPlayerRound() {
 			m_isPlayerFinished[iAttackSource] = true;
             break;
 		}
-		m_playerLayer->setStatus(WAIT_COMMAND);
-		m_monsterLayer->setStatus(SLEEP);
+		case PlayerLayer::ITEM:
+			m_data->getPlayer(iAttackSource)->useItem(getSelectedItemId());
+			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(getSelectedItemId());
+			if (pItem->getMultiTarget()) {
+				//TODO:Attack on all enemies
+			}
+			else{
+				map<ItemData::ITEM_EFFECT_ATTRIBUTE,int> effect = pItem->getItemEffects();
+				map<ItemData::ITEM_EFFECT_ATTRIBUTE,int>::iterator effIter = effect.begin();
+				while (effIter != effect.end()) {
+					switch(effIter->first) {
+					case ItemData::CURRENT_HP: {
+						int iAttackValue = effIter->second;
+						if (iMonsterCurrentHP <= iAttackValue) {
+							m_data->getMonster(iAttackTarget)->setStatus(DEAD);
+							m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
+							m_monsterLayer->killMosnter(iAttackTarget);
+						}
+						else {
+							m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iAttackValue);
+							m_monsterLayer->onAttacked(iAttackTarget, iAttackValue);
+						}
+						break;
+					}
+					case ItemData::CURRENT_SP:
+						//TODO:Other effects
+						break;
+					}
+				}
+			}
+			break;
+		}
+		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 	}
 }
 
@@ -275,6 +344,9 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 				for (int i=0;i<(int)idx;i++)
 					itemIt++;
 				string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+				GBKToUTF(sItemName);
+#endif
 				pLabel = CCLabelTTF::create(sItemName.c_str(), CELL_FONT, CELL_FONT_SIZE); 
 				break;
 			}
@@ -299,6 +371,9 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 			for (int i=0;i<(int)idx;i++)
 				itemIt++;
 			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+			GBKToUTF(sItemName);
+#endif
 			pLabel->setString(sItemName.c_str()); 
 			break;
 		}
@@ -321,9 +396,9 @@ unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 {
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	switch(m_playerLayer->getStatus()) {
-	case ITEM:
+	case PlayerLayer::ITEM:
 		return m_data->getPlayer(iPlayerNum)->getItemList()->size();
-	case SKILL:
+	case PlayerLayer::SKILL:
 		return m_data->getPlayer(iPlayerNum)->getSkillList()->size();
 	default:
 		return 1;
@@ -332,9 +407,39 @@ unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 
 void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	CCLog("cell touched at index: %i", cell->getIdx());
+	CCSprite *pCellbg = CCSprite::create("sanyu/cellback.png");
+	cell->addChild(pCellbg,3,111);
+	int idx = cell->getIdx();
 	m_selectlist->setVisible(false);
-	m_monsterLayer->setStatus(WAIT_TARGET);
+	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	switch (m_selectlist->getContentType()) {
+	case ITEM_LIST:	{
+		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getItemList();
+			map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+			for (int i=0;i<=idx;i++)
+				itemIt++;
+			setSelectedItemId(itemIt->first);
+			int iId = itemIt->first;
+			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first);
+			if (pItem->getTargetType() == ItemData::ENEMY) {
+				if (!pItem->getMultiTarget())
+					m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+				else 
+					m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);		
+			}
+			else if (pItem->getTargetType() == ItemData::FRIEND){
+				m_monsterLayer->setStatus(MonsterLayer::SLEEP);		
+				if (!pItem->getMultiTarget())
+					m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
+				else 
+					m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
+			}
+		}
+		case SKILL_LIST: {
 
+		}
+	};
+	
 	if(m_selectlist->isTouchEnabled())
 		CCLOG("Touch enable");
 	else

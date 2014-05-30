@@ -26,6 +26,7 @@ public:
 	LIST_TYPE getContentType(){return m_type;}
 	void setDataSource(CCTableViewDataSource *source){m_datasource = source;}
 	void setDelegate(CCTableViewDelegate *pDelegate){m_pTableView->setDelegate(pDelegate);}
+
 private:
 	LIST_TYPE m_type;
 	CCTableView *m_pTableView;
