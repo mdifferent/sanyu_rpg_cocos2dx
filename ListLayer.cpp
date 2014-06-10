@@ -97,6 +97,6 @@ void ListLayer::setContentType(LIST_TYPE type) {
 			m_pLabel->setString("None");
 		}
 		m_pLabel->setDirty(true);
-		m_pTableView->reloadData();
 	}
+	m_pTableView->reloadData();
 }

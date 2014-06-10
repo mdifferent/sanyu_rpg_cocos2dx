@@ -112,6 +112,8 @@ void BattleField::runPlayerRound() {
 		switch(m_playerLayer->getStatus()) {
 		case PlayerLayer::WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
+			if (m_selectlist->isVisible())
+				m_selectlist->setVisible(false);
 			return;
 		case PlayerLayer::ATTACK:
 			CCLOG("PLAYER:ATTACK");
@@ -137,11 +139,11 @@ void BattleField::runPlayerRound() {
 			m_selectlist->setVisible(true);
 			m_selectlist->setContentType(ITEM_LIST);
 			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
-			m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useItem(getSelectedItemId());
 			return;
 		case PlayerLayer::WAIT_TARGET:
 			CCLOG("PLAYER:WAIT_TARGET");
 			m_selectlist->setVisible(false);
+			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 			//BUG:Cancel after select item, mark player as finished at where?
 			//Select command again ? or select target?
 			return;
@@ -200,7 +202,7 @@ void BattleField::runPlayerRound() {
             break;
 		}
 		case PlayerLayer::ITEM:
-			m_data->getPlayer(iAttackSource)->useItem(getSelectedItemId());
+			//m_data->getPlayer(iAttackSource)->useItem(getSelectedItemId());
 			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(getSelectedItemId());
 			if (pItem->getMultiTarget()) {
 				//TODO:Attack on all enemies
@@ -227,6 +229,7 @@ void BattleField::runPlayerRound() {
 						//TODO:Other effects
 						break;
 					}
+					effIter++;
 				}
 			}
 			break;
@@ -329,7 +332,8 @@ void BattleField::updateGame(float ft)
 		switchOwner();
 }
 
-CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int idx) {
+CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int idx) 
+{
 	CCLOG("No of cell=%d",idx);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	CCTableViewCell *cell = table->dequeueCell();
@@ -367,7 +371,12 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 		CCLabelTTF *pLabel = (CCLabelTTF*)cell->getChildByTag(456);
 		switch(m_selectlist->getContentType()) {
 		case ITEM_LIST: {
-			map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+			map<int,int> *pItemList = m_data->getPlayer(iPlayerNum)->getItemList();
+			if (pItemList->size() == 0) {
+				pLabel->setString("");
+				break;
+			}
+			map<int,int>::iterator itemIt = pItemList->begin();
 			for (int i=0;i<(int)idx;i++)
 				itemIt++;
 			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
@@ -395,49 +404,54 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 {
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	int iCellCount = 0;
 	switch(m_playerLayer->getStatus()) {
 	case PlayerLayer::ITEM:
-		return m_data->getPlayer(iPlayerNum)->getItemList()->size();
+		iCellCount = m_data->getPlayer(iPlayerNum)->getItemList()->size();
+		break;
 	case PlayerLayer::SKILL:
-		return m_data->getPlayer(iPlayerNum)->getSkillList()->size();
-	default:
-		return 1;
+		iCellCount = m_data->getPlayer(iPlayerNum)->getSkillList()->size();
 	}
+	return iCellCount;
 }
 
 void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	CCLog("cell touched at index: %i", cell->getIdx());
-	CCSprite *pCellbg = CCSprite::create("sanyu/cellback.png");
-	cell->addChild(pCellbg,3,111);
+	//CCSprite *pCellbg = CCSprite::create("sanyu/cellback.png");
+	//cell->addChild(pCellbg,3,111);
 	int idx = cell->getIdx();
 	m_selectlist->setVisible(false);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	switch (m_selectlist->getContentType()) {
 	case ITEM_LIST:	{
 		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getItemList();
-			map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
-			for (int i=0;i<=idx;i++)
-				itemIt++;
-			setSelectedItemId(itemIt->first);
-			int iId = itemIt->first;
-			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first);
-			if (pItem->getTargetType() == ItemData::ENEMY) {
-				if (!pItem->getMultiTarget())
-					m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
-				else 
-					m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);		
-			}
-			else if (pItem->getTargetType() == ItemData::FRIEND){
-				m_monsterLayer->setStatus(MonsterLayer::SLEEP);		
-				if (!pItem->getMultiTarget())
-					m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
-				else 
-					m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
-			}
+		int iSize = p->size();
+		if (idx > iSize || iSize == 0)
+			return;
+		map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+		for (int i=0;i<idx;i++)
+			itemIt++;
+		setSelectedItemId(itemIt->first);
+		int iId = itemIt->first;
+		ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first);
+		if (pItem->getTargetType() == ItemData::ENEMY) {
+			if (!pItem->getMultiTarget())
+				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+			else 
+				m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);		
 		}
-		case SKILL_LIST: {
+		else if (pItem->getTargetType() == ItemData::FRIEND){
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);		
+			if (!pItem->getMultiTarget())
+				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
+			else 
+				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
+		}
+		m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useItem(itemIt->first);
+	}
+	case SKILL_LIST: {
 
-		}
+	}
 	};
 	
 	if(m_selectlist->isTouchEnabled())
@@ -451,7 +465,5 @@ CCSize BattleField::cellSizeForTable(CCTableView *table) {
 }
 
 void BattleField::setListContent(LIST_TYPE type) {
-	if (type != m_selectlist->getContentType())	{
 		m_selectlist->setContentType(type);
-	}
 }
