@@ -237,6 +237,9 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
 					pMenu->runAction(CCFadeIn::create(0.2f));
 				}
+				else if (m_status == ITEM || m_status == SKILL) {
+					m_status = WAIT_COMMAND;
+				}
 				return true;
 			}
 		}

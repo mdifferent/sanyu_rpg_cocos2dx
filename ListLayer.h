@@ -26,10 +26,11 @@ public:
 	LIST_TYPE getContentType(){return m_type;}
 	void setDataSource(CCTableViewDataSource *source){m_datasource = source;}
 	void setDelegate(CCTableViewDelegate *pDelegate){m_pTableView->setDelegate(pDelegate);}
+	void setTouchEnabled(bool value);
 
 private:
 	LIST_TYPE m_type;
-	CCTableView *m_pTableView;
+	CCTableView *m_pTableView;				//TODO:Should have lower priority than the layer
 	CCSprite *m_pBackImg;
 	CCLabelTTF *m_pLabel;
 	CCTableViewDataSource *m_datasource;

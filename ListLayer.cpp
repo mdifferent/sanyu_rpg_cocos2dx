@@ -100,3 +100,10 @@ void ListLayer::setContentType(LIST_TYPE type) {
 	}
 	m_pTableView->reloadData();
 }
+
+void ListLayer::setTouchEnabled(bool value)
+{
+	CCLayer::setTouchEnabled(value);
+	if (m_pTableView)
+		m_pTableView->setTouchEnabled(value);
+}

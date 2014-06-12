@@ -106,14 +106,19 @@ bool BattleField::init()
 }
 
 void BattleField::runPlayerRound() {
+	if (m_playerLayer->getStatus() != PlayerLayer::ITEM &&
+		m_playerLayer->getStatus() != PlayerLayer::SKILL) {
+			if (m_selectlist->isVisible())
+				m_selectlist->setVisible(false);
+			if (m_selectlist->isTouchEnabled())
+				m_selectlist->setTouchEnabled(false);
+	}
 	switch(m_monsterLayer->getStatus()) {
 	case MonsterLayer::SLEEP:
 		CCLOG("MONSTER:SLEEP");
 		switch(m_playerLayer->getStatus()) {
 		case PlayerLayer::WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
-			if (m_selectlist->isVisible())
-				m_selectlist->setVisible(false);
 			return;
 		case PlayerLayer::ATTACK:
 			CCLOG("PLAYER:ATTACK");
@@ -122,6 +127,7 @@ void BattleField::runPlayerRound() {
 		case PlayerLayer::SKILL:
 			CCLOG("PLAYER:SKILL");
 			m_selectlist->setVisible(true);
+			m_selectlist->setTouchEnabled(true);
 			m_selectlist->setContentType(SKILL_LIST);
 			return;
 		case PlayerLayer::GUARD:
@@ -137,12 +143,14 @@ void BattleField::runPlayerRound() {
 		case PlayerLayer::ITEM:
 			CCLOG("PLAYER:ITEM");
 			m_selectlist->setVisible(true);
+			m_selectlist->setTouchEnabled(true);
 			m_selectlist->setContentType(ITEM_LIST);
-			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+			//m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 			return;
 		case PlayerLayer::WAIT_TARGET:
 			CCLOG("PLAYER:WAIT_TARGET");
 			m_selectlist->setVisible(false);
+			m_selectlist->setTouchEnabled(false);
 			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 			//BUG:Cancel after select item, mark player as finished at where?
 			//Select command again ? or select target?
