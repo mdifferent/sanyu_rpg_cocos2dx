@@ -1,5 +1,5 @@
 #include "PlayerData.h"
-
+#include "InstanceDatabase.h"
 /*
 PlayerData::PlayerData(const PlayerData &cName):
 	m_name(cName.m_name),
@@ -53,10 +53,19 @@ void PlayerData::getItem(const int id,const int iCount)
 		m_items.insert(std::make_pair(id,iCount));
 }
 
-void PlayerData::learnSkill(const string &name, const int level)
+void PlayerData::learnSkill(const int skillId, const int level)
 {
-	if (m_skills.find(name) == m_skills.end())
-		m_skills.insert(make_pair<string,int>(name,level));
+	if (m_skills.find(skillId) == m_skills.end())
+		m_skills.insert(make_pair<int,int>(skillId,level));
 	else
-		m_skills[name] += level;
+		m_skills[skillId] += level;
+}
+
+void PlayerData::useSkill(const int id)
+{
+	SkillData *pData = InstanceDatabase::getDatabaseInstance()->getSkillById(id);
+	int cost = pData->getCost();
+	int current_hp = getProperty(CURRENT_HP);
+	if (current_hp > cost)
+		setProperty(CURRENT_HP,current_hp-cost);
 }

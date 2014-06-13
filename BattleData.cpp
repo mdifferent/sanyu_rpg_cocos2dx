@@ -16,7 +16,7 @@ BattleData::BattleData(void)
 	pd1->setProperty(MELEE_ATTACK,30);
 	pd1->setProperty(MELEE_DEFENSE,10);
 	pd1->getItem(2);
-	pd1->learnSkill("FireBall");
+	pd1->learnSkill(1);
 	PlayerData *pd2 = new PlayerData(name2);
 	pd2->setProperty(MAX_HP,500);
 	pd2->setProperty(CURRENT_HP,500);
@@ -26,14 +26,14 @@ BattleData::BattleData(void)
 	pd2->getItem(1);
 	pd2->getItem(2);
 	pd2->getItem(2);
-	pd2->learnSkill("Blizzard");
+	pd2->learnSkill(2);
 	PlayerData *pd3 = new PlayerData(name3);
 	pd3->setProperty(MAX_HP,500);
 	pd3->setProperty(CURRENT_HP,500);
 	pd3->setProperty(MAX_SP,500);
 	pd3->setProperty(CURRENT_SP,500);
 	pd3->setProperty(MELEE_ATTACK,30);
-	pd3->learnSkill("Blizzard");
+	pd3->learnSkill(2);
 	PlayerData *pd4 = new PlayerData(name4);
 	pd4->setProperty(MAX_HP,500);
 	pd4->setProperty(CURRENT_HP,500);

@@ -14,8 +14,7 @@ SaveProcessor::~SaveProcessor(void)
 XMLElement *SaveProcessor::findNthSaveData(const int iSaveNo)
 {
 	tinyxml2::XMLDocument m_doc;
-	if (m_doc.LoadFile(SAVE_FILE_PATH)!= XML_NO_ERROR)
-	{
+	if (m_doc.LoadFile(SAVE_FILE_PATH)!= XML_NO_ERROR) {
 		CCLOG("Load save file failed!");
 		return NULL;
 	}
@@ -23,12 +22,10 @@ XMLElement *SaveProcessor::findNthSaveData(const int iSaveNo)
 	XMLElement *pSaveData = pRoot->FirstChildElement("SaveData");
 	bool bRecordFound = false;
 	//Find record, according to pos attribute
-	while(pSaveData)			
-	{
+	while(pSaveData) {
 		int iPos = 0;
 		pSaveData->QueryIntAttribute("pos", &iPos);
-		if (iSaveNo == iPos)
-		{
+		if (iSaveNo == iPos) {
 			return pSaveData;
 		}
 		else
@@ -44,8 +41,7 @@ map<int,PlayerData*> *SaveProcessor::loadPlayerData(const int iSaveNo)
 
 	XMLElement *pSaveData = findNthSaveData(iSaveNo);
 
-	if (!pSaveData)
-	{
+	if (!pSaveData)	{
 		CCLOG("Couldn't find save data No.%d",iSaveNo);
 		return NULL;
 	}
@@ -54,14 +50,12 @@ map<int,PlayerData*> *SaveProcessor::loadPlayerData(const int iSaveNo)
 	int i=1;
 	//Get every player data
 	XMLElement *pPlayerElement = pSaveData->FirstChildElement("Player");
-	while(pPlayerElement)		
-	{
+	while(pPlayerElement) {
 		PlayerData *pData = new PlayerData(pPlayerElement->Attribute("name"));
 		//Get every property of each player
 		XMLElement *pPropertyElement = pPlayerElement->FirstChildElement();
 		PLAYER_PROP_TYPE ePro = MAX_HP;
-		while(pPropertyElement)			
-		{
+		while(pPropertyElement)	{
 			int iValue = atoi(pPropertyElement->GetText());
 			pData->setProperty(ePro,iValue);
 			ePro = (PLAYER_PROP_TYPE)(ePro+1);
@@ -69,8 +63,7 @@ map<int,PlayerData*> *SaveProcessor::loadPlayerData(const int iSaveNo)
 		}
 		//Get items
 		XMLElement *pItemElement = pPlayerElement->FirstChildElement("ItemList")->FirstChildElement("Item");
-		while(pItemElement)
-		{
+		while(pItemElement)	{
 			int iItemId = pItemElement->IntAttribute("id");
 			//string sItemName = string(pItemElement->Attribute("id"));
 			int iItemCount = atoi(pItemElement->GetText());
@@ -79,12 +72,11 @@ map<int,PlayerData*> *SaveProcessor::loadPlayerData(const int iSaveNo)
 		}
 		//Get skills
 		XMLElement *pSkillElement = pPlayerElement->FirstChildElement("SkillList")->FirstChildElement("Skill");
-		while (pSkillElement)
-		{
-			string sSkillName = string(pSkillElement->Attribute("name"));
+		while (pSkillElement) {
+			int iSkillId = pSkillElement->IntAttribute("id");
 			int iSkillLevel = atoi(pSkillElement->GetText());
 			if (iSkillLevel > 0)
-				pData->learnSkill(sSkillName,iSkillLevel);
+				pData->learnSkill(iSkillId,iSkillLevel);
 			pSkillElement = pSkillElement->NextSiblingElement("Skill");
 		}
 		dataSet->insert(std::make_pair<int,PlayerData*>(i++,pData));

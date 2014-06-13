@@ -41,6 +41,16 @@ ItemData *InstanceDatabase::getItemById(int id) {
 }
 
 bool InstanceDatabase::initSkillSetByIds(list<int>) {
+	//TODO: stub data here
+	SkillData *p1 = new SkillData(1,"»ðÇò",10,SkillData::ATTACK,SkillData::ENEMY,false);
+	p1->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,20));
+	m_skillDataset.insert(make_pair<int,SkillData*>(1,p1));
+	SkillData *p2 = new SkillData(2,"±©·çÑ©",50,SkillData::ATTACK,SkillData::ENEMY,true);
+	p2->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,100));
+	m_skillDataset.insert(make_pair<int,SkillData*>(2,p2));
+	SkillData *p3 = new SkillData(3,"Äþ¾²Ö®Óê",40,SkillData::RECOVER,SkillData::FRIEND,true);
+	p3->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,100));
+	m_skillDataset.insert(make_pair<int,SkillData*>(3,p3));
 	return true;
 }
 

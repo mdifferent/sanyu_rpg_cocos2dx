@@ -259,37 +259,61 @@ void PlayerLayer::onPlayerKilled(int i) {
 	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
 }
 
-void PlayerLayer::onPlayerHPModified(int iNum, int iDamage) {
+void PlayerLayer::onPlayerPropModified(PLAYER_PROP_TYPE type, int iNum, int iDamage) {
 	CCSprite *pPlayer = dynamic_cast<CCSprite*>(this->getChildByTag(iNum));
 	int iPlayerCount = m_data->size();
 	//HP Bar modify
-	CCProgressTimer *hpBarTimer = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iPlayerCount + iNum));
-	float fCurrentHp = m_data->at(iNum)->getProperty(CURRENT_HP);
-	float fMaxHp = m_data->at(iNum)->getProperty(MAX_HP);
-	float fFromPercent = ((fCurrentHp - iDamage) / fMaxHp) * 100.0f;
-	float fToPercent = (fCurrentHp / fMaxHp) * 100.0f;
-	if (fCurrentHp - 0.0 < 1)
+	CCProgressTimer *bar = NULL;
+	float fCurrentValue = 0;
+	float fMaxValue = 0;
+	if (type == CURRENT_HP) {
+		bar = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iPlayerCount + iNum));
+		fCurrentValue =  m_data->at(iNum)->getProperty(CURRENT_HP);
+		fMaxValue = m_data->at(iNum)->getProperty(MAX_HP);
+	}
+	else if (type == CURRENT_SP) {
+		bar = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iPlayerCount*2 + iNum));
+		fCurrentValue =  m_data->at(iNum)->getProperty(CURRENT_SP);
+		fMaxValue = m_data->at(iNum)->getProperty(MAX_SP);
+	}
+	float fFromPercent = ((fCurrentValue - iDamage) / fMaxValue) * 100.0f;
+	float fToPercent = (fCurrentValue / fMaxValue) * 100.0f;
+	if (fCurrentValue - 0.0 < 1)
 		fToPercent = 0.0;
-	hpBarTimer->runAction(CCProgressFromTo::create(0.5f,fFromPercent,fToPercent));
+	bar->runAction(CCProgressFromTo::create(0.5f,fFromPercent,fToPercent));
 	//HP value modify
-	CCLabelTTF *pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*4));
-	int iCurrentHP = m_data->at(iNum)->getProperty(CURRENT_HP);
-	int iMaxHP = m_data->at(iNum)->getProperty(MAX_HP);
+	CCLabelTTF *pHPLabel = NULL;
+	int iCurrentValue = 0;
+	int iMaxValue = 0;
+	if (type == CURRENT_HP) {
+		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*4));
+		iCurrentValue = m_data->at(iNum)->getProperty(CURRENT_HP);
+		iMaxValue = m_data->at(iNum)->getProperty(MAX_HP);
+	}
+	else if (type == CURRENT_SP) {
+		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*5));
+		iCurrentValue = m_data->at(iNum)->getProperty(CURRENT_SP);
+		iMaxValue = m_data->at(iNum)->getProperty(MAX_SP);
+	}
 	char cHPPair[15];
-	sprintf(cHPPair,"%d/%d",iCurrentHP,iMaxHP);
+	sprintf(cHPPair,"%d/%d",iCurrentValue,iMaxValue);
 	pHPLabel->setString(cHPPair);
 	//Damage Number
 	m_pFont->setPosition(pPlayer->getPosition());
 	char cDamage[10];
-	if (iDamage < 0) {
-		//cDamage[0] = '-';
-		_itoa(iDamage,cDamage,10);
-		m_pFont->setColor(ccRED);
+	if (type == CURRENT_HP) {
+		if (iDamage < 0) {
+			_itoa(iDamage,cDamage,10);
+			m_pFont->setColor(ccRED);
+		}
+		else {
+			_itoa(iDamage,cDamage,10);
+			m_pFont->setColor(ccGREEN);
+		}
 	}
-	else {
-		//cDamage[0] = '+';
+	else if (type == CURRENT_SP) {
 		_itoa(iDamage,cDamage,10);
-		m_pFont->setColor(ccGREEN);
+		m_pFont->setColor(ccBLUE);
 	}
 	m_pFont->setString(cDamage);
 	int iNumCount = m_pFont->getChildrenCount();

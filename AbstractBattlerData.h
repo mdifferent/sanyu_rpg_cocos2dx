@@ -38,7 +38,7 @@ public:
 
 	map<PLAYER_PROP_TYPE,int> *getPropertyList(){return &m_properties;};
 	map<int,int> *getItemList(){return &m_items;};
-	map<string,int> *getSkillList(){return &m_skills;};
+	map<int,int> *getSkillList(){return &m_skills;};
     
     void setStatus(BATTLER_STATUS);
     BATTLER_STATUS getStatus() {return m_status;}
@@ -48,6 +48,6 @@ protected:
     BATTLER_STATUS m_status;
 	map<PLAYER_PROP_TYPE,int> m_properties;	//name-value
 	map<int,int> m_items;		//id-amount
-	map<string,int> m_skills;		//id-status
+	map<int,int> m_skills;		//id-status
 	map<PLAYER_PROP_TYPE,int> m_bufs;
 };

@@ -44,7 +44,7 @@ public:
 	void playerItemCallback(CCObject* pSender);
 
 	void onPlayerKilled(int i);
-	void onPlayerHPModified(int iNum, int iValue); 	//iDamage > 0 : Recover; <0 : Damage
+	void onPlayerPropModified(PLAYER_PROP_TYPE, int, int); 	//iDamage > 0 : Recover; <0 : Damage
     
 private:
     map<int, PlayerData*> *m_data;

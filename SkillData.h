@@ -36,7 +36,7 @@ public:
 	bool getMultiTarget() const {return m_isMultiTarget;}
 	map<SKILL_EFFECT_ATTRIBUTE,int> &getItemEffects() {return m_effects;}
 	void setEffect(pair<SKILL_EFFECT_ATTRIBUTE,int>);
-
+	int getCost() const {return m_cost;}
 private:
 	int m_id;
 	string m_name;

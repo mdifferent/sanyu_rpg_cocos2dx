@@ -10,7 +10,8 @@ public:
 	int useItem(const int id);
 	void getItem(const int id,const int iCount = 1);
 
-	void learnSkill(const string &name,const int level=1);
+	void learnSkill(const int,const int level=1);
+	void useSkill(const int id);
 private:
 };
 

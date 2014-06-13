@@ -23,21 +23,17 @@ BattleField::~BattleField(void)
 BattleField* BattleField::scene(int iSceneNo)
 {
 	BattleField *pScene = new BattleField();
-	if (pScene)
-	{
+	if (pScene)	{
 		pScene->m_sceneNo = iSceneNo;
-		if(pScene->init())
-		{
+		if(pScene->init()) {
 			pScene->autorelease();
 		}
-		else
-        {
+		else {
             CC_SAFE_DELETE(pScene);
             return NULL;
         }
 	}
-	else
-	{
+	else {
 		CC_SAFE_DELETE(pScene);
 		return NULL;
 	}
@@ -48,13 +44,13 @@ bool BattleField::init()
 {
 	bool bRet = true;
 	//Load battle data
-	if (!CCScene::init()){
+	if (!CCScene::init()) {
 		return false;
 	}
 	m_data = BattleData::loadData(m_sceneNo);
 	list<int> p;
 	InstanceDatabase::getDatabaseInstance()->initItemSetByIds(p);
-
+	InstanceDatabase::getDatabaseInstance()->initSkillSetByIds(p);
 	int iPlayerCount = m_data->getPlayers()->size();
 	int iMonsterCount = m_data->getMonsters()->size();
 	for (int i=0;i<iPlayerCount;i++)
@@ -171,9 +167,10 @@ void BattleField::runPlayerRound() {
 						m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iMaxHP);
 					else
 						m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iCurrentHP+effIter->second);
-					m_playerLayer->onPlayerHPModified(iTargetPlayer,effIter->second);
+					m_playerLayer->onPlayerPropModified(CURRENT_HP,iTargetPlayer,effIter->second);
 					break;
 				case ItemData::CURRENT_SP:
+
 					break;
 				};
 				effIter++;
@@ -273,11 +270,11 @@ void BattleField::runComputerRound() {
 				pPlayers->at(iAttackTarget)->setStatus(DEAD);
 				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP,0);
 				m_playerLayer->onPlayerKilled(iAttackTarget);
-				m_playerLayer->onPlayerHPModified(iAttackTarget,0-iDamageValue);
+				m_playerLayer->onPlayerPropModified(CURRENT_HP,iAttackTarget,0-iDamageValue);
 			}
 			else {
 				pPlayers->at(iAttackTarget)->setProperty(CURRENT_HP, iPlayerCurrentHP-iDamageValue);
-				m_playerLayer->onPlayerHPModified(iAttackTarget,0-iDamageValue);
+				m_playerLayer->onPlayerPropModified(CURRENT_HP,iAttackTarget,0-iDamageValue);
 			}
 			m_data->getMonster(i)->setStatus(FINISHED);
 			m_isMonsterFinished[i] = true;
@@ -363,10 +360,14 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 				break;
 			}
 		case SKILL_LIST: {
-				map<string,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
+				map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 				for (int i=0;i<(int)idx;i++)
 					skillIt++;
-				pLabel = CCLabelTTF::create(skillIt->first.c_str(), CELL_FONT, CELL_FONT_SIZE); 
+				string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getSkillName();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+				GBKToUTF(sSkillName);
+#endif
+				pLabel = CCLabelTTF::create(sSkillName.c_str(), CELL_FONT, CELL_FONT_SIZE); 
 				break;
 			}
 		default:
@@ -395,10 +396,14 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 			break;
 		}
 		case SKILL_LIST: {
-			map<string,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
+			map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 			for (int i=0;i<(int)idx;i++)
 				skillIt++;
-			pLabel->setString(skillIt->first.c_str()); 
+			string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getSkillName();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+				GBKToUTF(sSkillName);
+#endif
+			pLabel->setString(sSkillName.c_str()); 
 			break;
 		}
 		default:
@@ -458,7 +463,30 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 		m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useItem(itemIt->first);
 	}
 	case SKILL_LIST: {
-
+		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getSkillList();
+		int iSize = p->size();
+		if (idx > iSize || iSize == 0)
+			return;
+		map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
+		for (int i=0;i<idx;i++)
+			skillIt++;
+		setSelectedItemId(skillIt->first);
+		int iId = skillIt->first;
+		SkillData *pItem = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first);
+		if (pItem->getTargetType() == SkillData::ENEMY) {
+			if (!pItem->getMultiTarget())
+				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+			else 
+				m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);
+		}
+		else if (pItem->getTargetType() == ItemData::FRIEND) {
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);	
+			if (!pItem->getMultiTarget())
+				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
+			else 
+				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
+		}
+		m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useSkill(iId);
 	}
 	};
 	
