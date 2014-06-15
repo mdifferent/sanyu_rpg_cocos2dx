@@ -42,7 +42,7 @@ public:
 private:
 	void runPlayerRound();
 	void runComputerRound();
-	bool BattleField::checkRoundFinished();
+	bool checkRoundFinished();
 	void switchOwner();
 
 	BackgroundLayer *m_bg;

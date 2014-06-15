@@ -159,7 +159,11 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 		//Damage number
 		m_pFont->setPosition(pMonster->getPosition());
 		char cDamage[10];
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 		_itoa(iDamage,cDamage,10);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+        sprintf(cDamage,"%d",iDamage);
+#endif
 		m_pFont->setString(cDamage);
 		int iNumCount = m_pFont->getChildrenCount();
 		int i = 0;

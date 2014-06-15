@@ -303,16 +303,28 @@ void PlayerLayer::onPlayerPropModified(PLAYER_PROP_TYPE type, int iNum, int iDam
 	char cDamage[10];
 	if (type == CURRENT_HP) {
 		if (iDamage < 0) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 			_itoa(iDamage,cDamage,10);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+            sprintf(cDamage,"%d",iDamage);
+#endif
 			m_pFont->setColor(ccRED);
 		}
 		else {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 			_itoa(iDamage,cDamage,10);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+            sprintf(cDamage,"%d",iDamage);
+#endif
 			m_pFont->setColor(ccGREEN);
 		}
 	}
 	else if (type == CURRENT_SP) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 		_itoa(iDamage,cDamage,10);
+#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+        sprintf(cDamage,"%d",iDamage);
+#endif
 		m_pFont->setColor(ccBLUE);
 	}
 	m_pFont->setString(cDamage);
