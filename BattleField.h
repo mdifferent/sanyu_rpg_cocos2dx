@@ -2,6 +2,7 @@
 #include "../cocos2dx/layers_scenes_transitions_nodes/CCScene.h"
 #include "../extensions/GUI/CCScrollView/CCTableView.h"
 #include "BattleData.h"
+#include "AbstractListItemData.h"
 #include "BackgroundLayer.h"
 #include "InfoBarLayer.h"
 #include "PlayerLayer.h"
@@ -44,6 +45,7 @@ private:
 	void runComputerRound();
 	bool checkRoundFinished();
 	void switchOwner();
+	void effectOnMonsters(AbstractListItemData *pEffectSource);
 
 	BackgroundLayer *m_bg;
 	InfoBarLayer *m_info_back;

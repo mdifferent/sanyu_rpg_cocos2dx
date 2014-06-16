@@ -42,26 +42,26 @@ ItemData *InstanceDatabase::getItemById(int id) {
 
 bool InstanceDatabase::initSkillSetByIds(list<int>) {
 	//TODO: stub data here
-	SkillData *p1 = new SkillData(1,"»ðÇò",10,SkillData::ATTACK,SkillData::ENEMY,false);
-	p1->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,20));
+	SkillData *p1 = new SkillData(1,"»ðÇò",SkillData::ENEMY,false,50,SkillData::ATTACK);
+	p1->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,20));
 	m_skillDataset.insert(make_pair<int,SkillData*>(1,p1));
-	SkillData *p2 = new SkillData(2,"±©·çÑ©",50,SkillData::ATTACK,SkillData::ENEMY,true);
-	p2->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,100));
+	SkillData *p2 = new SkillData(2,"±©·çÑ©",SkillData::ENEMY,true,150,SkillData::ATTACK);
+	p2->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,100));
 	m_skillDataset.insert(make_pair<int,SkillData*>(2,p2));
-	SkillData *p3 = new SkillData(3,"Äþ¾²Ö®Óê",40,SkillData::RECOVER,SkillData::FRIEND,true);
-	p3->setEffect(make_pair<SkillData::SKILL_EFFECT_ATTRIBUTE,int>(SkillData::CURRENT_HP,100));
+	SkillData *p3 = new SkillData(3,"Äþ¾²Ö®Óê",SkillData::FRIEND,true,200,SkillData::RECOVER);
+	p3->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,100));
 	m_skillDataset.insert(make_pair<int,SkillData*>(3,p3));
 	return true;
 }
 
 bool InstanceDatabase::initItemSetByIds(list<int>) {
 	//TODO: stub data here
-	ItemData *p1 = new ItemData(1,"Æ»¹û",ItemData::CONSUME,ItemData::FRIEND,false);
-	p1->setEffect(make_pair<ItemData::ITEM_EFFECT_ATTRIBUTE,int>(ItemData::CURRENT_HP,10));
+	ItemData *p1 = new ItemData(1,"Æ»¹û",ItemData::FRIEND,false,ItemData::CONSUME);
+	p1->setEffect(make_pair<ItemData::EffectAttribute,int>(ItemData::CURRENT_HP,10));
 	m_itemDataset.insert(make_pair<int,ItemData*>(1,p1));
 
-	ItemData *p2 = new ItemData(2,"Ñ¸½£",ItemData::CONSUME,ItemData::ENEMY,false);
-	p2->setEffect(make_pair<ItemData::ITEM_EFFECT_ATTRIBUTE,int>(ItemData::CURRENT_HP,10));
+	ItemData *p2 = new ItemData(2,"Ñ¸½£",ItemData::ENEMY,false,ItemData::CONSUME);
+	p2->setEffect(make_pair<ItemData::EffectAttribute,int>(ItemData::CURRENT_HP,10));
 	m_itemDataset.insert(make_pair<int,ItemData*>(2,p2));
 
 	return true;

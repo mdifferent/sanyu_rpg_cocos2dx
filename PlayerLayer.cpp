@@ -286,12 +286,12 @@ void PlayerLayer::onPlayerPropModified(PLAYER_PROP_TYPE type, int iNum, int iDam
 	int iCurrentValue = 0;
 	int iMaxValue = 0;
 	if (type == CURRENT_HP) {
-		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*4));
+		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*4+iNum));
 		iCurrentValue = m_data->at(iNum)->getProperty(CURRENT_HP);
 		iMaxValue = m_data->at(iNum)->getProperty(MAX_HP);
 	}
 	else if (type == CURRENT_SP) {
-		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*5));
+		pHPLabel = dynamic_cast<CCLabelTTF*>(this->getChildByTag(iPlayerCount*5+iNum));
 		iCurrentValue = m_data->at(iNum)->getProperty(CURRENT_SP);
 		iMaxValue = m_data->at(iNum)->getProperty(MAX_SP);
 	}

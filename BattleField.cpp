@@ -158,8 +158,8 @@ void BattleField::runPlayerRound() {
 			int iCurrentHP = m_data->getPlayer(iTargetPlayer)->getProperty(CURRENT_HP);
 			int iMaxHP =  m_data->getPlayer(iTargetPlayer)->getProperty(MAX_HP);
 			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(iItemId);
-			map<ItemData::ITEM_EFFECT_ATTRIBUTE,int> effect = pItem->getItemEffects();
-			map<ItemData::ITEM_EFFECT_ATTRIBUTE,int>::iterator effIter = effect.begin();
+			map<ItemData::EffectAttribute,int> effect = pItem->getItemEffects();
+			map<ItemData::EffectAttribute,int>::iterator effIter = effect.begin();
 			while (effIter != effect.end()) {
 				switch(effIter->first) {
 				case ItemData::CURRENT_HP:
@@ -179,18 +179,19 @@ void BattleField::runPlayerRound() {
 			return;
 		}
 	case MonsterLayer::WAIT_TARGET:
+		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 		CCLOG("MONSTER:WAIT_TARGET");
 		break;
 	case MonsterLayer::TARGET_SELECTED:
 		CCLOG("MONSTER:TARGET_SELECTED");
 		int iAttackTarget = m_monsterLayer->getTarget();
 		int iAttackSource = m_playerLayer->getSelectedPlayer();
-		int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
 		switch(m_playerLayer->getStatus()) {
 		case PlayerLayer::ATTACK: {
 			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
 			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
 			int iDamage = iAttackValue - iDefenseValue;
+			int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
             //TODO:BUFF and DEBUFF may be consider in the futrue
             if (iMonsterCurrentHP <= iDamage) {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
@@ -203,48 +204,76 @@ void BattleField::runPlayerRound() {
             }
 			CCLOG("Remain HP:%d",m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP));
 			m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
-			m_isPlayerFinished[iAttackSource] = true;
             break;
 		}
 		case PlayerLayer::ITEM:
-			//m_data->getPlayer(iAttackSource)->useItem(getSelectedItemId());
-			ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(getSelectedItemId());
-			if (pItem->getMultiTarget()) {
-				//TODO:Attack on all enemies
+			effectOnMonsters(InstanceDatabase::getDatabaseInstance()->getItemById(getSelectedItemId()));
+			break;
+		case PlayerLayer::SKILL:{
+			int iSkillId = getSelectedItemId();
+			SkillData *pData = InstanceDatabase::getDatabaseInstance()->getSkillById(iSkillId);
+			int iCost = pData->getCost();
+			int iCurrentSP = m_data->getPlayer(iAttackSource)->getProperty(CURRENT_SP);
+			if (iCost <= iCurrentSP) {
+				effectOnMonsters(pData);
+				m_data->getPlayer(iAttackSource)->setProperty(CURRENT_SP,iCurrentSP-iCost);
+				m_playerLayer->onPlayerPropModified(CURRENT_SP,iAttackSource,0-iCost);
 			}
-			else{
-				map<ItemData::ITEM_EFFECT_ATTRIBUTE,int> effect = pItem->getItemEffects();
-				map<ItemData::ITEM_EFFECT_ATTRIBUTE,int>::iterator effIter = effect.begin();
-				while (effIter != effect.end()) {
-					switch(effIter->first) {
-					case ItemData::CURRENT_HP: {
-						int iAttackValue = effIter->second;
-						if (iMonsterCurrentHP <= iAttackValue) {
-							m_data->getMonster(iAttackTarget)->setStatus(DEAD);
-							m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
-							m_monsterLayer->killMosnter(iAttackTarget);
-						}
-						else {
-							m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iAttackValue);
-							m_monsterLayer->onAttacked(iAttackTarget, iAttackValue);
-						}
-						break;
-					}
-					case ItemData::CURRENT_SP:
-						//TODO:Other effects
-						break;
-					}
-					effIter++;
-				}
-			}
+			else
+				CCLOG("No enough SP");
 			break;
 		}
+		}
+		m_isPlayerFinished[iAttackSource] = true;
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 	}
 }
 
-void BattleField::runComputerRound() {
+void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource) 
+{
+	map<ItemData::EffectAttribute,int> effect = pEffectSource->getItemEffects();
+	map<ItemData::EffectAttribute,int>::iterator effIter = effect.begin();
+	if (pEffectSource->getMultiTarget()) {
+		map<int,MonsterData*> *monsters = m_data->getMonsters();
+		map<int,MonsterData*>::iterator monsterIter = monsters->begin();
+		while (monsterIter != monsters->end()) {
+			if (monsterIter->second->getStatus() != DEAD) {
+				//TODO:Attack on all enemies
+				CCLOG("Attacks on all monsters");
+			}
+			monsterIter++;
+		}
+	}
+	else{
+		int iAttackTarget = m_monsterLayer->getTarget();
+		int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
+		while (effIter != effect.end()) {
+			switch(effIter->first) {
+			case ItemData::CURRENT_HP: {
+				int iAttackValue = effIter->second;
+				if (iMonsterCurrentHP <= iAttackValue) {
+					m_data->getMonster(iAttackTarget)->setStatus(DEAD);
+					m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
+					m_monsterLayer->killMosnter(iAttackTarget);
+				}
+				else {
+					m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iAttackValue);
+					m_monsterLayer->onAttacked(iAttackTarget, iAttackValue);
+				}
+				break;
+			}
+			case ItemData::CURRENT_SP:
+				//TODO:Other effects
+				break;
+			}
+			effIter++;
+		}
+	}
+}
+
+void BattleField::runComputerRound() 
+{
 	CCLOG("COMPUTER ROUND");
 	map<int,MonsterData*> *pMonsters = m_data->getMonsters();
 	map<int,PlayerData*> *pPlayers = m_data->getPlayers();
@@ -352,7 +381,7 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 				map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
 				for (int i=0;i<(int)idx;i++)
 					itemIt++;
-				string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+				string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getName();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 				GBKToUTF(sItemName);
 #endif
@@ -363,7 +392,7 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 				map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 				for (int i=0;i<(int)idx;i++)
 					skillIt++;
-				string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getSkillName();
+				string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getName();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 				GBKToUTF(sSkillName);
 #endif
@@ -388,7 +417,7 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 			map<int,int>::iterator itemIt = pItemList->begin();
 			for (int i=0;i<(int)idx;i++)
 				itemIt++;
-			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getItemName();
+			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getName();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 			GBKToUTF(sItemName);
 #endif
@@ -399,7 +428,7 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 			map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 			for (int i=0;i<(int)idx;i++)
 				skillIt++;
-			string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getSkillName();
+			string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getName();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 				GBKToUTF(sSkillName);
 #endif
@@ -461,6 +490,7 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
 		}
 		m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useItem(itemIt->first);
+		break;
 	}
 	case SKILL_LIST: {
 		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getSkillList();
@@ -487,6 +517,7 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
 		}
 		m_data->getPlayer(m_playerLayer->getSelectedPlayer())->useSkill(iId);
+		break;
 	}
 	};
 	
