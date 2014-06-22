@@ -63,7 +63,7 @@ void PlayerData::learnSkill(const int skillId, const int level)
 
 void PlayerData::useSkill(const int id)
 {
-	SkillData *pData = InstanceDatabase::getDatabaseInstance()->getSkillById(id);
+	const SkillData *pData = InstanceDatabase::getDatabaseInstance()->getSkillById(id);
 	int cost = pData->getCost();
 	int current_hp = getProperty(CURRENT_HP);
 	if (current_hp > cost)
