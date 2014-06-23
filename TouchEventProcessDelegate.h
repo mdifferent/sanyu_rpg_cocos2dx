@@ -26,8 +26,17 @@ public:
     };
     
     virtual void receiveMessage(TouchMessage,...) = 0;
+
     virtual int getPlayerCount() = 0;
     virtual int getMonsterCount() = 0;
+
+	virtual void setCurrentPlayer(int) = 0;
+	virtual int getCurrentPlayer() = 0;
+
+	virtual void setCurrentMonster(int) = 0;
+	virtual int getCurrentMonster() = 0;
+
+	virtual bool isSelectMonsterOfNo(int) = 0;
 };
 
 #endif

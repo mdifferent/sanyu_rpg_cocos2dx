@@ -1,14 +1,6 @@
 #include "PlayerLayer.h"
-
-const char *HP_BAR_IMG_FILE_PATH = "sanyu/hp_bar.png";
-const char *SP_BAR_IMG_FILE_PATH = "sanyu/sp_bar.png";
-const int NAME_FONT_SIZE = 20;
-const int MENU_FONT_SIZE = 20;
-const int HP_NUM_FONT_SIZE = 16;
-const char *NAME_FONT = "Arial";
-const int PLAYER_SPRITE_HEIGHT = 180;
-const int PLAYER_SPRITE_WIDTH = 200;
-const char* const FONT_PATH = "fonts/numbers.fnt";
+#include "ConstValues.h"
+#include "Resources.h"
 
 PlayerLayer::PlayerLayer(void)
 {

@@ -3,8 +3,10 @@
 #include "../cocos2dx/layers_scenes_transitions_nodes/CCLayer.h"
 #include "cocos2d.h"
 #include "TouchEventProcessDelegate.h"
+#include <stack>
 
 USING_NS_CC;
+using namespace std;
 
 class TouchEventLayer : public CCLayer
 {
@@ -21,8 +23,10 @@ public:
 	~TouchEventLayer(void);
 	bool init();
     void setDelegate(TouchEventProcessDelegate *delegate) {m_delegate = delegate;}
-	void setStatus(const Status status) {m_TouchStatus = status;}
-	Status getStatus() const {return m_TouchStatus;}
+
+	void setStatus(const Status status);
+	Status getStatus() const {return m_statusList.top();}
+	void rollbackStatus() {m_statusList.pop();}
 
     //TouchDelegate
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
@@ -33,9 +37,14 @@ public:
     void playerGuardCallback(CCObject* pSender);
     void playerEscapeCallback(CCObject* pSender);
 	void playerItemCallback(CCObject* pSender);
+
 private:
     float getSpriteHorizontalLeft(int num, int count);
-	Status m_TouchStatus;
+	int getTouchedPlayerNo(float x);
+	void openMenu(int x,int y);
+	void closeMenu();
+private:
+	stack<Status> m_statusList;
     CCPoint *m_touchPoint;
     TouchEventProcessDelegate *m_delegate;
     CCMenu *m_pMenu;

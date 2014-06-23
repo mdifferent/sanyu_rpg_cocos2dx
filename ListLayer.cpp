@@ -1,10 +1,7 @@
 #include "ListLayer.h"
+#include "ConstValues.h"
+#include "Resources.h"
 
-const float BACK_WIDTH = 461;
-const float BACK_HEIGHT = 327;
-const float BACK_LABEL_HEIGHT = 24;
-const char *p_skill = "SKILL SELECT";
-const char *p_item = "ITEM SELECT";
 ListLayer::ListLayer(void)
 {
 	m_type = EMPTY;
@@ -51,7 +48,7 @@ bool ListLayer::init() {
 	}
 
 	CCSize winSize = CCDirector::sharedDirector()->getVisibleSize();
-	m_pBackImg = CCSprite::create("sanyu/itemselect_back.png");
+	m_pBackImg = CCSprite::create(SELECT_LIST_BG_PATH);
 	m_pTableView = CCTableView::create(m_datasource,CCSizeMake(BACK_WIDTH, BACK_HEIGHT-BACK_LABEL_HEIGHT));
 	m_pLabel = CCLabelTTF::create(p_skill, "Arial", 18);
 	if (m_pBackImg && m_pTableView && m_pLabel) {
