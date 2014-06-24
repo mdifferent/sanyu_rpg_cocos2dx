@@ -224,6 +224,18 @@ void BattleField::runPlayerRound() {
 			break;
 		}
 		}
+		bool isMagicMatrixAva = false;
+		for (int i=0;i<m_data->getMonsters()->size();i++) {
+			if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
+				&& m_data->getMonster(i)->getStatus() != DEAD) {
+					isMagicMatrixAva = true;
+					m_info_back->onMagicMatrixAvailable();
+					break;
+			}
+		}
+		if (!isMagicMatrixAva)
+			m_info_back->onMagicMatrixUnavailable();
+			
 		m_isPlayerFinished[iAttackSource] = true;
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);

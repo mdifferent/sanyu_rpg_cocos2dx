@@ -248,7 +248,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 void PlayerLayer::onPlayerKilled(int i) {
 	CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(m_data->size()+i));
 	hpPro->runAction(CCSequence::create(CCFadeIn::create(0.2f),CCProgressTo::create(0.3f, 0),CCFadeOut::create(0.2f),NULL));
-	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));
+	this->getChildByTag(i)->runAction(CCFadeOut::create(0.5f));//TODO:Dead player not fade out, just use gray head
 }
 
 void PlayerLayer::onPlayerPropModified(PLAYER_PROP_TYPE type, int iNum, int iDamage) {
@@ -364,8 +364,24 @@ void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
-void PlayerLayer::playerItemCallback(CCObject* pSender) {
+void PlayerLayer::playerItemCallback(CCObject* pSender) 
+{
 	CCLOG("ITEM");
     m_status = ITEM;
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
+}
+
+void PlayerLayer::onSpecialAttack(int playerNo,int monsterNo)
+{
+	int iPlayerCount = m_data->size();
+	for (int i = 0;i<iPlayerCount;++i) {
+		if (i!= playerNo) {
+			this->getChildByTag(i)->runAction(CCFadeOut::create(0.1f));
+			this->getChildByTag(iPlayerCount+i)->runAction(CCFadeOut::create(0.1f));
+			this->getChildByTag(iPlayerCount*2+i)->runAction(CCFadeOut::create(0.1f));
+		}
+	}
+	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
+	float fVerticalPos = this->getChildByTag(playerNo)->getPositionY();
+	this->getChildByTag(playerNo)->runAction(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fVerticalPos)));
 }

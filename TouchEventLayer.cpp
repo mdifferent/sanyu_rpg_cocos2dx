@@ -27,6 +27,7 @@ bool TouchEventLayer::init()
 bool TouchEventLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
 	CCPoint touchPos = pTouch->getLocation();
+	CCLOG("Touch at %f,%f",touchPos.x,touchPos.y);
     int iPlayerCount = m_delegate->getPlayerCount();
 	int iMonsterCount = m_delegate->getMonsterCount();
 	switch(getStatus()) {
@@ -91,25 +92,30 @@ bool TouchEventLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 void TouchEventLayer::playerAttackCallback(CCObject* pSender)
 {
     CCLOG("ATTACK");
+	m_delegate->receiveMessage(TouchEventProcessDelegate::PLAYER_ACTION_ATTACK);
 }
 
 void TouchEventLayer::playerItemCallback(CCObject* pSender) {
 	CCLOG("ITEM");
+	m_delegate->receiveMessage(TouchEventProcessDelegate::PLAYER_ACTION_ITEM);
 }
 
 void TouchEventLayer::playerSkillCallback(CCObject* pSender)
 {
     CCLOG("SKILL");
+	m_delegate->receiveMessage(TouchEventProcessDelegate::PLAYER_ACTION_SKILL);
 }
 
 void TouchEventLayer::playerGuardCallback(CCObject* pSender)
 {
     CCLOG("GUARD");
+	m_delegate->receiveMessage(TouchEventProcessDelegate::PLAYER_ACTION_DEFENSE);
 }
 
 void TouchEventLayer::playerEscapeCallback(CCObject* pSender)
 {
     CCLOG("ESCAPE");
+	m_delegate->receiveMessage(TouchEventProcessDelegate::PLAYER_ACTION_ESCAPE);
 }
 
 float TouchEventLayer::getSpriteHorizontalLeft(int num, int count)
