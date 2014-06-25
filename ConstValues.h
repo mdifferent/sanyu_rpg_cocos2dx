@@ -3,6 +3,7 @@
 
 static const int PLAYER_SPRITE_HEIGHT = 180;
 static const int PLAYER_SPRITE_WIDTH = 200;
+static const int TOP_BORDER_HEIGHT = 80;
 static const char NAME_FONT[] = "Arial";
 static const int NAME_FONT_SIZE = 20;
 static const int MENU_FONT_SIZE = 20;

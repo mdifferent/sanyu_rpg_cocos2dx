@@ -14,11 +14,10 @@ public:
 	bool init();
 	static InfoBarLayer *createWithBarName(std::string &barName,float fFadein=IB_FADEIN_INTERVAL);
 	void onEnter();
-	void onMagicMatrixAvailable();
-	void onMagicMatrixUnavailable();
+
 private:
 	std::string m_barName;
 	float m_fadein_interval;
-	CCSprite *pMagicTag;
+
 };
 

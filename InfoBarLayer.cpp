@@ -61,10 +61,7 @@ bool InfoBarLayer::init()
 
 	pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 	this->addChild(pSprite,0,0);
-	pMagicTag = CCSprite::create(MAGIC_BTN_PATH);
-	pMagicTag->setOpacity(0);
-	pMagicTag->setPosition(ccp(750,550));
-	addChild(pMagicTag);
+
 	return true;
 }
 
@@ -76,14 +73,3 @@ void InfoBarLayer::onEnter()
 	this->getChildByTag(0)->runAction(action1);
 }
 
-void InfoBarLayer::onMagicMatrixAvailable()
-{
-	if (pMagicTag->getOpacity() == 0)
-		pMagicTag->runAction(CCFadeIn::create(0.1f));
-}
-
-void InfoBarLayer::onMagicMatrixUnavailable()
-{
-	if (pMagicTag->getOpacity() > 0)
-		pMagicTag->runAction(CCFadeOut::create(0.1f));
-}

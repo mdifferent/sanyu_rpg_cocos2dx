@@ -1,7 +1,7 @@
 #include "MonsterLayer.h"
-const float PLAYER_SPRITE_HEIGHT = 180;
-const char* const FONT_PATH = "fonts/numbers.fnt";
-const char* const MONSTER_HP_BAR_PATH = "sanyu/monster_hpbar.png";
+#include "ConstValues.h"
+#include "Resources.h"
+
 
 MonsterLayer::MonsterLayer(void)
 {
@@ -51,29 +51,38 @@ bool MonsterLayer::init() {
 	m_pFont->setOpacity(0);
 	addChild(m_pFont,4);
 
+	//Magic matrix tag
+	m_magicTag = CCSprite::create(MAGIC_BTN_PATH);
+	m_magicTag->setOpacity(0);
+	m_magicTag->setPosition(ccp(750,550));
+	addChild(m_magicTag);
+
+	m_magicPointer = CCSprite::create(MAGIC_UNAVA_PATH);
+	m_magicPointer->setOpacity(0);
+	m_magicPointer->setPosition(ccp(750,550));
+	addChild(m_magicPointer);
+	m_magicAva = CCTextureCache::sharedTextureCache()->addImage(MAGIC_AVA_PATH);
+	m_magicUnava = CCTextureCache::sharedTextureCache()->addImage(MAGIC_UNAVA_PATH);
+
     return true;
 }
 
 MonsterLayer *MonsterLayer::create(map<int,MonsterData*> *dataSet)
 {
 	MonsterLayer *pLayer = new MonsterLayer();
-	if (!pLayer)
-	{
+	if (!pLayer) {
 		CC_SAFE_DELETE(pLayer);
 		return NULL;
 	}
-	else
-	{
+	else {
         int iPlayerCount = dataSet->size();
         pLayer->m_monsters = CCArray::createWithCapacity(iPlayerCount);
         pLayer->m_data = dataSet;
 		pLayer->m_status = SLEEP;
-        if (pLayer->init())
-        {
+        if (pLayer->init()) {
             pLayer->autorelease();
         }
-        else
-        {
+        else {
             CC_SAFE_DELETE(pLayer);
             return NULL;
         }
@@ -85,8 +94,7 @@ void MonsterLayer::onEnter()
 {
     CCLayer::onEnter();
 	int iPlayerCount = m_monsters->count();
-	for(int i=0;i<iPlayerCount;i++)
-	{
+	for(int i=0;i<iPlayerCount;i++) {
 		CCSprite *pSprite = (CCSprite *)m_monsters->objectAtIndex(i);
 		CCDelayTime* delayAction = CCDelayTime::create(2.0f);
 		CCActionInterval *actionTo = CCFadeIn::create(1.0f);
@@ -101,40 +109,105 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 	CCPoint touchPos = pTouch->getLocation();
 	CCLOG("%f,%f",touchPos.x,touchPos.y);
 	int iMonsterCount = m_data->size();
-	CCLOG("Monster layer is waiting for target selection!");
-	if (m_status == WAIT_TARGET)
-	{
-		for (int i = 0;i<iMonsterCount;++i)
-		{
-			CCSize size = this->getChildByTag(i)->getContentSize();
-			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
-			float fLeftCornerX = middlePoint.x - size.width/2;
-			if (touchPos.y > PLAYER_SPRITE_HEIGHT)
-			{
-				if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width)
-				{
+	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
+	if (m_status == WAIT_TARGET) {
+		if (touchPos.y < PLAYER_SPRITE_HEIGHT) {
+			this->setStatus(SLEEP);
+			return false;
+		}
+		else if (touchPos.y > fScreenHeight - TOP_BORDER_HEIGHT) {
+			if (m_isMagicMatrixAvailable) {
+				CCSize magicTagSize = m_magicTag->getContentSize();
+				CCPoint middlePoint = m_magicTag->getPosition();
+				if (touchPos.x > middlePoint.x - magicTagSize.width*0.5 
+					&& touchPos.x < middlePoint.x + magicTagSize.width*0.5
+					&& touchPos.y > middlePoint.y - magicTagSize.height*0.5 
+					&& touchPos.y < middlePoint.y + magicTagSize.height*0.5) {
+						if (m_magicPointer->getScale() != 1)
+							m_magicPointer->setScale(1);
+						m_magicPointer->runAction(CCFadeIn::create(0.1f));
+						setStatus(SPECIAL_ATTACK_PRE);
+						return true;
+				}
+			}
+		}
+		else {
+			for (int i = 0;i<iMonsterCount;++i)	{
+				CCSize size = this->getChildByTag(i)->getContentSize();
+				CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+				float fLeftCornerX = middlePoint.x - size.width/2;
+				if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
 					CCMoveBy *pMoveAction = CCMoveBy::create(0.05f,ccp(10,10));
 					this->getChildByTag(i)->runAction(CCRepeat::create(
 						CCSequence::createWithTwoActions(pMoveAction,pMoveAction->reverse()),4));
 					this->setStatus(TARGET_SELECTED);
 					CCLOG("Target is %d",i);
 					m_target = i;
-					return true;
+					return false;
 				}
 				else
 					continue;
 			}
-			else
-			{
-				//TODO:Call delegate that get player action again
-				this->setStatus(SLEEP);
-				return true;
-			}
 		}
 	}
-	else
-		return false;
-	return true;
+	return false;
+}
+
+void MonsterLayer::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
+{
+	CCPoint touchPos = pTouch->getLocation();
+	int iMonsterCount = m_data->size();
+	if(getStatus() == SPECIAL_ATTACK_PRE) {
+		m_magicPointer->setPosition(touchPos);
+		for (int i = 0;i<iMonsterCount;++i)	{
+			if (m_data->at(i)->getStatus() == DEAD 
+				|| m_data->at(i)->getProperty(CURRENT_HP) > 0.3*m_data->at(i)->getProperty(MAX_HP))
+				continue;
+			CCSize size = this->getChildByTag(i)->getContentSize();
+			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+			float fLeftCornerX = middlePoint.x - size.width/2;
+			float fLeftCornerY = middlePoint.y - size.height/2;
+			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width
+				&& touchPos.y > fLeftCornerY && touchPos.y < fLeftCornerY + size.height) {
+				m_magicPointer->setTexture(m_magicAva);
+				return;
+			}
+			else
+				continue;
+		}
+		m_magicPointer->setTexture(m_magicUnava);
+	}
+}
+
+void MonsterLayer::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
+{
+	CCPoint touchPos = pTouch->getLocation();
+	int iMonsterCount = m_data->size();
+	if(getStatus() == SPECIAL_ATTACK_PRE) {
+		m_magicPointer->setPosition(touchPos);
+		for (int i = 0;i<iMonsterCount;++i)	{
+			if (m_data->at(i)->getStatus() == DEAD 
+				|| m_data->at(i)->getProperty(CURRENT_HP) > 0.3*m_data->at(i)->getProperty(MAX_HP))
+				continue;
+			CCSize size = this->getChildByTag(i)->getContentSize();
+			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+			float fLeftCornerX = middlePoint.x - size.width/2;
+			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
+				m_magicPointer->setTexture(m_magicAva);
+				CCLOG("Target is %d",i);
+				m_target = i;
+				this->setStatus(SPECIAL_ATTACK);
+				return;
+			}
+			else
+				continue;
+		}
+		m_magicPointer->setTexture(m_magicUnava);
+		m_magicPointer->runAction(CCSequence::create(
+			CCSpawn::create(CCMoveTo::create(0.2f,ccp(750,550)),CCScaleTo::create(0.2f,0.5),NULL),
+			CCFadeOut::create(0.1f),NULL));
+		this->setStatus(WAIT_TARGET);
+	}
 }
 
 void MonsterLayer::killMosnter(int i) {
@@ -177,4 +250,18 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 		hpPro->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCFadeOut::create(0.2f),NULL));
 		m_pFont->setPosition(pMonster->getPosition());
 	}
+}
+
+void MonsterLayer::onMagicMatrixAvailable()
+{
+	m_isMagicMatrixAvailable = true;
+	if (m_magicTag->getOpacity() == 0)
+		m_magicTag->runAction(CCFadeIn::create(0.1f));
+}
+
+void MonsterLayer::onMagicMatrixUnavailable()
+{
+	m_isMagicMatrixAvailable = false;
+	if (m_magicTag->getOpacity() > 0)
+		m_magicTag->runAction(CCFadeOut::create(0.1f));
 }

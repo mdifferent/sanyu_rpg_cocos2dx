@@ -192,7 +192,7 @@ void BattleField::runPlayerRound() {
 			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
 			int iDamage = iAttackValue - iDefenseValue;
 			int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
-            //TODO:BUFF and DEBUFF may be consider in the futrue
+            //TODO:BUFF and DEBUFF may be considered in the futrue
             if (iMonsterCurrentHP <= iDamage) {
                 m_data->getMonster(iAttackTarget)->setStatus(DEAD);
 				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
@@ -229,12 +229,12 @@ void BattleField::runPlayerRound() {
 			if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
 				&& m_data->getMonster(i)->getStatus() != DEAD) {
 					isMagicMatrixAva = true;
-					m_info_back->onMagicMatrixAvailable();
+					m_monsterLayer->onMagicMatrixAvailable();
 					break;
 			}
 		}
 		if (!isMagicMatrixAva)
-			m_info_back->onMagicMatrixUnavailable();
+			m_monsterLayer->onMagicMatrixUnavailable();
 			
 		m_isPlayerFinished[iAttackSource] = true;
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);

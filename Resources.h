@@ -8,5 +8,9 @@ static const char FONT_PATH[] = "fonts/numbers.fnt";
 static const char SELECT_LIST_BG_PATH[] = "sanyu/itemselect_back.png";
 
 static const char MAGIC_BTN_PATH[] = "sanyu/magic_tag.png";
+static const char MAGIC_AVA_PATH[] = "sanyu/magic_ava.png";
+static const char MAGIC_UNAVA_PATH[] = "sanyu/magic_unava.png";
+
+static const char MONSTER_HP_BAR_PATH[] = "sanyu/monster_hpbar.png";
 
 #endif
