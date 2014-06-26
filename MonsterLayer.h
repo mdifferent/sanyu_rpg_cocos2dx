@@ -16,6 +16,7 @@ public:
 		TARGET_SELECTED,
 		SPECIAL_ATTACK_PRE,
 		SPECIAL_ATTACK,
+		SPECIAL_ATTACK_FINISHED,
 		SLEEP,
 	};
 	MonsterLayer(void);
@@ -36,6 +37,8 @@ public:
 	void onAttacked(int iNum, int iDamage);
 	void onMagicMatrixAvailable();
 	void onMagicMatrixUnavailable();
+	void initSpecialAttack(int);
+	void onSpecialAttack(float);
 
 private:
 	CCArray *m_monsters;
@@ -48,5 +51,8 @@ private:
 	CCTexture2D *m_magicAva;
 	CCTexture2D *m_magicUnava;
 	bool m_isMagicMatrixAvailable;
+	CCProgressTimer *m_longHPBar;
+	CCSprite *m_timeBarEmpty;
+	CCProgressTimer *m_timeBarFull;
 };
 

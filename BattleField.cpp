@@ -17,7 +17,7 @@ BattleField::BattleField(void)
 
 BattleField::~BattleField(void)
 {
-	CC_SAFE_DELETE(m_selectlist);
+	//CC_SAFE_DELETE(m_selectlist);
 }
 
 BattleField* BattleField::scene(int iSceneNo)
@@ -182,7 +182,7 @@ void BattleField::runPlayerRound() {
 		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 		CCLOG("MONSTER:WAIT_TARGET");
 		break;
-	case MonsterLayer::TARGET_SELECTED:
+	case MonsterLayer::TARGET_SELECTED: {
 		CCLOG("MONSTER:TARGET_SELECTED");
 		int iAttackTarget = m_monsterLayer->getTarget();
 		int iAttackSource = m_playerLayer->getSelectedPlayer();
@@ -239,7 +239,25 @@ void BattleField::runPlayerRound() {
 		m_isPlayerFinished[iAttackSource] = true;
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+		break;
+		}
+	case MonsterLayer::SPECIAL_ATTACK:
+		CCLOG("Special Attack");
+		//this->unschedule(schedule_selector(BattleField::updateGame));
+		//this->schedule(schedule_selector(BattleField::updateSpecialAttack));
+		break;
+	case MonsterLayer::SPECIAL_ATTACK_FINISHED:
+		CCLOG("Special Attack Finished");
+		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+		break;
 	}
+}
+
+void BattleField::updateSpecialAttack()
+{
+
 }
 
 void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource) 

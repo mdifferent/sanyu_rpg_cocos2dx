@@ -9,9 +9,10 @@ ListLayer::ListLayer(void)
 
 ListLayer::~ListLayer(void)
 {
+	/*
 	CC_SAFE_DELETE(m_pBackImg);
 	CC_SAFE_DELETE(m_pLabel);
-	CC_SAFE_DELETE(m_pTableView);
+	CC_SAFE_DELETE(m_pTableView);*/
 }
 
 ListLayer *ListLayer::createWithDataSource(CCTableViewDataSource *source) {

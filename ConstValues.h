@@ -15,4 +15,5 @@ static const float BACK_LABEL_HEIGHT = 24;
 static const char p_skill[] = "SKILL SELECT";
 static const char p_item[] = "ITEM SELECT";
 
+static const int SPECIAL_ATTACK_DURATION = 30;
 #endif

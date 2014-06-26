@@ -64,6 +64,26 @@ bool MonsterLayer::init() {
 	m_magicAva = CCTextureCache::sharedTextureCache()->addImage(MAGIC_AVA_PATH);
 	m_magicUnava = CCTextureCache::sharedTextureCache()->addImage(MAGIC_UNAVA_PATH);
 
+	m_longHPBar = CCProgressTimer::create(CCSprite::create(LONG_HP_BAR));
+	m_longHPBar->setType(kCCProgressTimerTypeBar);
+	m_longHPBar->setMidpoint(ccp(0,0));
+	m_longHPBar->setPercentage(100);
+	m_longHPBar->setBarChangeRate(ccp(1,0));
+	m_longHPBar->setOpacity(0);
+	addChild(m_longHPBar,2);
+
+	m_timeBarEmpty = CCSprite::create(TIME_BAR_EMPTY);
+	m_timeBarEmpty->setOpacity(0);
+	addChild(m_timeBarEmpty,2);
+
+	m_timeBarFull = CCProgressTimer::create(CCSprite::create(TIME_BAR_FULL));
+	m_timeBarFull->setType(kCCProgressTimerTypeBar);
+	m_timeBarFull->setMidpoint(ccp(0,0));
+	m_timeBarFull->setPercentage(100);
+	m_timeBarFull->setBarChangeRate(ccp(1,0));
+	m_timeBarFull->setOpacity(0);
+	addChild(m_timeBarFull,2);
+
     return true;
 }
 
@@ -145,8 +165,6 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					m_target = i;
 					return false;
 				}
-				else
-					continue;
 			}
 		}
 	}
@@ -170,11 +188,11 @@ void MonsterLayer::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width
 				&& touchPos.y > fLeftCornerY && touchPos.y < fLeftCornerY + size.height) {
 				m_magicPointer->setTexture(m_magicAva);
+				m_magicPointer->runAction(CCRepeatForever::create(CCRotateBy::create(0.5,90.0)));
 				return;
 			}
-			else
-				continue;
 		}
+		m_magicPointer->cleanup();
 		m_magicPointer->setTexture(m_magicUnava);
 	}
 }
@@ -194,13 +212,12 @@ void MonsterLayer::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
 			float fLeftCornerX = middlePoint.x - size.width/2;
 			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
 				m_magicPointer->setTexture(m_magicAva);
+				initSpecialAttack(i);
 				CCLOG("Target is %d",i);
 				m_target = i;
 				this->setStatus(SPECIAL_ATTACK);
 				return;
 			}
-			else
-				continue;
 		}
 		m_magicPointer->setTexture(m_magicUnava);
 		m_magicPointer->runAction(CCSequence::create(
@@ -264,4 +281,37 @@ void MonsterLayer::onMagicMatrixUnavailable()
 	m_isMagicMatrixAvailable = false;
 	if (m_magicTag->getOpacity() > 0)
 		m_magicTag->runAction(CCFadeOut::create(0.1f));
+}
+
+void MonsterLayer::initSpecialAttack(int monsterNo)
+{
+	m_magicPointer->cleanup();
+	m_magicPointer->runAction(CCFadeOut::create(0.2f));
+	CCNode *monsterNode = this->getChildByTag(monsterNo);
+	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
+	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
+	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),CCScaleBy::create(0.5f,1.3f),NULL));
+	CCSize monsterSize = monsterNode->getContentSize();
+	CCPoint middlePoint = monsterNode->getPosition();
+	m_timeBarEmpty->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
+	m_timeBarFull->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
+	m_timeBarEmpty->runAction(CCFadeIn::create(0.1f));
+	m_timeBarFull->runAction(CCFadeIn::create(0.1f));
+	m_longHPBar->setPosition(ccp(middlePoint.x,middlePoint.y-monsterSize.height*0.5));
+	m_longHPBar->runAction(CCFadeIn::create(0.1f));
+	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
+	schedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack),0.1f);
+}
+
+void MonsterLayer::onSpecialAttack(float monsterNo)
+{
+	if (m_timeBarFull->getPercentage() == 0.0) {
+		m_timeBarEmpty->runAction(CCFadeOut::create(0.1f));
+		m_timeBarFull->cleanup();
+		m_timeBarFull->runAction(CCFadeOut::create(0.1f));
+		m_longHPBar->runAction(CCFadeOut::create(0.1f));
+		setStatus(SPECIAL_ATTACK_FINISHED);
+		this->unschedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack));
+	}
+	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100);
 }

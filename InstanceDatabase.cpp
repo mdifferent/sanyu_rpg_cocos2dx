@@ -43,7 +43,7 @@ ItemData *InstanceDatabase::getItemById(int id) {
 bool InstanceDatabase::initSkillSetByIds(list<int>) {
 	//TODO: stub data here
 	SkillData *p1 = new SkillData(1,"»ðÇò",SkillData::ENEMY,false,50,SkillData::ATTACK);
-	p1->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,20));
+	p1->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,100));
 	m_skillDataset.insert(make_pair<int,SkillData*>(1,p1));
 	SkillData *p2 = new SkillData(2,"±©·çÑ©",SkillData::ENEMY,true,150,SkillData::ATTACK);
 	p2->setEffect(make_pair<SkillData::EffectAttribute,int>(SkillData::CURRENT_HP,100));
