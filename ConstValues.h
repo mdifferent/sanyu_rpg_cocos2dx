@@ -16,4 +16,7 @@ static const char p_skill[] = "SKILL SELECT";
 static const char p_item[] = "ITEM SELECT";
 
 static const int SPECIAL_ATTACK_DURATION = 30;
+static const int BUBBLE_SPEED = 40;
+static const int BUBBLE_MAX_COUNT = 30;
+static const float SPECIAL_TARGET_SCALE = 1.3f;
 #endif

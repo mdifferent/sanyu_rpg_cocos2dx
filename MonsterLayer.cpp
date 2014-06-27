@@ -290,7 +290,7 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	CCNode *monsterNode = this->getChildByTag(monsterNo);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
-	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),CCScaleBy::create(0.5f,1.3f),NULL));
+	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),CCScaleBy::create(0.5f,SPECIAL_TARGET_SCALE),NULL));
 	CCSize monsterSize = monsterNode->getContentSize();
 	CCPoint middlePoint = monsterNode->getPosition();
 	m_timeBarEmpty->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
@@ -300,7 +300,45 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	m_longHPBar->setPosition(ccp(middlePoint.x,middlePoint.y-monsterSize.height*0.5));
 	m_longHPBar->runAction(CCFadeIn::create(0.1f));
 	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
+	//Create bubbles
+	m_bubbles = CCArray::create();
+	m_bubbles->initWithCapacity(BUBBLE_MAX_COUNT);
+	float bottomBorder = middlePoint.y - SPECIAL_TARGET_SCALE * monsterSize.height;
+	float leftBorder = middlePoint.x - SPECIAL_TARGET_SCALE * monsterSize.width;
+	float rightBorder = middlePoint.x + SPECIAL_TARGET_SCALE * monsterSize.width;
+	while (m_bubbles->count() < m_bubbles->capacity()) {
+		CCSprite *bubble;
+		if (CCRANDOM_0_1() == 1)
+			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_SMALL));
+		else
+			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_BIG));
+		m_bubbles->addObject(bubble);
+		int xpos = leftBorder + CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.width;
+		bubble->setPosition(ccp(xpos,bottomBorder));
+		bubble->setOpacity(0);
+		addChild(bubble,3);
+		int delayTime = CCRANDOM_0_1() + SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED;
+		bubble->runAction(CCSequence::create(CCDelayTime::create(delayTime),
+			CCFadeIn::create(0.1f),
+			CCMoveBy::create(SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * monsterSize.height)),
+			CCCallFuncN::create(this,callfuncN_selector(MonsterLayer::bubbleCallbackN)),NULL));
+	}
 	schedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack),0.1f);
+}
+
+void MonsterLayer::bubbleCallbackN(CCNode *pSender)
+{
+	CCNode *target = this->getChildByTag(m_target);
+	float topBorder = target->getPositionY() + target->getScaleY() * target->getContentSize().height;
+	float bottomBorder = target->getPositionY() - target->getScaleY() * target->getContentSize().height;
+	if (pSender->getPositionY() >= topBorder) {
+		pSender->runAction(CCFadeOut::create(0.1f));
+		pSender->setPositionY(bottomBorder);
+		int delayTime = CCRANDOM_0_1() + SPECIAL_TARGET_SCALE * (topBorder-bottomBorder)/BUBBLE_SPEED;
+		pSender->runAction(CCSequence::create(CCDelayTime::create(delayTime),
+			CCMoveBy::create(SPECIAL_TARGET_SCALE * (topBorder-bottomBorder)/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * (topBorder-bottomBorder))),
+			CCCallFuncN::create(this,callfuncN_selector(MonsterLayer::bubbleCallbackN)),NULL));
+	}
 }
 
 void MonsterLayer::onSpecialAttack(float monsterNo)
@@ -312,6 +350,30 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 		m_longHPBar->runAction(CCFadeOut::create(0.1f));
 		setStatus(SPECIAL_ATTACK_FINISHED);
 		this->unschedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack));
+		CCObject *bubblePointer;
+		CCARRAY_FOREACH(m_bubbles,bubblePointer) {
+			bubblePointer->release();
+		}
+		m_bubbles->removeAllObjects();
+		m_bubbles->release();
+		return;
 	}
-	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100);
+	//refreshBubbles(BUBBLE_SPEED, BUBBLE_MAX_COUNT);
+	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100.0);
 }
+/*
+void MonsterLayer::refreshBubbles(int speed, int total)
+{
+	CCNode *target = this->getChildByTag(m_target);
+	float topBorder = target->getPositionY() + target->getScaleY() * target->getContentSize().height;
+	float bottomBorder = target->getPositionY() - target->getScaleY() * target->getContentSize().height;
+	float leftBorder = target->getPositionY() - target->getScaleX() * target->getContentSize().width;
+	float rightBorder = target->getPositionY() + target->getScaleX() * target->getContentSize().width;
+	CCObject *object;
+	CCARRAY_FOREACH(m_bubbles,object) {
+		CCSprite *bubble = (CCSprite*)object;
+
+	}
+
+}
+*/

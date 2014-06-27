@@ -15,5 +15,7 @@ static const char MAGIC_UNAVA_PATH[] = "sanyu/magic_unava.png";
 static const char LONG_HP_BAR[] = "sanyu/monster_hpbar_L.png";
 static const char TIME_BAR_FULL[] = "sanyu/timebar.png";
 static const char TIME_BAR_EMPTY[] = "sanyu/timebar_nil.png";
+static const char BUBBLE_BIG[] = "sanyu/papaw2.png";
+static const char BUBBLE_SMALL[] = "sanyu/papaw4.png";
 
 #endif
