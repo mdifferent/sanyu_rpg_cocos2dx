@@ -168,6 +168,25 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			}
 		}
 	}
+	else if (m_status == SPECIAL_ATTACK) {
+		CC_ASSERT(m_bubbles);
+		CCObject *bubble = NULL;
+		CCLOG("All have %d bubbles",m_bubbles->count());
+		CCARRAY_FOREACH(m_bubbles,bubble) {
+			CCSprite *bubbleSprite = (CCSprite*)bubble;
+			CCPoint middlePoint = bubbleSprite->getPosition();
+			CCSize size = bubbleSprite->getContentSize();
+			if (touchPos.x > middlePoint.x-size.width*0.5 && touchPos.x < middlePoint.x+size.width*0.5
+				&& touchPos.y > middlePoint.y-size.height*0.5 && touchPos.y < middlePoint.y+size.height*0.5) {
+					bubbleSprite->cleanup();
+					m_BubbleHit++;
+					m_bubbles->removeObject(bubbleSprite,true);
+					CCLOG("Bubble touched retain count:%u",bubbleSprite->retainCount());
+					removeChild(bubbleSprite,true);
+					break;
+			}
+		}
+	}
 	return false;
 }
 
@@ -302,43 +321,38 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
 	//Create bubbles
 	m_bubbles = CCArray::create();
+	m_bubbles->retain();
 	m_bubbles->initWithCapacity(BUBBLE_MAX_COUNT);
-	float bottomBorder = middlePoint.y - SPECIAL_TARGET_SCALE * monsterSize.height;
-	float leftBorder = middlePoint.x - SPECIAL_TARGET_SCALE * monsterSize.width;
-	float rightBorder = middlePoint.x + SPECIAL_TARGET_SCALE * monsterSize.width;
+	float bottomBorder = middlePoint.y - SPECIAL_TARGET_SCALE * monsterSize.height*0.5;
+	float leftBorder = middlePoint.x - SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
+	float rightBorder = middlePoint.x + SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
 	while (m_bubbles->count() < m_bubbles->capacity()) {
 		CCSprite *bubble;
-		if (CCRANDOM_0_1() == 1)
+		if (CCRANDOM_0_1() > 0.3)
 			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_SMALL));
 		else
 			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_BIG));
-		m_bubbles->addObject(bubble);
-		int xpos = leftBorder + CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.width;
+		CCLOG("Bubble pos1 retain count:%u",bubble->retainCount());
+		float xpos = leftBorder + CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.width;
 		bubble->setPosition(ccp(xpos,bottomBorder));
 		bubble->setOpacity(0);
 		addChild(bubble,3);
-		int delayTime = CCRANDOM_0_1() + SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED;
-		bubble->runAction(CCSequence::create(CCDelayTime::create(delayTime),
-			CCFadeIn::create(0.1f),
-			CCMoveBy::create(SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * monsterSize.height)),
-			CCCallFuncN::create(this,callfuncN_selector(MonsterLayer::bubbleCallbackN)),NULL));
+		CCLOG("Bubble pos2 retain count:%u",bubble->retainCount());
+		float delayTime = CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED;
+		CCAction *action = CCRepeatForever::create(
+			CCSequence::create( CCDelayTime::create(delayTime),
+					CCFadeIn::create(0.1f),
+					CCMoveBy::create(SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * monsterSize.height)),
+					CCFadeOut::create(0.1f),
+					CCMoveBy::create(0.01f,ccp(0,-SPECIAL_TARGET_SCALE * monsterSize.height)),NULL));
+		action->setTag(10);
+		bubble->runAction(action);
+		CCLOG("Bubble pos3 retain count:%u",bubble->retainCount());
+		m_bubbles->addObject(bubble);
+		CCLOG("Bubble pos4 retain count:%u",bubble->retainCount());
 	}
+	m_BubbleHit = 0;
 	schedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack),0.1f);
-}
-
-void MonsterLayer::bubbleCallbackN(CCNode *pSender)
-{
-	CCNode *target = this->getChildByTag(m_target);
-	float topBorder = target->getPositionY() + target->getScaleY() * target->getContentSize().height;
-	float bottomBorder = target->getPositionY() - target->getScaleY() * target->getContentSize().height;
-	if (pSender->getPositionY() >= topBorder) {
-		pSender->runAction(CCFadeOut::create(0.1f));
-		pSender->setPositionY(bottomBorder);
-		int delayTime = CCRANDOM_0_1() + SPECIAL_TARGET_SCALE * (topBorder-bottomBorder)/BUBBLE_SPEED;
-		pSender->runAction(CCSequence::create(CCDelayTime::create(delayTime),
-			CCMoveBy::create(SPECIAL_TARGET_SCALE * (topBorder-bottomBorder)/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * (topBorder-bottomBorder))),
-			CCCallFuncN::create(this,callfuncN_selector(MonsterLayer::bubbleCallbackN)),NULL));
-	}
 }
 
 void MonsterLayer::onSpecialAttack(float monsterNo)
@@ -348,32 +362,18 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 		m_timeBarFull->cleanup();
 		m_timeBarFull->runAction(CCFadeOut::create(0.1f));
 		m_longHPBar->runAction(CCFadeOut::create(0.1f));
+		CCObject *bubble;
+		CCARRAY_FOREACH(m_bubbles,bubble) {
+			((CCSprite*)bubble)->cleanup();
+			m_bubbles->removeObject(m_bubbles,true);
+			removeChild((CCSprite*)bubble,true);
+			CCLOG("Bubble retain count:%u",bubble->retainCount());
+		}
+		CCLOG("Bubble set retain count:%u",m_bubbles->retainCount());
+		m_bubbles->release();
 		setStatus(SPECIAL_ATTACK_FINISHED);
 		this->unschedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack));
-		CCObject *bubblePointer;
-		CCARRAY_FOREACH(m_bubbles,bubblePointer) {
-			bubblePointer->release();
-		}
-		m_bubbles->removeAllObjects();
-		m_bubbles->release();
 		return;
 	}
-	//refreshBubbles(BUBBLE_SPEED, BUBBLE_MAX_COUNT);
 	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100.0);
 }
-/*
-void MonsterLayer::refreshBubbles(int speed, int total)
-{
-	CCNode *target = this->getChildByTag(m_target);
-	float topBorder = target->getPositionY() + target->getScaleY() * target->getContentSize().height;
-	float bottomBorder = target->getPositionY() - target->getScaleY() * target->getContentSize().height;
-	float leftBorder = target->getPositionY() - target->getScaleX() * target->getContentSize().width;
-	float rightBorder = target->getPositionY() + target->getScaleX() * target->getContentSize().width;
-	CCObject *object;
-	CCARRAY_FOREACH(m_bubbles,object) {
-		CCSprite *bubble = (CCSprite*)object;
-
-	}
-
-}
-*/

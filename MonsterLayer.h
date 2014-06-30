@@ -39,8 +39,6 @@ public:
 	void onMagicMatrixUnavailable();
 	void initSpecialAttack(int);
 	void onSpecialAttack(float);
-	//void refreshBubbles(int,int);
-	void bubbleCallbackN(CCNode *pSender);
 
 private:
 	CCArray *m_monsters;
@@ -57,5 +55,6 @@ private:
 	CCSprite *m_timeBarEmpty;
 	CCProgressTimer *m_timeBarFull;
 	CCArray *m_bubbles;
+	int m_BubbleHit;
 };
 
