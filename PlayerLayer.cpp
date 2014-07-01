@@ -371,17 +371,52 @@ void PlayerLayer::playerItemCallback(CCObject* pSender)
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
-void PlayerLayer::onSpecialAttack(int playerNo,int monsterNo)
+void PlayerLayer::beforeSpecialAttack(int playerNo)
 {
 	int iPlayerCount = m_data->size();
 	for (int i = 0;i<iPlayerCount;++i) {
 		if (i!= playerNo) {
+			if (((CCSprite*)this->getChildByTag(i))->getOpacity() == 0)
+				return;
 			this->getChildByTag(i)->runAction(CCFadeOut::create(0.1f));
 			this->getChildByTag(iPlayerCount+i)->runAction(CCFadeOut::create(0.1f));
 			this->getChildByTag(iPlayerCount*2+i)->runAction(CCFadeOut::create(0.1f));
+			this->getChildByTag(iPlayerCount*3+i)->runAction(CCFadeOut::create(0.1f));
+			this->getChildByTag(iPlayerCount*4+i)->runAction(CCFadeOut::create(0.1f));
+			this->getChildByTag(iPlayerCount*5+i)->runAction(CCFadeOut::create(0.1f));
 		}
 	}
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
-	float fVerticalPos = this->getChildByTag(playerNo)->getPositionY();
-	this->getChildByTag(playerNo)->runAction(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fVerticalPos)));
+	float horiDistance = fScreenWidth*0.5 - this->getChildByTag(playerNo)->getPositionX();
+	this->getChildByTag(playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+}
+
+void PlayerLayer::afterSpecialAttack(int playerNo)
+{
+	int iPlayerCount = m_data->size();
+	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
+	float playerPosX = this->getChildByTag(playerNo)->getPositionX();
+	float horiDistance = fScreenWidth*0.5+(playerNo-iPlayerCount*0.5+0.5)*PLAYER_SPRITE_WIDTH - playerPosX;
+	CCLOG("horiDistance=%f",horiDistance);
+	this->getChildByTag(playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	for (int i = 0;i<iPlayerCount;++i) {
+		if (i!= playerNo) {
+			this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*2+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*3+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+		}
+	}
 }

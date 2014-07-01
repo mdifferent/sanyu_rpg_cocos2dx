@@ -26,7 +26,6 @@ public:
 	static BattleField* scene(int iSceneNo);
 	bool init();
     void updateGame(float ft);
-	void updateSpecialAttack();
 	
 	CCTableViewCell* tableCellAtIndex(CCTableView *table, unsigned int idx);
 	unsigned int numberOfCellsInTableView(CCTableView *table);

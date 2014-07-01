@@ -124,32 +124,32 @@ void MonsterLayer::onEnter()
 
 bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
-	if (m_status == SLEEP)
+	if (m_status == SLEEP && !m_isMagicMatrixAvailable)
 		return false;
 	CCPoint touchPos = pTouch->getLocation();
 	CCLOG("%f,%f",touchPos.x,touchPos.y);
 	int iMonsterCount = m_data->size();
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
+	if (touchPos.y > fScreenHeight - TOP_BORDER_HEIGHT) {
+		if (m_isMagicMatrixAvailable) {
+			CCSize magicTagSize = m_magicTag->getContentSize();
+			CCPoint middlePoint = m_magicTag->getPosition();
+			if (touchPos.x > middlePoint.x - magicTagSize.width*0.5 
+				&& touchPos.x < middlePoint.x + magicTagSize.width*0.5
+				&& touchPos.y > middlePoint.y - magicTagSize.height*0.5 
+				&& touchPos.y < middlePoint.y + magicTagSize.height*0.5) {
+					if (m_magicPointer->getScale() != 1)
+						m_magicPointer->setScale(1);
+					m_magicPointer->runAction(CCFadeIn::create(0.1f));
+					setStatus(SPECIAL_ATTACK_PRE);
+					return true;
+			}
+		}
+	}
 	if (m_status == WAIT_TARGET) {
 		if (touchPos.y < PLAYER_SPRITE_HEIGHT) {
 			this->setStatus(SLEEP);
 			return false;
-		}
-		else if (touchPos.y > fScreenHeight - TOP_BORDER_HEIGHT) {
-			if (m_isMagicMatrixAvailable) {
-				CCSize magicTagSize = m_magicTag->getContentSize();
-				CCPoint middlePoint = m_magicTag->getPosition();
-				if (touchPos.x > middlePoint.x - magicTagSize.width*0.5 
-					&& touchPos.x < middlePoint.x + magicTagSize.width*0.5
-					&& touchPos.y > middlePoint.y - magicTagSize.height*0.5 
-					&& touchPos.y < middlePoint.y + magicTagSize.height*0.5) {
-						if (m_magicPointer->getScale() != 1)
-							m_magicPointer->setScale(1);
-						m_magicPointer->runAction(CCFadeIn::create(0.1f));
-						setStatus(SPECIAL_ATTACK_PRE);
-						return true;
-				}
-			}
 		}
 		else {
 			for (int i = 0;i<iMonsterCount;++i)	{

@@ -45,7 +45,8 @@ public:
 
 	void onPlayerKilled(int i);
 	void onPlayerPropModified(PLAYER_PROP_TYPE, int, int); 	//iDamage > 0 : Recover; <0 : Damage
-	void onSpecialAttack(int playerNo,int monsterNo);
+	void beforeSpecialAttack(int num = 0);
+	void afterSpecialAttack(int num = 0);
     
 private:
     map<int, PlayerData*> *m_data;

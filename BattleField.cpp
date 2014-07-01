@@ -109,6 +109,17 @@ void BattleField::runPlayerRound() {
 			if (m_selectlist->isTouchEnabled())
 				m_selectlist->setTouchEnabled(false);
 	}
+	bool isMagicMatrixAva = false;
+	for (int i=0;i<m_data->getMonsters()->size();i++) {
+		if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
+			&& m_data->getMonster(i)->getStatus() != DEAD) {
+				isMagicMatrixAva = true;
+				m_monsterLayer->onMagicMatrixAvailable();
+				break;
+		}
+	}
+	if (!isMagicMatrixAva)
+		m_monsterLayer->onMagicMatrixUnavailable();
 	switch(m_monsterLayer->getStatus()) {
 	case MonsterLayer::SLEEP:
 		CCLOG("MONSTER:SLEEP");
@@ -223,19 +234,7 @@ void BattleField::runPlayerRound() {
 				CCLOG("No enough SP");
 			break;
 		}
-		}
-		bool isMagicMatrixAva = false;
-		for (int i=0;i<m_data->getMonsters()->size();i++) {
-			if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
-				&& m_data->getMonster(i)->getStatus() != DEAD) {
-					isMagicMatrixAva = true;
-					m_monsterLayer->onMagicMatrixAvailable();
-					break;
-			}
-		}
-		if (!isMagicMatrixAva)
-			m_monsterLayer->onMagicMatrixUnavailable();
-			
+		}		
 		m_isPlayerFinished[iAttackSource] = true;
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
@@ -243,21 +242,17 @@ void BattleField::runPlayerRound() {
 		}
 	case MonsterLayer::SPECIAL_ATTACK:
 		CCLOG("Special Attack");
+		m_playerLayer->beforeSpecialAttack();
 		//this->unschedule(schedule_selector(BattleField::updateGame));
 		//this->schedule(schedule_selector(BattleField::updateSpecialAttack));
 		break;
 	case MonsterLayer::SPECIAL_ATTACK_FINISHED:
 		CCLOG("Special Attack Finished");
-		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+		m_playerLayer->afterSpecialAttack();
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 		break;
 	}
-}
-
-void BattleField::updateSpecialAttack()
-{
-
 }
 
 void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource) 
