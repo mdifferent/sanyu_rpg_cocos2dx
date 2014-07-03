@@ -85,6 +85,7 @@ bool BattleField::init()
 	if (m_selectlist->init()) {
 		m_selectlist->setDelegate(this);
 		m_selectlist->setVisible(false);
+		m_selectlist->setTouchEnabled(false);
 		this->addChild(m_selectlist,3);
 	}
 	else {
@@ -102,13 +103,21 @@ bool BattleField::init()
 }
 
 void BattleField::runPlayerRound() {
-	if (m_playerLayer->getStatus() != PlayerLayer::ITEM &&
-		m_playerLayer->getStatus() != PlayerLayer::SKILL) {
-			if (m_selectlist->isVisible())
-				m_selectlist->setVisible(false);
-			if (m_selectlist->isTouchEnabled())
-				m_selectlist->setTouchEnabled(false);
-	}
+	/*
+	if (m_playerLayer->getStatus() == PlayerLayer::MENU_SELECTED &&
+		(m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL ||
+		m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM)) {
+			if (!m_selectlist->isVisible())
+				m_selectlist->setVisible(true);
+			if (!m_selectlist->isTouchEnabled())
+				m_selectlist->setTouchEnabled(true);
+	} 
+	else {
+		if (m_selectlist->isVisible())
+			m_selectlist->setVisible(false);
+		if (m_selectlist->isTouchEnabled())
+			m_selectlist->setTouchEnabled(false);
+	}*/
 	bool isMagicMatrixAva = false;
 	for (int i=0;i<m_data->getMonsters()->size();i++) {
 		if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
@@ -127,33 +136,35 @@ void BattleField::runPlayerRound() {
 		case PlayerLayer::WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
 			return;
-		case PlayerLayer::ATTACK:
-			CCLOG("PLAYER:ATTACK");
-			m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
-			return;
-		case PlayerLayer::SKILL:
-			CCLOG("PLAYER:SKILL");
-			m_selectlist->setVisible(true);
-			m_selectlist->setTouchEnabled(true);
-			m_selectlist->setContentType(SKILL_LIST);
-			return;
-		case PlayerLayer::GUARD:
-			CCLOG("PLAYER:GUARD");
-			//m_dalta->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
-			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
-			m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
-			m_monsterLayer->setStatus(MonsterLayer::SLEEP);
-			return;
-		case PlayerLayer::ESCAPE:
-			CCLOG("PLAYER:ESCAPE");
-			return;
-		case PlayerLayer::ITEM:
-			CCLOG("PLAYER:ITEM");
-			m_selectlist->setVisible(true);
-			m_selectlist->setTouchEnabled(true);
-			m_selectlist->setContentType(ITEM_LIST);
-			//m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
-			return;
+		case PlayerLayer::MENU_SELECTED:
+			switch(m_playerLayer->getSelectedMenu()){
+			case PlayerLayer::ATTACK:
+				CCLOG("PLAYER:ATTACK");
+				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+				return;
+			case PlayerLayer::SKILL:
+				CCLOG("PLAYER:SKILL");
+				m_selectlist->setVisible(true);
+				m_selectlist->setTouchEnabled(true);
+				m_selectlist->setContentType(SKILL_LIST);
+				return;
+			case PlayerLayer::ITEM:
+				CCLOG("PLAYER:ITEM");
+				m_selectlist->setVisible(true);
+				m_selectlist->setTouchEnabled(true);
+				m_selectlist->setContentType(ITEM_LIST);
+				return;
+			case PlayerLayer::GUARD:
+				CCLOG("PLAYER:GUARD");
+				//m_dalta->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
+				m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+				m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+				m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+				return;
+			case PlayerLayer::ESCAPE:
+				CCLOG("PLAYER:ESCAPE");
+				return;
+			};
 		case PlayerLayer::WAIT_TARGET:
 			CCLOG("PLAYER:WAIT_TARGET");
 			m_selectlist->setVisible(false);
@@ -189,7 +200,12 @@ void BattleField::runPlayerRound() {
 			m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 			return;
 		}
+		break;
 	case MonsterLayer::WAIT_TARGET:
+		if (m_playerLayer->getStatus() == PlayerLayer::MENU_OPEN) {
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+			return;
+		}
 		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
 		CCLOG("MONSTER:WAIT_TARGET");
 		break;
@@ -197,7 +213,7 @@ void BattleField::runPlayerRound() {
 		CCLOG("MONSTER:TARGET_SELECTED");
 		int iAttackTarget = m_monsterLayer->getTarget();
 		int iAttackSource = m_playerLayer->getSelectedPlayer();
-		switch(m_playerLayer->getStatus()) {
+		switch(m_playerLayer->getSelectedMenu()) {
 		case PlayerLayer::ATTACK: {
 			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
 			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
@@ -546,10 +562,10 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	}
 	};
 	
-	if(m_selectlist->isTouchEnabled())
-		CCLOG("Touch enable");
-	else
-		CCLOG("Touch disabled");
+	if(m_selectlist->isTouchEnabled()) {
+		m_selectlist->setTouchEnabled(false);
+		m_selectlist->setVisible(false);
+	}
 }
 
 CCSize BattleField::cellSizeForTable(CCTableView *table) {

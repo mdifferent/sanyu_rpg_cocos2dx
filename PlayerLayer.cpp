@@ -118,6 +118,7 @@ bool PlayerLayer::init()
 	addChild(m_pFont,4);
 
     m_status = WAIT_COMMAND;
+	m_selectedMenu = NONE;
     return true;
 }
 
@@ -210,7 +211,36 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
 	CCPoint touchPos = pTouch->getLocation();
 	int iPlayerCount = m_data->size();
-	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
+	if (touchPos.y >= 0 && touchPos.y <= PLAYER_SPRITE_HEIGHT) {
+		for (int i = 0;i<iPlayerCount;++i) {
+			if (m_data->at(i)->getStatus() == DEAD)
+				continue;
+			CCSize size = this->getChildByTag(i)->getContentSize();
+			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
+			float fLeftCornerX = middlePoint.x - size.width/2;
+			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
+				m_selectedPlayer = i;
+				switch (m_status) {
+				case WAIT_TARGET:
+					m_status = TARGET_SELECTED;
+					return false;
+				case MENU_SELECTED:
+				case WAIT_COMMAND:
+				case MENU_OPEN:
+					openMenu(i);
+					return false;
+				};
+			}
+		}
+	}
+	else {
+		if (m_status == MENU_OPEN) {
+			closeMenu();
+			m_status = WAIT_COMMAND;
+			m_selectedMenu = NONE;
+		}
+	}
+	/*
 	for (int i = 0;i<iPlayerCount;++i) {
 		if (m_data->at(i)->getStatus() == DEAD)
 			continue;
@@ -228,6 +258,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					pMenu->setVisible(true);
 					pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
 					pMenu->runAction(CCFadeIn::create(0.2f));
+					m_status = MENU_OPEN;
 				}
 				else if (m_status == ITEM || m_status == SKILL) {
 					m_status = WAIT_COMMAND;
@@ -241,6 +272,7 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 				pMenu->runAction(CCFadeOut::create(0.2f));
 		}
 	}
+	*/
 	//Default show menu on the left most player who haven't run action
 	return false;
 }
@@ -336,14 +368,18 @@ void PlayerLayer::onPlayerPropModified(PLAYER_PROP_TYPE type, int iNum, int iDam
 void PlayerLayer::playerAttackCallback(CCObject* pSender)
 {
     CCLOG("ATTACK");
-    m_status = ATTACK;
+	m_status = MENU_SELECTED;
+    m_selectedMenu = ATTACK;
+	closeMenu();
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 void PlayerLayer::playerSkillCallback(CCObject* pSender)
 {
     CCLOG("SKILL");
-    m_status = SKILL;
+    m_status = MENU_SELECTED;
+	m_selectedMenu = SKILL;
+	closeMenu();
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
@@ -351,23 +387,26 @@ void PlayerLayer::playerGuardCallback(CCObject* pSender)
 {
     CCLOG("GUARD");
 	m_data->at(m_selectedPlayer)->setStatus(DEFENSE);
-    m_status = GUARD;
-	int iPlayerCount = m_data->size();
-	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
-	pMenu->runAction(CCFadeOut::create(0.2f));
+	m_status = MENU_SELECTED;
+    m_selectedMenu = GUARD;
+	closeMenu();
 }
 
 void PlayerLayer::playerEscapeCallback(CCObject* pSender)
 {
     CCLOG("ESCAPE");
-    m_status = ESCAPE;
+    m_status = MENU_SELECTED;
+    m_selectedMenu = ESCAPE;
+	closeMenu();
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
 void PlayerLayer::playerItemCallback(CCObject* pSender) 
 {
 	CCLOG("ITEM");
-    m_status = ITEM;
+    m_status = MENU_SELECTED;
+    m_selectedMenu = ITEM;
+	closeMenu();
 	m_data->at(m_selectedPlayer)->setStatus(NORMAL);
 }
 
@@ -418,5 +457,28 @@ void PlayerLayer::afterSpecialAttack(int playerNo)
 			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
 			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
 		}
+	}
+}
+
+void PlayerLayer::openMenu(int num) {
+	int iPlayerCount = m_data->size();
+	CCPoint middlePoint = this->getChildByTag(num)->getPosition();
+	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
+	pMenu->setEnabled(true);
+	pMenu->setVisible(true);
+	pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
+	pMenu->runAction(CCFadeIn::create(0.2f));
+	m_status = MENU_OPEN;
+	m_selectedMenu = NONE;
+}
+
+void PlayerLayer::closeMenu(void) {
+	int iPlayerCount = m_data->size();
+	CCMenu *pMenu = (CCMenu*)this->getChildByTag(iPlayerCount*6);
+	int iOp = pMenu->getOpacity();
+	if (iOp > 0) {
+		pMenu->runAction(CCFadeOut::create(0.2f));
+		pMenu->setEnabled(false);
+		pMenu->setVisible(false);
 	}
 }

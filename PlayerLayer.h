@@ -13,13 +13,19 @@ class PlayerLayer :
 public:
 	enum PLAYER_LAYER_STATUS {
 		WAIT_COMMAND,
+		MENU_OPEN,
+		MENU_SELECTED,
+		WAIT_TARGET,
+		TARGET_SELECTED
+	};
+
+	enum MenuStatus {
+		NONE,
 		ATTACK,
 		SKILL,
 		GUARD,
 		ITEM,
-		ESCAPE,
-		WAIT_TARGET,
-		TARGET_SELECTED
+		ESCAPE
 	};
 	PlayerLayer(void);
 	~PlayerLayer(void);
@@ -30,6 +36,7 @@ public:
     PLAYER_LAYER_STATUS getStatus() {return m_status;}
     void setStatus(PLAYER_LAYER_STATUS status) {m_status = status;}
 	int getSelectedPlayer() {CCLOG("Selected Player:%d",m_selectedPlayer);return m_selectedPlayer;}
+	MenuStatus getSelectedMenu() const {return m_selectedMenu;}
 	//void resetSelectedPlayer() {m_selectedPlayer=-1;}
 
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
@@ -47,10 +54,13 @@ public:
 	void onPlayerPropModified(PLAYER_PROP_TYPE, int, int); 	//iDamage > 0 : Recover; <0 : Damage
 	void beforeSpecialAttack(int num = 0);
 	void afterSpecialAttack(int num = 0);
+	void openMenu(int);
+	void closeMenu(void);
     
 private:
     map<int, PlayerData*> *m_data;
 	PLAYER_LAYER_STATUS m_status;
+	MenuStatus m_selectedMenu;
 	int m_selectedPlayer;
 	CCLabelBMFont *m_pFont;
 };
