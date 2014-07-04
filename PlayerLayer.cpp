@@ -240,39 +240,6 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			m_selectedMenu = NONE;
 		}
 	}
-	/*
-	for (int i = 0;i<iPlayerCount;++i) {
-		if (m_data->at(i)->getStatus() == DEAD)
-			continue;
-		CCSize size = this->getChildByTag(i)->getContentSize();
-		CCPoint middlePoint = this->getChildByTag(i)->getPosition();
-		float fLeftCornerX = middlePoint.x - size.width/2;
-		if (touchPos.y >= 0 && touchPos.y <= size.height) {
-			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
-				m_selectedPlayer = i;
-				if (m_status == WAIT_TARGET) {
-					m_status = TARGET_SELECTED;
-				}
-				else if (m_status == WAIT_COMMAND){
-					pMenu->setEnabled(true);
-					pMenu->setVisible(true);
-					pMenu->setPosition(ccp(middlePoint.x+50,middlePoint.y+60));
-					pMenu->runAction(CCFadeIn::create(0.2f));
-					m_status = MENU_OPEN;
-				}
-				else if (m_status == ITEM || m_status == SKILL) {
-					m_status = WAIT_COMMAND;
-				}
-				return true;
-			}
-		}
-		else {
-			int iOp = pMenu->getOpacity();
-			if (iOp>0)
-				pMenu->runAction(CCFadeOut::create(0.2f));
-		}
-	}
-	*/
 	//Default show menu on the left most player who haven't run action
 	return false;
 }
@@ -442,22 +409,23 @@ void PlayerLayer::afterSpecialAttack(int playerNo)
 	float playerPosX = this->getChildByTag(playerNo)->getPositionX();
 	float horiDistance = fScreenWidth*0.5+(playerNo-iPlayerCount*0.5+0.5)*PLAYER_SPRITE_WIDTH - playerPosX;
 	CCLOG("horiDistance=%f",horiDistance);
-	this->getChildByTag(playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCMoveBy::create(0.5f,ccp(horiDistance,0)));
+	this->getChildByTag(playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
 	for (int i = 0;i<iPlayerCount;++i) {
 		if (i!= playerNo) {
-			this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*2+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*3+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(0.5),CCFadeIn::create(0.1f)));
+			this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*2+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*3+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
 		}
 	}
+
 }
 
 void PlayerLayer::openMenu(int num) {

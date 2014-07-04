@@ -103,21 +103,6 @@ bool BattleField::init()
 }
 
 void BattleField::runPlayerRound() {
-	/*
-	if (m_playerLayer->getStatus() == PlayerLayer::MENU_SELECTED &&
-		(m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL ||
-		m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM)) {
-			if (!m_selectlist->isVisible())
-				m_selectlist->setVisible(true);
-			if (!m_selectlist->isTouchEnabled())
-				m_selectlist->setTouchEnabled(true);
-	} 
-	else {
-		if (m_selectlist->isVisible())
-			m_selectlist->setVisible(false);
-		if (m_selectlist->isTouchEnabled())
-			m_selectlist->setTouchEnabled(false);
-	}*/
 	bool isMagicMatrixAva = false;
 	for (int i=0;i<m_data->getMonsters()->size();i++) {
 		if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
@@ -264,6 +249,20 @@ void BattleField::runPlayerRound() {
 		break;
 	case MonsterLayer::SPECIAL_ATTACK_FINISHED:
 		CCLOG("Special Attack Finished");
+		if (m_monsterLayer->isBubbleFailed()) {
+			int currentHP = m_data->getPlayer(0)->getProperty(CURRENT_HP);
+			int maxHP = m_data->getPlayer(0)->getProperty(MAX_HP);
+			float damage = maxHP * 0.05;
+			if (damage > currentHP) {
+				m_data->getPlayer(0)->setStatus(DEAD);
+				m_data->getPlayer(0)->setProperty(CURRENT_HP,0);
+				m_playerLayer->onPlayerKilled(0);
+			}
+			else {
+				m_data->getPlayer(0)->setProperty(CURRENT_HP,currentHP-damage);
+				m_playerLayer->onPlayerPropModified(CURRENT_HP,0,-damage);
+			}
+		}
 		m_playerLayer->afterSpecialAttack();
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);

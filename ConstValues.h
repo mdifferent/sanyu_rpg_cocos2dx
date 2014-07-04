@@ -19,4 +19,6 @@ static const int SPECIAL_ATTACK_DURATION = 10;
 static const int BUBBLE_SPEED = 50;
 static const int BUBBLE_MAX_COUNT = 10;
 static const float SPECIAL_TARGET_SCALE = 1.2f;
+static const int BUBBLE_SUCCESS_HIT = 10;
+static const int BUBBLE_FAILED_PERCENT = 0.05;
 #endif

@@ -39,6 +39,7 @@ public:
 	void onMagicMatrixUnavailable();
 	void initSpecialAttack(int);
 	void onSpecialAttack(float);
+	bool isBubbleFailed() const {return m_isBubbleFailed;}
 
 private:
 	CCArray *m_monsters;
@@ -56,5 +57,6 @@ private:
 	CCProgressTimer *m_timeBarFull;
 	CCArray *m_bubbles;
 	int m_BubbleHit;
+	bool m_isBubbleFailed;
 };
 

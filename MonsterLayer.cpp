@@ -153,6 +153,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 		}
 		else {
 			for (int i = 0;i<iMonsterCount;++i)	{
+				if (m_data->at(i)->getStatus() == DEAD)
+					continue;
 				CCSize size = this->getChildByTag(i)->getContentSize();
 				CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 				float fLeftCornerX = middlePoint.x - size.width/2;
@@ -183,6 +185,8 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					m_bubbles->removeObject(bubbleSprite,true);
 					CCLOG("Bubble touched retain count:%u",bubbleSprite->retainCount());
 					removeChild(bubbleSprite,true);
+					float currentPercent = m_longHPBar->getPercentage();
+					m_longHPBar->runAction(CCProgressFromTo::create(0.1f,currentPercent,currentPercent-10.0));
 					break;
 			}
 		}
@@ -306,10 +310,13 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 {
 	m_magicPointer->cleanup();
 	m_magicPointer->runAction(CCFadeOut::create(0.2f));
+	m_magicPointer->setPosition(ccp(750,550));
+	m_timeBarFull->setPercentage(100.0f);
 	CCNode *monsterNode = this->getChildByTag(monsterNo);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
-	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),CCScaleBy::create(0.5f,SPECIAL_TARGET_SCALE),NULL));
+	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),
+										CCScaleTo::create(0.5f,SPECIAL_TARGET_SCALE),NULL));
 	CCSize monsterSize = monsterNode->getContentSize();
 	CCPoint middlePoint = monsterNode->getPosition();
 	m_timeBarEmpty->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
@@ -318,7 +325,8 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	m_timeBarFull->runAction(CCFadeIn::create(0.1f));
 	m_longHPBar->setPosition(ccp(middlePoint.x,middlePoint.y-monsterSize.height*0.5));
 	m_longHPBar->runAction(CCFadeIn::create(0.1f));
-	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
+	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),
+												CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
 	//Create bubbles
 	m_bubbles = CCArray::create();
 	m_bubbles->retain();
@@ -352,12 +360,14 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 		CCLOG("Bubble pos4 retain count:%u",bubble->retainCount());
 	}
 	m_BubbleHit = 0;
+	m_isBubbleFailed = false;
 	schedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack),0.1f);
 }
 
 void MonsterLayer::onSpecialAttack(float monsterNo)
 {
-	if (m_timeBarFull->getPercentage() == 0.0) {
+	CCLOG("Bubble hit:%d",m_BubbleHit);
+	if (m_timeBarFull->getPercentage() < 0.1 || m_BubbleHit >= BUBBLE_SUCCESS_HIT) {
 		m_timeBarEmpty->runAction(CCFadeOut::create(0.1f));
 		m_timeBarFull->cleanup();
 		m_timeBarFull->runAction(CCFadeOut::create(0.1f));
@@ -373,6 +383,25 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 		m_bubbles->release();
 		setStatus(SPECIAL_ATTACK_FINISHED);
 		this->unschedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack));
+		if (m_BubbleHit >= BUBBLE_SUCCESS_HIT) {
+			this->getChildByTag(m_target)->runAction(CCFadeOut::create(0.2f));
+			m_data->at(m_target)->setProperty(CURRENT_HP,0);
+			m_data->at(m_target)->setStatus(DEAD);
+		}
+		else {
+			int iPlayerCount = m_data->size();
+			float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
+			float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
+			float fPlayerWidth = this->getChildByTag(m_target)->getContentSize().width;
+			this->getChildByTag(m_target)->runAction(CCSpawn::create(
+				CCMoveTo::create(0.2f,ccp(fScreenWidth*0.5+(m_target-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5)),
+				CCScaleTo::create(0.2f,1.0f),NULL));
+			int recoverValue = m_data->at(m_target)->getProperty(MAX_HP) * BUBBLE_FAILED_PERCENT;
+			int currentHP = m_data->at(m_target)->getProperty(CURRENT_HP);
+			this->onAttacked(m_target,-recoverValue);
+			m_data->at(m_target)->setProperty(CURRENT_HP,currentHP+recoverValue);
+			m_isBubbleFailed = true;
+		}
 		return;
 	}
 	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100.0);
