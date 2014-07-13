@@ -9,6 +9,13 @@ static const int NAME_FONT_SIZE = 20;
 static const int MENU_FONT_SIZE = 20;
 static const int HP_NUM_FONT_SIZE = 16;
 
+static const char CELL_FONT[] = "Arial";
+static const int CELL_FONT_SIZE = 25;
+static const int CELL_WIDHT = 300;
+static const int CELL_HEIGHT = 40;
+
+static const int TOP_HP = 999;
+
 static const float BACK_WIDTH = 461;
 static const float BACK_HEIGHT = 327;
 static const float BACK_LABEL_HEIGHT = 24;
@@ -21,4 +28,9 @@ static const int BUBBLE_MAX_COUNT = 10;
 static const float SPECIAL_TARGET_SCALE = 1.2f;
 static const int BUBBLE_SUCCESS_HIT = 10;
 static const int BUBBLE_FAILED_PERCENT = 0.05;
+
+static const char ENEMY_ONE[] = "敌方单体";
+static const char ENEMY_ALL[] = "敌方全体";
+static const char PLAYER_ONE[] = "我方单体";
+static const char PLAYER_ALL[] = "我方全体";
 #endif

@@ -14,7 +14,7 @@ public:
 	ListItemCell(void);
 	~ListItemCell(void);
 	bool init(void);
-	static create(const string name, const string target, const int amount);
+	static ListItemCell *create(const string name, const string target, const int amount);
 	void updateLabels(const string name, const string target, const int amount);
 private:
 	CCLabelTTF *m_pItemName;

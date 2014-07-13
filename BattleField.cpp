@@ -1,15 +1,12 @@
 #include "BattleField.h"
 #include "InstanceDatabase.h"
+#include "ListItemCell.h"
+#include "ConstValues.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)  
 #include "../proj.win32/WIN32Util.h"
 #endif 
 
-const int CELL_WIDHT = 300;
-const int CELL_HEIGHT = 40;
-const char *CELL_FONT = "Arial";
-const int CELL_FONT_SIZE = 25;
-const int TOP_HP = 999;
 
 BattleField::BattleField(void)
 {
@@ -120,6 +117,12 @@ void BattleField::runPlayerRound() {
 		switch(m_playerLayer->getStatus()) {
 		case PlayerLayer::WAIT_COMMAND:
 			CCLOG("PLAYER:WAIT_COMMAND");
+			return;
+		case PlayerLayer::MENU_OPEN:
+			if (m_selectlist->isVisible()) {
+				m_selectlist->setVisible(false);
+				m_selectlist->setTouchEnabled(false);
+			}
 			return;
 		case PlayerLayer::MENU_SELECTED:
 			switch(m_playerLayer->getSelectedMenu()){
@@ -411,76 +414,57 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 	CCLOG("No of cell=%d",idx);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	CCTableViewCell *cell = table->dequeueCell();
-	if (!cell) {
-		cell = new CCTableViewCell();
-		cell->init();
-		cell->autorelease();
-		CCLabelTTF *pLabel = NULL;
-		switch (m_selectlist->getContentType()) {
-		case ITEM_LIST:	{
-				map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
-				for (int i=0;i<(int)idx;i++)
-					itemIt++;
-				string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getName();
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-				GBKToUTF(sItemName);
-#endif
-				pLabel = CCLabelTTF::create(sItemName.c_str(), CELL_FONT, CELL_FONT_SIZE); 
-				break;
-			}
-		case SKILL_LIST: {
-				map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
-				for (int i=0;i<(int)idx;i++)
-					skillIt++;
-				string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getName();
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-				GBKToUTF(sSkillName);
-#endif
-				pLabel = CCLabelTTF::create(sSkillName.c_str(), CELL_FONT, CELL_FONT_SIZE); 
-				break;
-			}
-		default:
-			pLabel = CCLabelTTF::create("None", CELL_FONT, CELL_FONT_SIZE); 
-		}
-        pLabel->setPosition(ccp(40, 0));
-        cell->addChild(pLabel,4,456);
-	}
-	else {
-		CCLabelTTF *pLabel = (CCLabelTTF*)cell->getChildByTag(456);
-		switch(m_selectlist->getContentType()) {
-		case ITEM_LIST: {
-			map<int,int> *pItemList = m_data->getPlayer(iPlayerNum)->getItemList();
-			if (pItemList->size() == 0) {
-				pLabel->setString("");
-				break;
-			}
-			map<int,int>::iterator itemIt = pItemList->begin();
+	string cellItemName;
+	string cellItemTarget;
+	int cellCount = 0;
+	map<int,int>::iterator itemIt;
+	AbstractListItemData *item = NULL;
+	switch (m_selectlist->getContentType()) {
+	case ITEM_LIST:	
+		if (m_data->getPlayer(iPlayerNum)->getItemList()->size() > 0) {
+			itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
 			for (int i=0;i<(int)idx;i++)
 				itemIt++;
-			string sItemName = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first)->getName();
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-			GBKToUTF(sItemName);
-#endif
-			pLabel->setString(sItemName.c_str()); 
-			break;
+			item = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first);
+			cellCount = itemIt->second;
 		}
-		case SKILL_LIST: {
-			map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
+		break;
+	case SKILL_LIST:
+		if (m_data->getPlayer(iPlayerNum)->getSkillList()->size() > 0) {
+			itemIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 			for (int i=0;i<(int)idx;i++)
-				skillIt++;
-			string sSkillName = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first)->getName();
+				itemIt++;
+			item = InstanceDatabase::getDatabaseInstance()->getSkillById(itemIt->first);
+			cellCount = dynamic_cast<SkillData*>(item)->getCost();
+		}
+	};
+	if (item != NULL) {
+		cellItemName = item->getName();
+		if (item->getTargetType() == AbstractListItemData::FRIEND)
+			if (item->getMultiTarget())
+				cellItemTarget = PLAYER_ALL;
+			else
+				cellItemTarget = PLAYER_ONE;
+		else if (item->getTargetType() == AbstractListItemData::ENEMY)
+			if (item->getMultiTarget())
+				cellItemTarget = ENEMY_ALL;
+			else
+				cellItemTarget = ENEMY_ONE;
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
-				GBKToUTF(sSkillName);
+		GBKToUTF(cellItemName);
+		GBKToUTF(cellItemTarget);
 #endif
-			pLabel->setString(sSkillName.c_str()); 
-			break;
-		}
-		default:
-			pLabel->setString("None");
-		}
-		pLabel->setDirty(true);
 	}
-	return cell;
+	if (!cell) {
+		cell = ListItemCell::create(cellItemName,cellItemTarget,cellCount);
+		return cell;
+	}
+	else {
+		ListItemCell *oldCell = dynamic_cast<ListItemCell*>(cell);
+		oldCell->updateLabels(cellItemName,cellItemTarget,cellCount);
+		return oldCell;
+	}
+	return NULL;
 }
 
 unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)

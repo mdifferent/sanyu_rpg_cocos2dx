@@ -48,6 +48,6 @@ protected:
     BATTLER_STATUS m_status;
 	map<PLAYER_PROP_TYPE,int> m_properties;	//name-value
 	map<int,int> m_items;		//id-amount
-	map<int,int> m_skills;		//id-status
+	map<int,int> m_skills;		//id-level
 	map<PLAYER_PROP_TYPE,int> m_bufs;
 };
