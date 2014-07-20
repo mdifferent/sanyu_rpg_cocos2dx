@@ -29,11 +29,25 @@ static const float SPECIAL_TARGET_SCALE = 1.2f;
 static const int BUBBLE_SUCCESS_HIT = 10;
 static const int BUBBLE_FAILED_PERCENT = 0.05;
 
+//Target type
 static const char ENEMY_ONE[] = "敌方单体";
 static const char ENEMY_ALL[] = "敌方全体";
 static const char PLAYER_ONE[] = "我方单体";
 static const char PLAYER_ALL[] = "我方全体";
 
+//Bubble texture path
 static const char BUBBLE_PLIST_PATH[] = "sanyu/animesanpuru65.plist";
 static const char BUBBLE_TEXTURE_PATH[] = "sanyu/animesanpuru65.png";
+
+//MainMenu file path
+static const char MAINMENU_BG_PATH[] = "sanyu/mainmenu/titleback_1.png";
+static const char MAINMENU_BTN_START_PATH[] = "sanyu/mainmenu/start.png";
+static const char MAINMENU_BTN_LOAD_PATH[] = "sanyu/mainmenu/load.png";
+static const char MAINMENU_BTN_EXTRA_PATH[] = "sanyu/mainmenu/extra.png";
+static const char MAINMENU_BTN_SYSTEM_PATH[] = "sanyu/mainmenu/system.png";
+static const char MAINMENU_BTN_EXIT_PATH[] = "sanyu/mainmenu/exit.png";
+static const char MAINMENU_BTN_CG_PATH[] = "sanyu/mainmenu/cg.png";
+static const char MAINMENU_BTN_MUSIC_PATH[] = "sanyu/mainmenu/music.png";
+static const char MAINMENU_BTN_REWARD_PATH[] = "sanyu/mainmenu/reward.png";
+
 #endif
