@@ -84,6 +84,8 @@ bool MonsterLayer::init() {
 	m_timeBarFull->setOpacity(0);
 	addChild(m_timeBarFull,2);
 
+	CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
+	cache->addSpriteFramesWithFile(BUBBLE_PLIST_PATH,BUBBLE_TEXTURE_PATH);
     return true;
 }
 
@@ -180,11 +182,24 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			CCSize size = bubbleSprite->getContentSize();
 			if (touchPos.x > middlePoint.x-size.width*0.5 && touchPos.x < middlePoint.x+size.width*0.5
 				&& touchPos.y > middlePoint.y-size.height*0.5 && touchPos.y < middlePoint.y+size.height*0.5) {
-					bubbleSprite->cleanup();
+					//bubbleSprite->cleanup();
+					bubbleSprite->stopAllActions();
+					CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
+					CCAnimation *breakAnimation = CCAnimation::create();
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_5"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_6"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_7"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_8"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_9"));
+					breakAnimation->setDelayPerUnit(0.1f);
+					breakAnimation->setLoops(1);
+					breakAnimation->setRestoreOriginalFrame(false);
+					bubbleSprite->runAction(CCSequence::createWithTwoActions(CCAnimate::create(breakAnimation),
+						CCFadeOut::create(0.1f)));
 					m_BubbleHit++;
 					m_bubbles->removeObject(bubbleSprite,true);
 					CCLOG("Bubble touched retain count:%u",bubbleSprite->retainCount());
-					removeChild(bubbleSprite,true);
+					//removeChild(bubbleSprite,true);
 					float currentPercent = m_longHPBar->getPercentage();
 					m_longHPBar->runAction(CCProgressFromTo::create(0.1f,currentPercent,currentPercent-10.0));
 					break;
@@ -334,12 +349,10 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	float bottomBorder = middlePoint.y - SPECIAL_TARGET_SCALE * monsterSize.height*0.5;
 	float leftBorder = middlePoint.x - SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
 	float rightBorder = middlePoint.x + SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
+
+
 	while (m_bubbles->count() < m_bubbles->capacity()) {
-		CCSprite *bubble;
-		if (CCRANDOM_0_1() > 0.3)
-			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_SMALL));
-		else
-			bubble = CCSprite::createWithTexture(CCTextureCache::sharedTextureCache()->addImage(BUBBLE_BIG));
+		CCSprite *bubble = CCSprite::createWithSpriteFrameName("animesanpuru65_0");
 		CCLOG("Bubble pos1 retain count:%u",bubble->retainCount());
 		float xpos = leftBorder + CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.width;
 		bubble->setPosition(ccp(xpos,bottomBorder));
@@ -347,14 +360,24 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 		addChild(bubble,3);
 		CCLOG("Bubble pos2 retain count:%u",bubble->retainCount());
 		float delayTime = CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED;
-		CCAction *action = CCRepeatForever::create(
-			CCSequence::create( CCDelayTime::create(delayTime),
-					CCFadeIn::create(0.1f),
-					CCMoveBy::create(SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * monsterSize.height)),
-					CCFadeOut::create(0.1f),
-					CCMoveBy::create(0.01f,ccp(0,-SPECIAL_TARGET_SCALE * monsterSize.height)),NULL));
-		action->setTag(10);
-		bubble->runAction(action);
+		CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
+		CCAnimation *breakAnimation = CCAnimation::create();
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_0"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_1"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_2"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_3"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_4"));
+		breakAnimation->setLoops(-1);
+		breakAnimation->setRestoreOriginalFrame(true);
+		breakAnimation->setDelayPerUnit(0.1f);
+		CCActionInterval *moveAction = CCSequence::create(CCDelayTime::create(delayTime),
+											CCFadeIn::create(0.1f),
+											CCMoveBy::create(SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED,ccp(0,SPECIAL_TARGET_SCALE * monsterSize.height)),
+											CCFadeOut::create(0.1f),
+											CCMoveBy::create(0.01f,ccp(0,-SPECIAL_TARGET_SCALE * monsterSize.height)),NULL);
+		moveAction->setTag(10);
+		bubble->runAction(CCAnimate::create(breakAnimation));
+		bubble->runAction(CCRepeatForever::create(moveAction));
 		CCLOG("Bubble pos3 retain count:%u",bubble->retainCount());
 		m_bubbles->addObject(bubble);
 		CCLOG("Bubble pos4 retain count:%u",bubble->retainCount());

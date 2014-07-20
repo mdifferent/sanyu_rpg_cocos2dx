@@ -33,4 +33,7 @@ static const char ENEMY_ONE[] = "敌方单体";
 static const char ENEMY_ALL[] = "敌方全体";
 static const char PLAYER_ONE[] = "我方单体";
 static const char PLAYER_ALL[] = "我方全体";
+
+static const char BUBBLE_PLIST_PATH[] = "sanyu/animesanpuru65.plist";
+static const char BUBBLE_TEXTURE_PATH[] = "sanyu/animesanpuru65.png";
 #endif
