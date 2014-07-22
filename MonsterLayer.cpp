@@ -29,7 +29,7 @@ bool MonsterLayer::init() {
 		CCAssert(pSprite,"Get Monster sprite failed!");
 		float fPlayerWidth = pSprite->getContentSize().width;
 		float fPlayerHeight = pSprite->getContentSize().height;
-		pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5));
+		pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.6));
 		pSprite->setOpacity(0);
 		addChild(pSprite,0,i);
 		m_monsters->addObject(pSprite);
@@ -281,6 +281,8 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 		float iMaxHp = m_data->at(iNum)->getProperty(MAX_HP);
 		float fFromPercent = ((iCurrentHp+iDamage)/iMaxHp)*100.0f;
 		float fToPercent = (iCurrentHp/iMaxHp)*100.0f;
+		if (iCurrentHp < iMaxHp * 0.3)
+			onMagicMatrixAvailable();
 		CCProgressTimer *hpPro = dynamic_cast<CCProgressTimer*>(this->getChildByTag(iMonsterCount+iNum));
 		hpPro->runAction(CCSequence::create(CCFadeIn::create(0.3f),
 			CCProgressFromTo::create(0.3f, fFromPercent,fToPercent),NULL));

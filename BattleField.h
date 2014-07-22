@@ -40,6 +40,7 @@ public:
 	void setListContent(LIST_TYPE);
 	void setSelectedItemId(int index) {m_selectedListItemId = index;}
 	int getSelectedItemId() {return m_selectedListItemId;}
+	
 private:
 	void runPlayerRound();
 	void runComputerRound();
@@ -60,5 +61,6 @@ private:
 	map<int,bool> m_isMonsterFinished;
 
 	int m_selectedListItemId;
+	bool m_isMagicMatrixAva;
 };
 

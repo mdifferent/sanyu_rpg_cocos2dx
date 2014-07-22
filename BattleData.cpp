@@ -1,5 +1,6 @@
 #include "BattleData.h"
 #include "ScriptReader.h"
+#include "ConstValues.h"
 
 BattleData::BattleData(void)
 {
@@ -45,13 +46,25 @@ BattleData::BattleData(void)
 	m_players->insert( std::pair<int,PlayerData*>(1,pd2));
 	m_players->insert( std::pair<int,PlayerData*>(2,pd3));
 	m_players->insert( std::pair<int,PlayerData*>(3,pd4));
-	MonsterData *pdm1 = new MonsterData("sanyu/monster_1.png");
+	MonsterData *pdm1 = new MonsterData(MONSTER1_PATH);
 	pdm1->setProperty(MAX_HP,200);
 	pdm1->setProperty(CURRENT_HP,200);
 	pdm1->setProperty(MELEE_ATTACK,50);
 	pdm1->setProperty(MELEE_DEFENSE,5);
+	MonsterData *pdm2 = new MonsterData(MONSTER2_PATH);
+	pdm2->setProperty(MAX_HP,300);
+	pdm2->setProperty(CURRENT_HP,300);
+	pdm2->setProperty(MELEE_ATTACK,70);
+	pdm2->setProperty(MELEE_DEFENSE,10);
+	MonsterData *pdm3 = new MonsterData(MONSTER1_PATH);
+	pdm3->setProperty(MAX_HP,200);
+	pdm3->setProperty(CURRENT_HP,200);
+	pdm3->setProperty(MELEE_ATTACK,50);
+	pdm3->setProperty(MELEE_DEFENSE,5);
     m_monsters = new map<int,MonsterData*>();
 	m_monsters->insert( std::pair<int,MonsterData*>(0,pdm1));
+	m_monsters->insert( std::pair<int,MonsterData*>(1,pdm2));
+	m_monsters->insert( std::pair<int,MonsterData*>(2,pdm3));
 }
 
 

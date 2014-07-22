@@ -35,7 +35,11 @@ bool MainMenu::init()
 	return true;
 }
 
-void MainMenu::startCallback(CCObject* pSender){}
+void MainMenu::startCallback(CCObject* pSender)
+{
+
+}
+
 void MainMenu::loadCallback(CCObject* pSender){}
 void MainMenu::extraCallback(CCObject* pSender){}
 void MainMenu::systemCallback(CCObject* pSender){}

@@ -30,19 +30,22 @@ const static string enum2Tag[] = {"MaxHP","HP","MaxSP","SP","Level","Exp","Attac
 class AbstractBattlerData
 {
 public:
-	AbstractBattlerData(string sName):m_name(sName){}
-	~AbstractBattlerData(void){};
+	AbstractBattlerData(string sName);
+	AbstractBattlerData(const AbstractBattlerData &data);
+	~AbstractBattlerData(void);
+
 	string getName() const {return m_name;}
+	BATTLER_STATUS getStatus() const {return m_status;}
+
 	void setProperty(const PLAYER_PROP_TYPE cProName,const int iProValue);
 	int getProperty(const PLAYER_PROP_TYPE cProName) const;
 
-	map<PLAYER_PROP_TYPE,int> *getPropertyList(){return &m_properties;};
-	map<int,int> *getItemList(){return &m_items;};
-	map<int,int> *getSkillList(){return &m_skills;};
+	map<PLAYER_PROP_TYPE,int> *getPropertyList() {return &m_properties;};
+	const map<int,int> *getItemList() const {return &m_items;};
+	const map<int,int> *getSkillList() const {return &m_skills;};
     
     void setStatus(BATTLER_STATUS);
-    BATTLER_STATUS getStatus() {return m_status;}
-
+    
 protected:
 	string m_name;
     BATTLER_STATUS m_status;

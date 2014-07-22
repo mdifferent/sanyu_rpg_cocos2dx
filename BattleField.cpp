@@ -102,8 +102,9 @@ bool BattleField::init()
 void BattleField::runPlayerRound() {
 	bool isMagicMatrixAva = false;
 	for (int i=0;i<m_data->getMonsters()->size();i++) {
-		if (m_data->getMonster(i)->getProperty(CURRENT_HP) < m_data->getMonster(i)->getProperty(MAX_HP)*0.3
-			&& m_data->getMonster(i)->getStatus() != DEAD) {
+		int current = m_data->getMonster(i)->getProperty(CURRENT_HP);
+		int max = m_data->getMonster(i)->getProperty(MAX_HP)*0.3;
+		if ( current < max && m_data->getMonster(i)->getStatus() != DEAD) {
 				isMagicMatrixAva = true;
 				m_monsterLayer->onMagicMatrixAvailable();
 				break;
@@ -417,7 +418,7 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 	string cellItemName;
 	string cellItemTarget;
 	int cellCount = 0;
-	map<int,int>::iterator itemIt;
+	map<int,int>::const_iterator itemIt;
 	AbstractListItemData *item = NULL;
 	switch (m_selectlist->getContentType()) {
 	case ITEM_LIST:	
@@ -490,11 +491,11 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
 	switch (m_selectlist->getContentType()) {
 	case ITEM_LIST:	{
-		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getItemList();
+		const map<int,int> *p = m_data->getPlayer(iPlayerNum)->getItemList();
 		int iSize = p->size();
 		if (idx > iSize || iSize == 0)
 			return;
-		map<int,int>::iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
+		map<int,int>::const_iterator itemIt = m_data->getPlayer(iPlayerNum)->getItemList()->begin();
 		for (int i=0;i<idx;i++)
 			itemIt++;
 		setSelectedItemId(itemIt->first);
@@ -517,11 +518,11 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 		break;
 	}
 	case SKILL_LIST: {
-		map<int,int> *p = m_data->getPlayer(iPlayerNum)->getSkillList();
+		const map<int,int> *p = m_data->getPlayer(iPlayerNum)->getSkillList();
 		int iSize = p->size();
 		if (idx > iSize || iSize == 0)
 			return;
-		map<int,int>::iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
+		map<int,int>::const_iterator skillIt = m_data->getPlayer(iPlayerNum)->getSkillList()->begin();
 		for (int i=0;i<idx;i++)
 			skillIt++;
 		setSelectedItemId(skillIt->first);

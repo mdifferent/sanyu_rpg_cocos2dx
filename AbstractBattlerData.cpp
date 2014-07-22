@@ -1,5 +1,14 @@
 #include "AbstractBattlerData.h"
 
+AbstractBattlerData::AbstractBattlerData(string sName):m_name(sName){}
+
+AbstractBattlerData::~AbstractBattlerData(void){}
+
+AbstractBattlerData::AbstractBattlerData(const AbstractBattlerData &data)
+	:m_name(data.getName()),m_status(data.getStatus())
+{
+}
+
 int AbstractBattlerData::getProperty(const PLAYER_PROP_TYPE cProName) const
 {
 	if (m_properties.find(cProName) != m_properties.end())

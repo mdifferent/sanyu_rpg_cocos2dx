@@ -50,4 +50,8 @@ static const char MAINMENU_BTN_CG_PATH[] = "sanyu/mainmenu/cg.png";
 static const char MAINMENU_BTN_MUSIC_PATH[] = "sanyu/mainmenu/music.png";
 static const char MAINMENU_BTN_REWARD_PATH[] = "sanyu/mainmenu/reward.png";
 
+//Monsters file path
+static const char MONSTER1_PATH[] = "sanyu/monsters/monster_1.png";
+static const char MONSTER2_PATH[] = "sanyu/monsters/monster_2.png";
+
 #endif
