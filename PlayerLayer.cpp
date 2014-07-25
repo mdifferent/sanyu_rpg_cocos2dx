@@ -1,6 +1,9 @@
 #include "PlayerLayer.h"
 #include "ConstValues.h"
 #include "Resources.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)  
+#include "../proj.win32/WIN32Util.h"
+#endif 
 
 PlayerLayer::PlayerLayer(void)
 {
@@ -24,7 +27,11 @@ bool PlayerLayer::init()
 	for (int i = 0;i<iPlayerCount;++i)
 	{
 		string name = m_data->at(i)->getName();
-		const char *pName = name.c_str();
+		char pName[20];
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+		GBKToUTF(name);
+#endif
+		sprintf(pName,PLAYER_DIR_PATH,name);
         CCLOG("%s",pName);
 		if (pName)
 		{
@@ -56,7 +63,7 @@ bool PlayerLayer::init()
 				addChild(spBarTimer,1,iPlayerCount*2+i);
 
 				//Player Name
-				CCLabelTTF* pNameBar = CCLabelTTF::create(pName, NAME_FONT, NAME_FONT_SIZE);
+				CCLabelTTF* pNameBar = CCLabelTTF::create(name.c_str(), NAME_FONT, NAME_FONT_SIZE);
 				pNameBar->setPosition(ccp(fPlayerX+65,0-fPlayerY-10));
 				pNameBar->setOpacity(0);
 				addChild(pNameBar,2,iPlayerCount*3+i);

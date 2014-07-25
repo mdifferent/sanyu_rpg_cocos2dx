@@ -4,10 +4,10 @@
 
 BattleData::BattleData(void)
 {
-	string name1 = "sanyu/actor_1.png";
-	string name2 = "sanyu/actor_2.png";
-	string name3 = "sanyu/actor_3.png";
-	string name4 = "sanyu/actor_4.png";
+	string name1(PLAYER1_NAME);
+	string name2(PLAYER2_NAME);
+	string name3(PLAYER3_NAME);
+	string name4(PLAYER4_NAME);
 	m_barName = "sanyu/info_bar.png";
 	PlayerData *pd1 = new PlayerData(name1);
 	pd1->setProperty(MAX_HP,500);

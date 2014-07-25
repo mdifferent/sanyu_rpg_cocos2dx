@@ -54,4 +54,10 @@ static const char MAINMENU_BTN_REWARD_PATH[] = "sanyu/mainmenu/reward.png";
 static const char MONSTER1_PATH[] = "sanyu/monsters/monster_1.png";
 static const char MONSTER2_PATH[] = "sanyu/monsters/monster_2.png";
 
+//Player file path
+static const char PLAYER_DIR_PATH[] = "sanyu/players/%s.png";
+static const char PLAYER1_NAME[] = "XT";
+static const char PLAYER2_NAME[] = "î¾×Ó";
+static const char PLAYER3_NAME[] = "¶¹°ü";
+static const char PLAYER4_NAME[] = "ÉñÀÖ";
 #endif

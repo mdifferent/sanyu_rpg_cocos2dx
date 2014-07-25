@@ -196,6 +196,7 @@ void BattleField::runPlayerRound() {
 			return;
 		}
 		m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+
 		CCLOG("MONSTER:WAIT_TARGET");
 		break;
 	case MonsterLayer::TARGET_SELECTED: {
@@ -248,8 +249,6 @@ void BattleField::runPlayerRound() {
 	case MonsterLayer::SPECIAL_ATTACK:
 		CCLOG("Special Attack");
 		m_playerLayer->beforeSpecialAttack();
-		//this->unschedule(schedule_selector(BattleField::updateGame));
-		//this->schedule(schedule_selector(BattleField::updateSpecialAttack));
 		break;
 	case MonsterLayer::SPECIAL_ATTACK_FINISHED:
 		CCLOG("Special Attack Finished");
@@ -276,14 +275,12 @@ void BattleField::runPlayerRound() {
 
 void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource) 
 {
-	map<ItemData::EffectAttribute,int> effect = pEffectSource->getItemEffects();
-	map<ItemData::EffectAttribute,int>::iterator effIter = effect.begin();
 	if (pEffectSource->getMultiTarget()) {
 		map<int,MonsterData*> *monsters = m_data->getMonsters();
 		map<int,MonsterData*>::iterator monsterIter = monsters->begin();
 		while (monsterIter != monsters->end()) {
 			if (monsterIter->second->getStatus() != DEAD) {
-				//TODO:Attack on all enemies
+				effectOnMonster(monsterIter->first,pEffectSource);
 				CCLOG("Attacks on all monsters");
 			}
 			monsterIter++;
@@ -291,28 +288,35 @@ void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource)
 	}
 	else{
 		int iAttackTarget = m_monsterLayer->getTarget();
-		int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
-		while (effIter != effect.end()) {
-			switch(effIter->first) {
-			case ItemData::CURRENT_HP: {
-				int iAttackValue = effIter->second;
-				if (iMonsterCurrentHP <= iAttackValue) {
-					m_data->getMonster(iAttackTarget)->setStatus(DEAD);
-					m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
-					m_monsterLayer->killMosnter(iAttackTarget);
-				}
-				else {
-					m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iAttackValue);
-					m_monsterLayer->onAttacked(iAttackTarget, iAttackValue);
-				}
-				break;
+		effectOnMonster(iAttackTarget,pEffectSource);
+	}
+}
+
+void BattleField::effectOnMonster(int monsterNo,AbstractListItemData *pEffectSource) 
+{
+	map<AbstractListItemData::EffectAttribute,int> effect = pEffectSource->getItemEffects();
+	map<AbstractListItemData::EffectAttribute,int>::iterator effIter = effect.begin();
+	int iMonsterCurrentHP = m_data->getMonster(monsterNo)->getProperty(CURRENT_HP);
+	while (effIter != effect.end()) {
+		switch(effIter->first) {
+		case ItemData::CURRENT_HP: {
+			int iAttackValue = effIter->second;
+			if (iMonsterCurrentHP <= iAttackValue) {
+				m_data->getMonster(monsterNo)->setStatus(DEAD);
+				m_data->getMonster(monsterNo)->setProperty(CURRENT_HP,0);
+				m_monsterLayer->killMosnter(monsterNo);
 			}
-			case ItemData::CURRENT_SP:
-				//TODO:Other effects
-				break;
+			else {
+				m_data->getMonster(monsterNo)->setProperty(CURRENT_HP, iMonsterCurrentHP-iAttackValue);
+				m_monsterLayer->onAttacked(monsterNo, iAttackValue);
 			}
-			effIter++;
+			break;
 		}
+		case ItemData::CURRENT_SP:
+				//TODO:Other effects
+			break;
+		}
+		effIter++;
 	}
 }
 

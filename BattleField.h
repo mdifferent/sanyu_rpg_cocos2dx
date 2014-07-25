@@ -47,6 +47,7 @@ private:
 	bool checkRoundFinished();
 	void switchOwner();
 	void effectOnMonsters(AbstractListItemData *pEffectSource);
+	void effectOnMonster(int monsterNo,AbstractListItemData *pEffectSource);
 
 	BackgroundLayer *m_bg;
 	InfoBarLayer *m_info_back;
