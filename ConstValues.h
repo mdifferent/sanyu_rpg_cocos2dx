@@ -51,13 +51,10 @@ static const char MAINMENU_BTN_MUSIC_PATH[] = "sanyu/mainmenu/music.png";
 static const char MAINMENU_BTN_REWARD_PATH[] = "sanyu/mainmenu/reward.png";
 
 //Monsters file path
-static const char MONSTER1_PATH[] = "sanyu/monsters/monster_1.png";
-static const char MONSTER2_PATH[] = "sanyu/monsters/monster_2.png";
+static const int MAX_FILE_PATH_LENGTH = 50;
+static const char MONSTER_DIR_PATH[] = "sanyu/monsters/%s.png";
+static const char MONSTER_APPEAR[] = "野生的魔物出现了";
 
 //Player file path
 static const char PLAYER_DIR_PATH[] = "sanyu/players/%s.png";
-static const char PLAYER1_NAME[] = "XT";
-static const char PLAYER2_NAME[] = "罹子";
-static const char PLAYER3_NAME[] = "豆包";
-static const char PLAYER4_NAME[] = "神乐";
 #endif

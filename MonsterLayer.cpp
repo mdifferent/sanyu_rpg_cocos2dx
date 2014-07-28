@@ -1,7 +1,9 @@
 #include "MonsterLayer.h"
 #include "ConstValues.h"
 #include "Resources.h"
-
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)  
+#include "../proj.win32/WIN32Util.h"
+#endif 
 
 MonsterLayer::MonsterLayer(void)
 {
@@ -21,10 +23,11 @@ bool MonsterLayer::init() {
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
 	for (int i = 0;i<iPlayerCount;++i) {
 		string name = m_data->at(i)->getName();
-		const char *pName = name.c_str();
-        CCLOG("%s",pName);
-		CCAssert(pName,"Get Monster name failed!");
-		
+		char pName[MAX_FILE_PATH_LENGTH];
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+		GBKToUTF(name);
+#endif
+		sprintf(pName,MONSTER_DIR_PATH,name.c_str());
 		CCSprite *pSprite = CCSprite::create(pName);
 		CCAssert(pSprite,"Get Monster sprite failed!");
 		float fPlayerWidth = pSprite->getContentSize().width;

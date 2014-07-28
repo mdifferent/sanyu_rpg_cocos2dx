@@ -27,17 +27,15 @@ bool PlayerLayer::init()
 	for (int i = 0;i<iPlayerCount;++i)
 	{
 		string name = m_data->at(i)->getName();
-		char pName[20];
+		char pName[MAX_FILE_PATH_LENGTH];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 		GBKToUTF(name);
 #endif
-		sprintf(pName,PLAYER_DIR_PATH,name);
+		sprintf(pName,PLAYER_DIR_PATH,name.c_str());
         CCLOG("%s",pName);
-		if (pName)
-		{
+		if (pName) {
 			CCSprite *pSprite = CCSprite::create(pName);
-			if (pSprite != NULL)
-			{
+			if (pSprite != NULL) {
 				//Player header
 				float fPlayerWidth = pSprite->getContentSize().width;
 				float fPlayerHeight = pSprite->getContentSize().height;
@@ -132,28 +130,22 @@ bool PlayerLayer::init()
 PlayerLayer *PlayerLayer::create(map<int,PlayerData*> *dataSet)
 {
 	PlayerLayer *pLayer = new PlayerLayer();
-	if (!pLayer)
-	{
+	if (!pLayer) {
 		CC_SAFE_DELETE(pLayer);
 		return NULL;
 	}
-	else
-	{
-		if (dataSet)
-		{
+	else {
+		if (dataSet) {
 			pLayer->m_data = dataSet;
-			if (pLayer->init())
-			{
+			if (pLayer->init()) {
 				pLayer->autorelease();
 			}
-			else
-			{
+			else {
 				CC_SAFE_DELETE(pLayer);
 				return NULL;
 			}
 		}
-		else
-		{
+		else {
 			CCLOG("Player data is empty!");
 			CC_SAFE_DELETE(pLayer);
 			return NULL;

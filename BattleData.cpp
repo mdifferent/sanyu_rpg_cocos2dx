@@ -4,10 +4,10 @@
 
 BattleData::BattleData(void)
 {
-	string name1(PLAYER1_NAME);
-	string name2(PLAYER2_NAME);
-	string name3(PLAYER3_NAME);
-	string name4(PLAYER4_NAME);
+	string name1 = "XT";
+	string name2 = "î¾×Ó";
+	string name3 = "¶¹°ü";
+	string name4 = "ÉñÀÖ";
 	m_barName = "sanyu/info_bar.png";
 	PlayerData *pd1 = new PlayerData(name1);
 	pd1->setProperty(MAX_HP,500);
@@ -46,17 +46,17 @@ BattleData::BattleData(void)
 	m_players->insert( std::pair<int,PlayerData*>(1,pd2));
 	m_players->insert( std::pair<int,PlayerData*>(2,pd3));
 	m_players->insert( std::pair<int,PlayerData*>(3,pd4));
-	MonsterData *pdm1 = new MonsterData(MONSTER1_PATH);
+	MonsterData *pdm1 = new MonsterData("É­ÁÖÁ­Êó");
 	pdm1->setProperty(MAX_HP,200);
 	pdm1->setProperty(CURRENT_HP,200);
 	pdm1->setProperty(MELEE_ATTACK,50);
 	pdm1->setProperty(MELEE_DEFENSE,5);
-	MonsterData *pdm2 = new MonsterData(MONSTER2_PATH);
+	MonsterData *pdm2 = new MonsterData("É­ÁÖÁ­ÊóÀÏ´ó");
 	pdm2->setProperty(MAX_HP,300);
 	pdm2->setProperty(CURRENT_HP,300);
 	pdm2->setProperty(MELEE_ATTACK,70);
 	pdm2->setProperty(MELEE_DEFENSE,10);
-	MonsterData *pdm3 = new MonsterData(MONSTER1_PATH);
+	MonsterData *pdm3 = new MonsterData("É­ÁÖÁ­Êó");
 	pdm3->setProperty(MAX_HP,200);
 	pdm3->setProperty(CURRENT_HP,200);
 	pdm3->setProperty(MELEE_ATTACK,50);

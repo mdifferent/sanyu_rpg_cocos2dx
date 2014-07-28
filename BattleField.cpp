@@ -99,6 +99,12 @@ bool BattleField::init()
 	return true;
 }
 
+void BattleField::onEnterTransitionDidFinish()
+{
+	CCScene::onEnterTransitionDidFinish();
+	m_info_back->showText(MONSTER_APPEAR,2.0f);
+}
+
 void BattleField::runPlayerRound() {
 	bool isMagicMatrixAva = false;
 	for (int i=0;i<m_data->getMonsters()->size();i++) {
