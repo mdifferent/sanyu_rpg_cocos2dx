@@ -1,5 +1,5 @@
 #include "MainMenu.h"
-#include "ConstValues.h"
+#include "Resources.h"
 
 MainMenu::MainMenu(void)
 {

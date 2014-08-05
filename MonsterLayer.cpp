@@ -73,10 +73,12 @@ bool MonsterLayer::init() {
 	m_longHPBar->setPercentage(100);
 	m_longHPBar->setBarChangeRate(ccp(1,0));
 	m_longHPBar->setOpacity(0);
+	m_longHPBar->setPosition(ccp(fScreenWidth*0.5,fScreenHeight*0.3));
 	addChild(m_longHPBar,2);
 
 	m_timeBarEmpty = CCSprite::create(TIME_BAR_EMPTY);
 	m_timeBarEmpty->setOpacity(0);
+	m_timeBarEmpty->setPosition(ccp(fScreenWidth*0.5,fScreenHeight*0.7));
 	addChild(m_timeBarEmpty,2);
 
 	m_timeBarFull = CCProgressTimer::create(CCSprite::create(TIME_BAR_FULL));
@@ -85,6 +87,7 @@ bool MonsterLayer::init() {
 	m_timeBarFull->setPercentage(100);
 	m_timeBarFull->setBarChangeRate(ccp(1,0));
 	m_timeBarFull->setOpacity(0);
+	m_timeBarFull->setPosition(ccp(fScreenWidth*0.5,fScreenHeight*0.7));
 	addChild(m_timeBarFull,2);
 
 	CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
@@ -189,11 +192,11 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					bubbleSprite->stopAllActions();
 					CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
 					CCAnimation *breakAnimation = CCAnimation::create();
-					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_5"));
-					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_6"));
-					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_7"));
-					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_8"));
-					breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_9"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m6"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m7"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m8"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m9"));
+					breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m10"));
 					breakAnimation->setDelayPerUnit(0.1f);
 					breakAnimation->setLoops(1);
 					breakAnimation->setRestoreOriginalFrame(false);
@@ -335,18 +338,20 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	CCNode *monsterNode = this->getChildByTag(monsterNo);
 	float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 	float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
+	int iMonsterCount = m_data->size();
+	if (iMonsterCount > 1)
+		for (int i = 0;i<iMonsterCount;++i)
+			if (m_data->at(i)->getStatus() != DEAD && i !=monsterNo)
+				this->getChildByTag(i)->runAction(CCFadeOut::create(0.1f));
 	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),
 										CCScaleTo::create(0.5f,SPECIAL_TARGET_SCALE),NULL));
-	CCSize monsterSize = monsterNode->getContentSize();
-	CCPoint middlePoint = monsterNode->getPosition();
-	m_timeBarEmpty->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
-	m_timeBarFull->setPosition(ccp(middlePoint.x,middlePoint.y+monsterSize.height*0.5));
 	m_timeBarEmpty->runAction(CCFadeIn::create(0.1f));
 	m_timeBarFull->runAction(CCFadeIn::create(0.1f));
-	m_longHPBar->setPosition(ccp(middlePoint.x,middlePoint.y-monsterSize.height*0.5));
 	m_longHPBar->runAction(CCFadeIn::create(0.1f));
 	m_timeBarFull->runAction(CCSequence::create(CCDelayTime::create(1.0f),
 												CCProgressFromTo::create(SPECIAL_ATTACK_DURATION,100.0,0.0),NULL));
+	CCSize monsterSize = monsterNode->getContentSize();
+	CCPoint middlePoint = ccp(fScreenWidth/2,fScreenHeight/2);
 	//Create bubbles
 	m_bubbles = CCArray::create();
 	m_bubbles->retain();
@@ -354,10 +359,8 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	float bottomBorder = middlePoint.y - SPECIAL_TARGET_SCALE * monsterSize.height*0.5;
 	float leftBorder = middlePoint.x - SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
 	float rightBorder = middlePoint.x + SPECIAL_TARGET_SCALE * monsterSize.width*0.5;
-
-
 	while (m_bubbles->count() < m_bubbles->capacity()) {
-		CCSprite *bubble = CCSprite::createWithSpriteFrameName("animesanpuru65_0");
+		CCSprite *bubble = CCSprite::createWithSpriteFrameName("paopao_m1");
 		CCLOG("Bubble pos1 retain count:%u",bubble->retainCount());
 		float xpos = leftBorder + CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.width;
 		bubble->setPosition(ccp(xpos,bottomBorder));
@@ -367,11 +370,11 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 		float delayTime = CCRANDOM_0_1() * SPECIAL_TARGET_SCALE * monsterSize.height/BUBBLE_SPEED;
 		CCSpriteFrameCache *cache = CCSpriteFrameCache::sharedSpriteFrameCache();
 		CCAnimation *breakAnimation = CCAnimation::create();
-		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_0"));
-		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_1"));
-		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_2"));
-		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_3"));
-		breakAnimation->addSpriteFrame(cache->spriteFrameByName("animesanpuru65_4"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m1"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m2"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m3"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m4"));
+		breakAnimation->addSpriteFrame(cache->spriteFrameByName("paopao_m5"));
 		breakAnimation->setLoops(-1);
 		breakAnimation->setRestoreOriginalFrame(true);
 		breakAnimation->setDelayPerUnit(0.1f);
@@ -421,15 +424,20 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 			float fScreenWidth =  CCDirector::sharedDirector()->getVisibleSize().width;
 			float fScreenHeight =  CCDirector::sharedDirector()->getVisibleSize().height;
 			float fPlayerWidth = this->getChildByTag(m_target)->getContentSize().width;
-			this->getChildByTag(m_target)->runAction(CCSpawn::create(
-				CCMoveTo::create(0.2f,ccp(fScreenWidth*0.5+(m_target-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5)),
-				CCScaleTo::create(0.2f,1.0f),NULL));
 			int recoverValue = m_data->at(m_target)->getProperty(MAX_HP) * BUBBLE_FAILED_PERCENT;
 			int currentHP = m_data->at(m_target)->getProperty(CURRENT_HP);
 			this->onAttacked(m_target,-recoverValue);
 			m_data->at(m_target)->setProperty(CURRENT_HP,currentHP+recoverValue);
+			this->getChildByTag(m_target)->runAction(CCSpawn::create(
+				CCMoveTo::create(0.2f,ccp(fScreenWidth*0.5+(m_target-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5)),
+				CCScaleTo::create(0.2f,1.0f),NULL));
 			m_isBubbleFailed = true;
 		}
+		int iMonsterCount = m_data->size();
+		if (iMonsterCount > 1)
+			for (int i = 0;i<iMonsterCount;++i)
+				if (m_data->at(i)->getStatus() != DEAD && i!=m_target)
+					this->getChildByTag(i)->runAction(CCFadeIn::create(0.1f));
 		return;
 	}
 	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100.0);

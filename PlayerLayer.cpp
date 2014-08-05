@@ -100,16 +100,12 @@ bool PlayerLayer::init()
 	}
 	
 	//Add menu
-	CCMenuItemLabel *pAttackItem = CCMenuItemLabel::create(CCLabelTTF::create("ATTACK",NAME_FONT,MENU_FONT_SIZE),
-                                                           this,menu_selector(PlayerLayer::playerAttackCallback));
-	CCMenuItemLabel *pSkillItem = CCMenuItemLabel::create(CCLabelTTF::create("SKILL",NAME_FONT,MENU_FONT_SIZE),
-                                                          this,menu_selector(PlayerLayer::playerSkillCallback));
-	CCMenuItemLabel *pGuardItem = CCMenuItemLabel::create(CCLabelTTF::create("GUARD",NAME_FONT,MENU_FONT_SIZE),
-                                                          this,menu_selector(PlayerLayer::playerGuardCallback));
-	CCMenuItemLabel *pEscapeItem = CCMenuItemLabel::create(CCLabelTTF::create("ESCAPE",NAME_FONT,MENU_FONT_SIZE),
-                                                           this,menu_selector(PlayerLayer::playerEscapeCallback));
-	CCMenuItemLabel *pItemItem = CCMenuItemLabel::create(CCLabelTTF::create("ITEM",NAME_FONT,MENU_FONT_SIZE),
-                                                           this,menu_selector(PlayerLayer::playerItemCallback));
+	CCMenuItemLabel *pAttackItem = CCMenuItemLabel::create(CCSprite::create(MENU_ATTACK_PATH),this,menu_selector(PlayerLayer::playerAttackCallback));
+	CCMenuItemLabel *pSkillItem = CCMenuItemLabel::create(CCSprite::create(MENU_SKILL_PATH),this,menu_selector(PlayerLayer::playerSkillCallback));
+	CCMenuItemLabel *pGuardItem = CCMenuItemLabel::create(CCSprite::create(MENU_GUARD_PATH),this,menu_selector(PlayerLayer::playerGuardCallback));
+	CCMenuItemLabel *pEscapeItem = CCMenuItemLabel::create(CCSprite::create(MENU_ESCAPE_PATH),this,menu_selector(PlayerLayer::playerEscapeCallback));
+	CCMenuItemLabel *pItemItem = CCMenuItemLabel::create(CCSprite::create(MENU_ITEM_PATH),this,menu_selector(PlayerLayer::playerItemCallback));
+
 	CCMenu *pMenu = CCMenu::create(pAttackItem,pSkillItem,pItemItem,pGuardItem,pEscapeItem,NULL);
 	pMenu->alignItemsVertically();
 	pMenu->setEnabled(false);
