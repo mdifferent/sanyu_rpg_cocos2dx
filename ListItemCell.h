@@ -16,9 +16,14 @@ public:
 	bool init(void);
 	static ListItemCell *create(const string name, const string target, const int amount);
 	void updateLabels(const string name, const string target, const int amount);
+	
+	void onSelected() {m_bg->setOpacity(200);}
+	void onDeselected(){m_bg->setOpacity(0);}
+	bool isSelected() {return m_bg->getOpacity() > 0 ? true : false;}
 private:
 	CCLabelTTF *m_pItemName;
 	CCLabelTTF *m_pTarget;
 	CCLabelTTF *m_pAmount;
+	CCNodeRGBA *m_bg;
 };
 #endif

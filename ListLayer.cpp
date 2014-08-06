@@ -33,8 +33,7 @@ ListLayer *ListLayer::createWithDataSource(CCTableViewDataSource *source) {
 		if (pListLayer->init()) {
 			pListLayer->autorelease();	//Should be done out side factory method, init() need to call object pointer which haven't been return to caller
 		}
-		else
-		{
+		else {
 			CC_SAFE_DELETE(pListLayer);
 			return NULL;
 		}

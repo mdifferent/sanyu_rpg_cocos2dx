@@ -39,6 +39,7 @@ public:
 	void scrollViewDidZoom(CCScrollView *){}
 	
 	void setListContent(LIST_TYPE);
+	void switchList(bool);
 	void setSelectedItemId(int index) {m_selectedListItemId = index;}
 	int getSelectedItemId() {return m_selectedListItemId;}
 	

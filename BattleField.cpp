@@ -118,6 +118,121 @@ void BattleField::runPlayerRound() {
 	}
 	if (!isMagicMatrixAva)
 		m_monsterLayer->onMagicMatrixUnavailable();
+	MonsterLayer::MONSTER_LAYER_STATUS monsterStatus = m_monsterLayer->getStatus();
+	PlayerLayer::PLAYER_LAYER_STATUS playerStatus = m_playerLayer->getStatus();
+	
+	//Init status
+	if (playerStatus == PlayerLayer::WAIT_TARGET && monsterStatus == MonsterLayer::SLEEP) {
+		m_monsterLayer->resetTarget();
+		m_playerLayer->resetSelectedMenu();
+		m_playerLayer->resetSelectedPlayer();
+		CCLOG("Monster:sleep, Player: wait");
+		return;
+	}
+	//Open menu
+	if (playerStatus == PlayerLayer::MENU_OPEN && monsterStatus == MonsterLayer::SLEEP) {
+		m_playerLayer->resetSelectedMenu();
+		switchList(false);
+		return;
+	}
+	//Select command
+	if (playerStatus == PlayerLayer::MENU_SELECTED && monsterStatus == MonsterLayer::SLEEP) {
+		PlayerLayer::MenuStatus playerCmd = m_playerLayer->getSelectedMenu();
+		if (playerCmd == PlayerLayer::ATTACK) {
+			m_monsterLayer->resetTarget();
+			m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+		}
+		else if (playerCmd == PlayerLayer::ITEM || playerCmd == PlayerLayer::SKILL) {
+			if (playerCmd == PlayerLayer::ITEM)
+				m_selectlist->setContentType(ITEM_LIST);
+			else
+				m_selectlist->setContentType(SKILL_LIST);
+			switchList(true); //Open select list
+		}
+		else if (playerCmd == PlayerLayer::GUARD || playerCmd == PlayerLayer::ESCAPE) {
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+			if (playerCmd == PlayerLayer::GUARD)
+				m_data->getPlayer(m_playerLayer->getSelectedPlayer())->setStatus(DEFENSE);
+			m_isPlayerFinished[m_playerLayer->getSelectedPlayer()] = true;
+		}
+		return;
+	}
+	//Attack
+	if (playerStatus == PlayerLayer::MENU_SELECTED && m_playerLayer->getSelectedMenu() == PlayerLayer::ATTACK) {
+		if (monsterStatus == MonsterLayer::WAIT_TARGET) {
+			if (m_playerLayer->getStatus() == PlayerLayer::MENU_OPEN) {
+				m_playerLayer->resetSelectedMenu();
+				m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+			}
+		}	
+		else if (monsterStatus == MonsterLayer::TARGET_SELECTED) {
+			int iAttackTarget = m_monsterLayer->getTarget();
+			int iAttackSource = m_playerLayer->getSelectedPlayer();
+			int iAttackValue = m_data->getPlayer(iAttackSource)->getProperty(MELEE_ATTACK);
+			int iDefenseValue = m_data->getMonster(iAttackTarget)->getProperty(MELEE_DEFENSE);
+			int iDamage = iAttackValue - iDefenseValue;
+			int iMonsterCurrentHP = m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP);
+			//TODO:BUFF and DEBUFF may be considered in the futrue
+			if (iMonsterCurrentHP <= iDamage) {
+				m_data->getMonster(iAttackTarget)->setStatus(DEAD);
+				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP,0);
+				m_monsterLayer->killMosnter(iAttackTarget);
+			}  
+			else {
+				m_data->getMonster(iAttackTarget)->setProperty(CURRENT_HP, iMonsterCurrentHP-iDamage);
+				m_monsterLayer->onAttacked(iAttackTarget, iDamage);
+			}
+			CCLOG("Remain HP:%d",m_data->getMonster(iAttackTarget)->getProperty(CURRENT_HP));
+			m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
+			m_isPlayerFinished[iAttackSource] = true;
+			m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+			m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		}
+		return;
+	}
+
+	//Item & Skill 
+	//For enemy
+	if (playerStatus == PlayerLayer::MENU_SELECTED && monsterStatus == MonsterLayer::TARGET_SELECTED) {
+		int iAttackSource = m_playerLayer->getSelectedPlayer();
+		if (m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM) {
+			effectOnMonsters(InstanceDatabase::getDatabaseInstance()->getItemById(getSelectedItemId()));
+		}
+		else if (m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL) {
+			int iSkillId = getSelectedItemId();
+			SkillData *pData = InstanceDatabase::getDatabaseInstance()->getSkillById(iSkillId);
+			int iCost = pData->getCost();
+			int iCurrentSP = m_data->getPlayer(iAttackSource)->getProperty(CURRENT_SP);
+			if (iCost <= iCurrentSP) {
+				effectOnMonsters(pData);
+				m_data->getPlayer(iAttackSource)->setProperty(CURRENT_SP,iCurrentSP-iCost);
+				m_playerLayer->onPlayerPropModified(CURRENT_SP,iAttackSource,0-iCost);
+			}
+			else
+				CCLOG("No enough SP");
+		}
+		m_data->getPlayer(iAttackSource)->setStatus(FINISHED);
+		m_isPlayerFinished[iAttackSource] = true;
+		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		return;
+	}
+	//For friend
+	if (playerStatus == PlayerLayer::TARGET_SELECTED && monsterStatus == MonsterLayer::SLEEP) {
+		if (m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM) {
+			
+		}
+		else if (m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL) {
+
+		}
+//		m_data->getPlayer(iAttackSource)->setStatus(FINISHED);				//Target conflict with source
+//		m_isPlayerFinished[iAttackSource] = true;
+		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		return;
+	}
+
+	/*
 	switch(m_monsterLayer->getStatus()) {
 	case MonsterLayer::SLEEP:
 		CCLOG("MONSTER:SLEEP");
@@ -277,6 +392,7 @@ void BattleField::runPlayerRound() {
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 		break;
 	}
+	*/
 }
 
 void BattleField::effectOnMonsters(AbstractListItemData *pEffectSource) 
@@ -494,8 +610,8 @@ unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 
 void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	CCLog("cell touched at index: %i", cell->getIdx());
-	//CCSprite *pCellbg = CCSprite::create("sanyu/cellback.png");
-	//cell->addChild(pCellbg,3,111);
+	ListItemCell *newcell = (ListItemCell*)cell;
+	newcell->onSelected();
 	int idx = cell->getIdx();
 	m_selectlist->setVisible(false);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
@@ -512,15 +628,15 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 		int iId = itemIt->first;
 		ItemData *pItem = InstanceDatabase::getDatabaseInstance()->getItemById(itemIt->first);
 		if (pItem->getTargetType() == ItemData::ENEMY) {
-			if (!pItem->getMultiTarget())
-				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
+			if (pItem->getMultiTarget())
+				m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);
 			else 
-				m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);		
+				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);		
 		}
-		else if (pItem->getTargetType() == ItemData::FRIEND){
+		else if (pItem->getTargetType() == ItemData::FRIEND) {
 			m_monsterLayer->setStatus(MonsterLayer::SLEEP);		
-			if (!pItem->getMultiTarget())
-				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
+			if (pItem->getMultiTarget())
+				m_playerLayer->setStatus(PlayerLayer::TARGET_SELECTED);
 			else 
 				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
 		}
@@ -539,15 +655,15 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 		int iId = skillIt->first;
 		SkillData *pItem = InstanceDatabase::getDatabaseInstance()->getSkillById(skillIt->first);
 		if (pItem->getTargetType() == SkillData::ENEMY) {
-			if (!pItem->getMultiTarget())
-				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
-			else 
+			if (pItem->getMultiTarget())
 				m_monsterLayer->setStatus(MonsterLayer::TARGET_SELECTED);
+			else 
+				m_monsterLayer->setStatus(MonsterLayer::WAIT_TARGET);
 		}
 		else if (pItem->getTargetType() == ItemData::FRIEND) {
 			m_monsterLayer->setStatus(MonsterLayer::SLEEP);	
-			if (!pItem->getMultiTarget())
-				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);
+			if (pItem->getMultiTarget())
+				m_playerLayer->setStatus(PlayerLayer::TARGET_SELECTED);
 			else 
 				m_playerLayer->setStatus(PlayerLayer::WAIT_TARGET);	
 		}
@@ -556,10 +672,7 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	}
 	};
 	
-	if(m_selectlist->isTouchEnabled()) {
-		m_selectlist->setTouchEnabled(false);
-		m_selectlist->setVisible(false);
-	}
+	switchList(false);
 }
 
 CCSize BattleField::cellSizeForTable(CCTableView *table) {
@@ -568,4 +681,9 @@ CCSize BattleField::cellSizeForTable(CCTableView *table) {
 
 void BattleField::setListContent(LIST_TYPE type) {
 		m_selectlist->setContentType(type);
+}
+
+void BattleField::switchList(bool isOpen) {
+	m_selectlist->setTouchEnabled(isOpen);
+	m_selectlist->setVisible(isOpen);
 }

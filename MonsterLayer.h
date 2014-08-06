@@ -33,6 +33,7 @@ public:
 	void setStatus(MONSTER_LAYER_STATUS status){m_status = status;};
 	MONSTER_LAYER_STATUS getStatus(){return m_status;};
 	int getTarget() {return m_target;}
+	void resetTarget() {m_target = -1;}
 	void killMosnter(int);
 	void onAttacked(int iNum, int iDamage);
 	void onMagicMatrixAvailable();

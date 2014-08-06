@@ -16,7 +16,8 @@ public:
 		MENU_OPEN,
 		MENU_SELECTED,
 		WAIT_TARGET,
-		TARGET_SELECTED
+		TARGET_SELECTED,
+		FINISHED
 	};
 
 	enum MenuStatus {
@@ -36,8 +37,9 @@ public:
     PLAYER_LAYER_STATUS getStatus() {return m_status;}
     void setStatus(PLAYER_LAYER_STATUS status) {m_status = status;}
 	int getSelectedPlayer() {CCLOG("Selected Player:%d",m_selectedPlayer);return m_selectedPlayer;}
+	void resetSelectedPlayer() {m_selectedPlayer = -1;}
 	MenuStatus getSelectedMenu() const {return m_selectedMenu;}
-	//void resetSelectedPlayer() {m_selectedPlayer=-1;}
+	void resetSelectedMenu() {m_selectedMenu = NONE;}
 
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
 	/*virtual void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);

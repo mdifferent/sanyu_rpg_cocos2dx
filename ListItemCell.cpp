@@ -20,11 +20,15 @@ bool ListItemCell::init()
 
 	CCSize cellSize = this->getContentSize();
 	m_pItemName->setPosition(ccp(50,0));
-	addChild(m_pItemName);
+	addChild(m_pItemName,1);
 	m_pTarget->setPosition(ccp(200,0));
-	addChild(m_pTarget);
+	addChild(m_pTarget,1);
 	m_pAmount->setPosition(ccp(400,0));
-	addChild(m_pAmount);
+	addChild(m_pAmount,1);
+	m_bg = CCNodeRGBA::create();
+	m_bg->setOpacity(0);
+	m_bg->setColor(ccRED);
+	addChild(m_bg,0);
 	return true;
 }
 
@@ -49,6 +53,8 @@ ListItemCell *ListItemCell::create(const string name, const string target, const
 
 void ListItemCell::updateLabels(const string name, const string target, const int amount)
 {
+	if (isSelected())
+		onDeselected();
 	if (name.length() == 0 || amount == 0) {
 		m_pItemName->setString("");
 		m_pTarget->setString("");
