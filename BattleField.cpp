@@ -126,6 +126,7 @@ void BattleField::runPlayerRound() {
 		m_monsterLayer->resetTarget();
 		m_playerLayer->resetSelectedMenu();
 		m_playerLayer->resetSelectedPlayer();
+		m_playerLayer->resetTarget();
 		CCLOG("Monster:sleep, Player: wait");
 		return;
 	}
@@ -219,18 +220,50 @@ void BattleField::runPlayerRound() {
 	}
 	//For friend
 	if (playerStatus == PlayerLayer::TARGET_SELECTED && monsterStatus == MonsterLayer::SLEEP) {
-		if (m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM) {
-			
+		int iOperationSource = m_playerLayer->getSelectedPlayer();
+		int iTargetPlayer = m_playerLayer->getTarget();
+		int iCurrentHP = m_data->getPlayer(iTargetPlayer)->getProperty(CURRENT_HP);
+		int iMaxHP =  m_data->getPlayer(iTargetPlayer)->getProperty(MAX_HP);
+		int iCurrentSP = m_data->getPlayer(iTargetPlayer)->getProperty(CURRENT_SP);
+		int iMaxSP =  m_data->getPlayer(iTargetPlayer)->getProperty(MAX_SP);
+		int iItemId = getSelectedItemId();
+		AbstractListItemData *itemData = NULL;
+		if (m_playerLayer->getSelectedMenu() == PlayerLayer::ITEM)
+			itemData = InstanceDatabase::getDatabaseInstance()->getItemById(iItemId);
+		else if (m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL)
+			itemData = InstanceDatabase::getDatabaseInstance()->getSkillById(iItemId);
+		if (itemData == NULL) {
+			CCLOG("Get item/skill data error!");
+			return;
 		}
-		else if (m_playerLayer->getSelectedMenu() == PlayerLayer::SKILL) {
-
+		map<AbstractListItemData::EffectAttribute,int> effect = itemData->getItemEffects();
+		map<AbstractListItemData::EffectAttribute,int>::iterator effIter = effect.begin();
+		while (effIter != effect.end()) {
+			switch(effIter->first) {
+			case AbstractListItemData::CURRENT_HP:
+				if (iCurrentHP+effIter->second > iMaxHP)
+					m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iMaxHP);
+				else
+					m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_HP,iCurrentHP+effIter->second);
+				m_playerLayer->onPlayerPropModified(CURRENT_HP,iTargetPlayer,effIter->second);
+				break;
+			case AbstractListItemData::CURRENT_SP:
+				if (iCurrentSP+effIter->second > iMaxSP)
+					m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_SP,iMaxSP);
+				else
+					m_data->getPlayer(iTargetPlayer)->setProperty(CURRENT_SP,iCurrentSP+effIter->second);
+				m_playerLayer->onPlayerPropModified(CURRENT_SP,iTargetPlayer,effIter->second);
+				break;
+			};
+			effIter++;
 		}
-//		m_data->getPlayer(iAttackSource)->setStatus(FINISHED);				//Target conflict with source
-//		m_isPlayerFinished[iAttackSource] = true;
+		m_data->getPlayer(iOperationSource)->setStatus(FINISHED);				//Target conflict with source
+		m_isPlayerFinished[iOperationSource] = true;
 		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		return;
 	}
+	return;
 
 	/*
 	switch(m_monsterLayer->getStatus()) {
@@ -540,6 +573,8 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 {
 	CCLOG("No of cell=%d",idx);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	if (iPlayerNum < 0)
+		return NULL;
 	CCTableViewCell *cell = table->dequeueCell();
 	string cellItemName;
 	string cellItemTarget;
@@ -597,6 +632,8 @@ CCTableViewCell *BattleField::tableCellAtIndex(CCTableView *table, unsigned int 
 unsigned int BattleField::numberOfCellsInTableView(CCTableView *table)
 {
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	if (iPlayerNum < 0)
+		return 0;
 	int iCellCount = 0;
 	switch(m_playerLayer->getStatus()) {
 	case PlayerLayer::ITEM:
@@ -615,6 +652,8 @@ void BattleField::tableCellTouched(CCTableView* table, CCTableViewCell* cell) {
 	int idx = cell->getIdx();
 	m_selectlist->setVisible(false);
 	int iPlayerNum = m_playerLayer->getSelectedPlayer();
+	if (iPlayerNum < 0)
+		return;
 	switch (m_selectlist->getContentType()) {
 	case ITEM_LIST:	{
 		const map<int,int> *p = m_data->getPlayer(iPlayerNum)->getItemList();

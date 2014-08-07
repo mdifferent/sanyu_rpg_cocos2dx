@@ -44,7 +44,7 @@ public:
 
 private:
 	CCArray *m_monsters;
-    map<int, MonsterData*> *m_data;
+    map<int, MonsterData*> *m_data;			//Monster data model
 	CCLabelBMFont *m_pFont;
 	MONSTER_LAYER_STATUS m_status;
 	int m_target;
@@ -59,5 +59,6 @@ private:
 	CCArray *m_bubbles;
 	int m_BubbleHit;
 	bool m_isBubbleFailed;
+	map<int,CCPoint> m_originalPos;
 };
 

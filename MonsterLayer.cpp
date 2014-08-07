@@ -32,10 +32,13 @@ bool MonsterLayer::init() {
 		CCAssert(pSprite,"Get Monster sprite failed!");
 		float fPlayerWidth = pSprite->getContentSize().width;
 		float fPlayerHeight = pSprite->getContentSize().height;
-		pSprite->setPosition(ccp(fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.6));
+		float xpos = fScreenWidth*0.5+(i-iPlayerCount*0.5+0.5)*fPlayerWidth;
+		float ypos = fScreenHeight*0.6;
+		pSprite->setPosition(ccp(xpos,ypos));
 		pSprite->setOpacity(0);
 		addChild(pSprite,0,i);
 		m_monsters->addObject(pSprite);
+		m_originalPos.insert(make_pair(i,ccp(xpos,ypos)));
 		
 		//HP Bar				
 		CCProgressTimer *hpBarTimer = CCProgressTimer::create(CCSprite::create(MONSTER_HP_BAR_PATH));
@@ -170,6 +173,7 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					CCMoveBy *pMoveAction = CCMoveBy::create(0.05f,ccp(10,10));
 					this->getChildByTag(i)->runAction(CCRepeat::create(
 						CCSequence::createWithTwoActions(pMoveAction,pMoveAction->reverse()),4));
+					this->getChildByTag(i)->setPosition(m_originalPos.at(i).x,m_originalPos.at(i).y);
 					this->setStatus(TARGET_SELECTED);
 					CCLOG("Target is %d",i);
 					m_target = i;
@@ -429,7 +433,7 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 			this->onAttacked(m_target,-recoverValue);
 			m_data->at(m_target)->setProperty(CURRENT_HP,currentHP+recoverValue);
 			this->getChildByTag(m_target)->runAction(CCSpawn::create(
-				CCMoveTo::create(0.2f,ccp(fScreenWidth*0.5+(m_target-iPlayerCount*0.5+0.5)*fPlayerWidth,fScreenHeight*0.5)),
+				CCMoveTo::create(0.2f,m_originalPos.at(m_target)),
 				CCScaleTo::create(0.2f,1.0f),NULL));
 			m_isBubbleFailed = true;
 		}

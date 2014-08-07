@@ -40,12 +40,11 @@ public:
 	void resetSelectedPlayer() {m_selectedPlayer = -1;}
 	MenuStatus getSelectedMenu() const {return m_selectedMenu;}
 	void resetSelectedMenu() {m_selectedMenu = NONE;}
+	int getTarget() {return m_target;}
+	void resetTarget() {m_target = -1;}
 
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
-	/*virtual void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
-    virtual void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent);  
-    virtual void ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent);*/
-    
+	    
     void playerAttackCallback(CCObject* pSender);
     void playerSkillCallback(CCObject* pSender);
     void playerGuardCallback(CCObject* pSender);
@@ -65,5 +64,6 @@ private:
 	MenuStatus m_selectedMenu;
 	int m_selectedPlayer;
 	CCLabelBMFont *m_pFont;
+	int m_target;
 };
 

@@ -214,14 +214,15 @@ bool PlayerLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 			CCPoint middlePoint = this->getChildByTag(i)->getPosition();
 			float fLeftCornerX = middlePoint.x - size.width/2;
 			if (touchPos.x > fLeftCornerX && touchPos.x < fLeftCornerX + size.width) {
-				m_selectedPlayer = i;
 				switch (m_status) {
 				case WAIT_TARGET:
+					m_target = i;
 					m_status = TARGET_SELECTED;
 					return false;
 				case MENU_SELECTED:
 				case WAIT_COMMAND:
 				case MENU_OPEN:
+					m_selectedPlayer = i;
 					openMenu(i);
 					return false;
 				};
