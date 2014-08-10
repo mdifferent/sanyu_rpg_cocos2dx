@@ -263,6 +263,32 @@ void BattleField::runPlayerRound() {
 		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
 		return;
 	}
+	if (monsterStatus == MonsterLayer::SPECIAL_ATTACK) {
+		CCLOG("Special Attack");
+		m_playerLayer->beforeSpecialAttack();
+		return;
+	}
+	if (monsterStatus == MonsterLayer::SPECIAL_ATTACK_FINISHED) {
+		CCLOG("Special Attack Finished");
+		if (m_monsterLayer->isBubbleFailed()) {
+			int currentHP = m_data->getPlayer(0)->getProperty(CURRENT_HP);
+			int maxHP = m_data->getPlayer(0)->getProperty(MAX_HP);
+			float damage = maxHP * 0.05;
+			if (damage > currentHP) {
+				m_data->getPlayer(0)->setStatus(DEAD);
+				m_data->getPlayer(0)->setProperty(CURRENT_HP,0);
+				m_playerLayer->onPlayerKilled(0);
+			}
+			else {
+				m_data->getPlayer(0)->setProperty(CURRENT_HP,currentHP-damage);
+				m_playerLayer->onPlayerPropModified(CURRENT_HP,0,-damage);
+			}
+		}
+		m_playerLayer->afterSpecialAttack();
+		m_playerLayer->setStatus(PlayerLayer::WAIT_COMMAND);
+		m_monsterLayer->setStatus(MonsterLayer::SLEEP);
+		return;
+	}
 	return;
 
 	/*

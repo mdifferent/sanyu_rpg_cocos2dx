@@ -405,20 +405,20 @@ void PlayerLayer::afterSpecialAttack(int playerNo)
 	float playerPosX = this->getChildByTag(playerNo)->getPositionX();
 	float horiDistance = fScreenWidth*0.5+(playerNo-iPlayerCount*0.5+0.5)*PLAYER_SPRITE_WIDTH - playerPosX;
 	CCLOG("horiDistance=%f",horiDistance);
-	this->getChildByTag(playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
-	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCMoveBy::create(1.0f,ccp(horiDistance,0)));
+	this->getChildByTag(playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
+	this->getChildByTag(iPlayerCount+playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
+	this->getChildByTag(iPlayerCount*2+playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
+	this->getChildByTag(iPlayerCount*3+playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
+	this->getChildByTag(iPlayerCount*4+playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
+	this->getChildByTag(iPlayerCount*5+playerNo)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveBy::create(1.0f,ccp(horiDistance,0))));
 	for (int i = 0;i<iPlayerCount;++i) {
 		if (i!= playerNo) {
-			this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*2+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*3+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
-			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*2+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*3+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*4+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
+			this->getChildByTag(iPlayerCount*5+i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
 		}
 	}
 

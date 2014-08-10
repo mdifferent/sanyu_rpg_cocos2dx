@@ -173,7 +173,7 @@ bool MonsterLayer::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 					CCMoveBy *pMoveAction = CCMoveBy::create(0.05f,ccp(10,10));
 					this->getChildByTag(i)->runAction(CCRepeat::create(
 						CCSequence::createWithTwoActions(pMoveAction,pMoveAction->reverse()),4));
-					this->getChildByTag(i)->setPosition(m_originalPos.at(i).x,m_originalPos.at(i).y);
+					this->getChildByTag(i)->runAction(CCMoveTo::create(0.05f,m_originalPos.at(i)));
 					this->setStatus(TARGET_SELECTED);
 					CCLOG("Target is %d",i);
 					m_target = i;
@@ -298,6 +298,9 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 			CCProgressFromTo::create(0.3f, fFromPercent,fToPercent),NULL));
 		//Damage number
 		m_pFont->setPosition(pMonster->getPosition());
+		//m_pFont->setPosition(m_originalPos[iNum]);
+		hpPro->setPosition(pMonster->getPositionX(),
+			pMonster->getPositionY() + pMonster->getContentSize().height*0.5 + hpPro->getContentSize().height*0.5);
 		char cDamage[10];
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 		_itoa(iDamage,cDamage,10);
@@ -309,6 +312,7 @@ void MonsterLayer::onAttacked(int iNum, int iDamage) {
 		int i = 0;
 		for (i=0;i<iNumCount;i++) {
 			m_pFont->getChildByTag(i)->runAction(CCSequence::create(
+				//CCMoveTo::create(0.1f,m_originalPos[iNum]),
 				CCDelayTime::create(0.1f*i),
 				CCFadeIn::create(0.1f),
 				CCMoveBy::create(0.1f,ccp(0,25)),NULL));
@@ -347,8 +351,7 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 		for (int i = 0;i<iMonsterCount;++i)
 			if (m_data->at(i)->getStatus() != DEAD && i !=monsterNo)
 				this->getChildByTag(i)->runAction(CCFadeOut::create(0.1f));
-	monsterNode->runAction(CCSpawn::create(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)),
-										CCScaleTo::create(0.5f,SPECIAL_TARGET_SCALE),NULL));
+	monsterNode->runAction(CCMoveTo::create(0.5f,ccp(fScreenWidth*0.5,fScreenHeight*0.5)));
 	m_timeBarEmpty->runAction(CCFadeIn::create(0.1f));
 	m_timeBarFull->runAction(CCFadeIn::create(0.1f));
 	m_longHPBar->runAction(CCFadeIn::create(0.1f));
@@ -430,18 +433,16 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 			float fPlayerWidth = this->getChildByTag(m_target)->getContentSize().width;
 			int recoverValue = m_data->at(m_target)->getProperty(MAX_HP) * BUBBLE_FAILED_PERCENT;
 			int currentHP = m_data->at(m_target)->getProperty(CURRENT_HP);
+			this->getChildByTag(m_target)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(1.0),CCMoveTo::create(0.2f,m_originalPos.at(m_target))));
 			this->onAttacked(m_target,-recoverValue);
 			m_data->at(m_target)->setProperty(CURRENT_HP,currentHP+recoverValue);
-			this->getChildByTag(m_target)->runAction(CCSpawn::create(
-				CCMoveTo::create(0.2f,m_originalPos.at(m_target)),
-				CCScaleTo::create(0.2f,1.0f),NULL));
 			m_isBubbleFailed = true;
 		}
 		int iMonsterCount = m_data->size();
 		if (iMonsterCount > 1)
 			for (int i = 0;i<iMonsterCount;++i)
 				if (m_data->at(i)->getStatus() != DEAD && i!=m_target)
-					this->getChildByTag(i)->runAction(CCFadeIn::create(0.1f));
+					this->getChildByTag(i)->runAction(CCSequence::createWithTwoActions(CCDelayTime::create(2.0),CCFadeIn::create(0.1f)));
 		return;
 	}
 	CCLOG("Time remain:%d",30*m_timeBarFull->getPercentage()/100.0);
