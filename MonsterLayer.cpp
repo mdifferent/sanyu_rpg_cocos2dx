@@ -402,7 +402,7 @@ void MonsterLayer::initSpecialAttack(int monsterNo)
 	schedule(SEL_SCHEDULE(&MonsterLayer::onSpecialAttack),0.1f);
 }
 
-void MonsterLayer::onSpecialAttack(float monsterNo)
+void MonsterLayer::onSpecialAttack(float ft)
 {
 	CCLOG("Bubble hit:%d",m_BubbleHit);
 	if (m_timeBarFull->getPercentage() < 0.1 || m_BubbleHit >= BUBBLE_SUCCESS_HIT) {
@@ -413,10 +413,10 @@ void MonsterLayer::onSpecialAttack(float monsterNo)
 		CCObject *bubble;
 		CCARRAY_FOREACH(m_bubbles,bubble) {
 			((CCSprite*)bubble)->cleanup();
-			m_bubbles->removeObject(m_bubbles,true);
 			removeChild((CCSprite*)bubble,true);
 			CCLOG("Bubble retain count:%u",bubble->retainCount());
 		}
+		m_bubbles->removeAllObjects();
 		CCLOG("Bubble set retain count:%u",m_bubbles->retainCount());
 		m_bubbles->release();
 		setStatus(SPECIAL_ATTACK_FINISHED);

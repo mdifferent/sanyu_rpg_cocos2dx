@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 enum WINNING_CONDITIONS {
 	KILL_ALL,
 	KILL_SPEC,
